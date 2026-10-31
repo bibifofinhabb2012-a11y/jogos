@@ -133,8 +133,14 @@ kbd { font-family: var(--font-body); font-size: 0.9em; border: 1px solid var(--l
 
 /* Berço */
 /* Banho: a banheira ocupa a largura, em retrato 3:4 */
-#banheira, #trocador { display: block; width: min(100%, 440px, calc((100dvh - 230px) * 0.75)); aspect-ratio: 3 / 4; margin: 0 auto; border-radius: 18px; touch-action: none; background: var(--accent-soft); }
-.banho-status { font-weight: 700; min-height: 1.6em; text-align: center; }
+/* Banho e troca ocupam a tela inteira: faixa de texto no alto, área de trabalho, botões embaixo */
+.tela-cheia { position: fixed; inset: 0; z-index: 20; background: var(--bg); display: flex; flex-direction: column; gap: 8px;
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) max(10px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 8px) max(10px, env(safe-area-inset-left, 0px)); }
+.tela-cheia h2 { font-size: 1.1rem; }
+.tela-cheia canvas { flex: 1 1 0; min-height: 0; width: 100%; display: block; border-radius: 14px; touch-action: none; background: var(--accent-soft); }
+.tela-cheia .botoes { gap: 6px; }
+.tela-cheia .btn { padding: 8px 12px; font-size: 0.95rem; }
+.banho-status { font-weight: 700; min-height: 1.4em; text-align: center; margin: 0; }
 .retrato { display: grid; justify-items: center; gap: 6px; background: var(--accent-soft); border-radius: 12px; padding: 14px 10px 10px; }
 .retrato svg { width: 100%; max-width: 260px; height: auto; }
 .situacao { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
@@ -212,7 +218,7 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
   </section>
 
   <!-- Banho com o dedo -->
-  <section id="banho" class="painel" aria-labelledby="banho-titulo" hidden>
+  <section id="banho" class="tela-cheia" aria-labelledby="banho-titulo" hidden>
     <h2 id="banho-titulo" tabindex="-1">Hora do banho</h2>
     <canvas id="banheira" tabindex="0" role="application" aria-label="Banheira com o bebê" aria-describedby="banho-intro"></canvas>
     <p id="banho-status" class="banho-status" aria-live="polite"></p>
@@ -220,15 +226,15 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
       <button type="button" class="btn sec" id="banho-falta">Ouvir o que falta lavar</button>
       <button type="button" class="btn" id="banho-fim">Enxaguar e terminar o banho</button>
     </div>
-    <p id="banho-intro" class="dica"></p>
+    <p id="banho-intro" class="sr"></p>
   </section>
 
   <!-- Troca de fralda passo a passo -->
-  <section id="troca" class="painel" aria-labelledby="troca-titulo" hidden>
+  <section id="troca" class="tela-cheia" aria-labelledby="troca-titulo" hidden>
     <h2 id="troca-titulo" tabindex="-1">Troca de fralda</h2>
     <canvas id="trocador" tabindex="0" role="application" aria-label="Trocador, com o bebê visto de perto, da barriga às coxas" aria-describedby="troca-passo"></canvas>
     <p id="troca-status" class="banho-status" aria-live="polite"></p>
-    <p id="troca-passo" class="dica"></p>
+    <p id="troca-passo" class="sr"></p>
     <div class="botoes" id="troca-botoes">
       <button type="button" class="btn sec" id="troca-repetir">Repetir a instrução</button>
       <button type="button" class="btn sec" id="troca-falta">Ouvir o que falta</button>
@@ -332,7 +338,7 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
             <h3>Banho com o dedo</h3>
             <p>No menu Fralda e banho, "Dar banho, esfregando com o dedo" coloca o bebê na banheira. Passe o dedo pelo corpo: onde está sujo, o celular vibra e soa o barulho de esfregar; quando a parte fica limpa, a vibração para e o jogo avisa. O som acompanha o seu dedo: vai para o fone do lado em que ele está, e fica mais agudo perto da cabeça e mais grave perto dos pés. Esquerda e direita são as da tela. Com o TalkBack, toque duas vezes na banheira e segure, e então arraste. No computador, use as setas. "Ouvir o que falta lavar" diz as partes ainda sujas. Para quem tem pressa, existe o Banho rápido.</p>
             <h3>Troca de fralda passo a passo</h3>
-            <p>A tela mostra o bebê de perto, da barriga às coxas, em cinco passos: abrir as fitas da fralda, nas bordas da tela; limpar com o lenço a frente, as dobrinhas das coxas e o bumbum; passar a pomada nas mesmas partes; arrastar o dedo de baixo para cima para pôr a fralda nova; e fechar as fitas, puxando para o meio. Em cada passo, vibra onde ainda falta fazer alguma coisa. Se a pele estiver assada, a pomada passada aqui é o remédio. "Repetir a instrução" e "Ouvir o que falta" ajudam a se orientar. Volume e liga-desliga ficam no menu Opções.</p>
+            <p>A tela inteira vira a região da fralda, de perto, em cinco passos. Abrir: esfregue a metade esquerda da tela, depois a direita. Limpar com o lenço e passar a pomada: esfregue a tela toda; no alto ficam a dobrinha esquerda, a frente e a dobrinha direita, e embaixo, o bumbum. Fralda nova: deslize de baixo para cima. Fechar: esfregue a metade esquerda, depois a direita. Em cada passo, vibra onde ainda falta fazer alguma coisa. Se a pele estiver assada, a pomada passada aqui é o remédio. "Repetir a instrução" e "Ouvir o que falta" ajudam a se orientar. Volume e liga-desliga ficam no menu Opções.</p>
             <h3>Com o app fechado</h3>
             <p>O tempo continua correndo. O bebê sente fome, suja a fralda e fica com sono mesmo com o celular no bolso. Quando ele começa a precisar de você, chega uma notificação, e outra a cada 10 minutos até você abrir o app. Se a situação ficar crítica, a notificação vira um chamado: três bipes, três vezes, e o celular vibra. Ao voltar, o jogo conta o que aconteceu enquanto você esteve fora. Para dormir ou trabalhar em paz, use Pausar o tempo e os avisos, no menu Opções: pausado, o bebê não muda e não chega aviso nenhum.</p>
             <p>O jogo salva sozinho. Para guardar o bebê fora do app, antes de desinstalar ou para levar a outro celular, use "Copiar o código do bebê", no menu Opções. Para trazer de volta, use "Tenho um código de bebê", na tela inicial.</p>
@@ -1824,16 +1830,15 @@ function abrirBanho() {
   PARTES.forEach((p, i) => { if (estadoParte(i) === "limpa") B.limpas.add(i); });
   const android = !!window.Android;
   $("banho-intro").textContent =
-    `Você testa a água com o cotovelo: morna. Deita ${S.nome} na banheira, com a nuca apoiada na sua mão. ` +
-    `Agora passe o dedo pelo corpo para lavar. Onde está sujo, ${android ? "o celular vibra e " : ""}soa o barulho de esfregar; quando a parte fica limpa, ${android ? "para de vibrar" : "o barulho some"}. ` +
-    `O som vai para o lado em que seu dedo está, e fica mais agudo perto da cabeça e mais grave perto dos pés. ` +
-    (android ? `Com o TalkBack ligado, toque duas vezes na banheira e segure, sem soltar, e então arraste o dedo. ` : `No computador, entre na banheira com Tab e use as setas para mover a esponja. `) +
-    (S.fome < 25 ? `Mas ${ele()} está com fome, e chora o banho inteiro.` : "");
+    `Passe o dedo pelo corpo. ${android ? "Vibra" : "Faz barulho"} onde está sujo. Cabeça no alto, pés embaixo. ` +
+    (android ? `Com TalkBack: toque duas vezes, segure e arraste. ` : `No computador, use as setas. `) +
+    (S.fome < 25 ? `${S.nome} está com fome e chora o banho inteiro.` : "");
   $("banho-status").textContent = "";
   $("jogo").hidden = true; $("banho").hidden = false;
   ajustarCanvas($("banheira"));
   iniciarSomBanho();
   if (S.fome < 25) somChoro("fome", 0.7);
+  statusBanho(`Água morna, ${S.nome} na banheira. ` + $("banho-intro").textContent);
   $("banheira").focus();
 }
 const masculina = n => /^(pescoço|pé|braço|peito)/.test(n);
@@ -2038,21 +2043,24 @@ const CORPO_TROCA = [
   { x: .5, y: .15, rx: .37, ry: .2 }, { x: .5, y: .45, rx: .33, ry: .2 },
   { x: .3, y: .79, rx: .15, ry: .24 }, { x: .7, y: .79, rx: .15, ry: .24 }
 ];
+// A tela inteira é a região da fralda, sem espaço morto: três faixas no alto e o bumbum embaixo.
 const ZONAS_TROCA = [
-  { n: "dobrinha da coxa esquerda", f: true, x: .25, y: .56, rx: .075, ry: .1 },
-  { n: "dobrinha da coxa direita", f: true, x: .75, y: .56, rx: .075, ry: .1 },
-  { n: "frente", f: true, x: .5, y: .47, rx: .15, ry: .1 },
-  { n: "bumbum", f: false, x: .5, y: .64, rx: .19, ry: .075 }
+  { n: "dobrinha esquerda", onde: "no alto, à esquerda", f: true, x0: 0, x1: .3, y0: 0, y1: .55 },
+  { n: "dobrinha direita", onde: "no alto, à direita", f: true, x0: .7, x1: 1, y0: 0, y1: .55 },
+  { n: "frente", onde: "no alto, no meio", f: true, x0: .3, x1: .7, y0: 0, y1: .55 },
+  { n: "bumbum", onde: "na metade de baixo", f: false, x0: 0, x1: 1, y0: .55, y1: 1 }
 ];
-const FITAS = [{ n: "fita da esquerda", x: .13, y: .36, rx: .12, ry: .085 }, { n: "fita da direita", x: .87, y: .36, rx: .12, ry: .085 }];
+const zonaTroca = (x, y) => ZONAS_TROCA.findIndex(z => x >= z.x0 && x <= z.x1 && y >= z.y0 && y <= z.y1);
+// Cada fita é uma metade inteira da tela.
+const FITAS = [{ n: "fita da esquerda" }, { n: "fita da direita" }];
 const FITA_OK = 0.09; // quanto o dedo precisa percorrer sobre a fita para abrir ou fechar
 const dentro = (z, x, y) => ((x - z.x) / z.rx) ** 2 + ((y - z.y) / z.ry) ** 2 <= 1;
 const INSTRUCOES = {
-  abrir: () => `Passo 1 de 5: abra a fralda. As fitas ficam dos dois lados da cintura, nas bordas da tela, um pouco acima do meio. Passe o dedo sobre cada fita, puxando para fora.`,
-  limpar: () => `Passo 2 de 5: limpe com o lenço umedecido. Passe o dedo na frente, nas dobrinhas das coxas, dos dois lados, e no bumbum, mais embaixo. Onde está sujo, vibra; quando fica limpo, para.`,
-  pomada: () => `Passo 3 de 5: passe a pomada nas mesmas partes. Vibra onde ainda falta pomada. ` + (T.assadura ? `A pele está vermelha e ardida: a pomada é o remédio.` : `A pele está boa: se quiser, pule este passo.`),
-  fralda: () => `Passo 4 de 5: coloque a fralda nova. Arraste o dedo de baixo para cima, pelo meio da tela, para passar a fralda por baixo do bumbum.`,
-  fechar: () => `Passo 5 de 5: feche a fralda. Passe o dedo em cada fita, nas bordas da tela, puxando para o meio.`
+  abrir: () => `Passo 1 de 5. Abra a fralda: esfregue o lado esquerdo da tela, depois o direito.`,
+  limpar: () => `Passo 2 de 5. Limpe com o lenço: esfregue a tela toda. Vibra onde está sujo.`,
+  pomada: () => `Passo 3 de 5. Pomada: esfregue a tela toda até parar de vibrar.` + (T.assadura ? ` A pele está assada.` : ` Se quiser, pule.`),
+  fralda: () => `Passo 4 de 5. Fralda nova: deslize de baixo para cima.`,
+  fechar: () => `Passo 5 de 5. Feche a fralda: esfregue o lado esquerdo, depois o direito.`
 };
 let T = null;
 function abrirTroca() {
@@ -2063,7 +2071,7 @@ function abrirTroca() {
   const assadura = !!(S.doenca && S.doenca.tipo === "assadura");
   const celulas = [], semente = Math.random() * 10;
   for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) {
-    const x = (i + .5) / GX, y = (j + .5) / GY, z = ZONAS_TROCA.findIndex(z => dentro(z, x, y));
+    const x = (i + .5) / GX, y = (j + .5) / GY, z = zonaTroca(x, y);
     if (z < 0) continue;
     const base = coco ? (z === 3 ? 1 : 0.8) : molhada ? (z === 2 ? 0.45 : 0.3) : 0;
     const mancha = 0.6 + 0.4 * Math.sin(i * 1.1 + semente) * Math.cos(j * 0.8 + semente) + (Math.random() - .5) * .3;
@@ -2107,8 +2115,7 @@ function acaoTroca(x, y) {
   const anunciar = (chave, txt) => { if (chave !== T.zonaAtual && agora - T.ultimoAnuncio > 450) { T.zonaAtual = chave; T.ultimoAnuncio = agora; statusTroca(txt); } };
   if (T.passo === "abrir" || T.passo === "fechar") {
     const lista = T.passo === "abrir" ? T.abertas : T.fechadas;
-    const fi = FITAS.findIndex(f => dentro(f, x, y));
-    if (fi < 0) { anunciar("fora", ZONAS_TROCA.some(z => dentro(z, x, y)) ? "Fralda" : CORPO_TROCA.some(z => dentro(z, x, y)) ? "Barriga" : "Trocador"); return; }
+    const fi = x < 0.5 ? 0 : 1;
     if (lista[fi] >= FITA_OK) { anunciar(fi, `${Maiusc(FITAS[fi].n)}, já ${T.passo === "abrir" ? "aberta" : "fechada"}`); return; }
     anunciar(fi, Maiusc(FITAS[fi].n));
     lista[fi] += mov; pulso(); somEsfregar(0.25, x, y, true);
@@ -2130,12 +2137,12 @@ function acaoTroca(x, y) {
     const campo = T.passo === "limpar" ? "d" : "c";
     let maxV = 0, tocou = false;
     for (const c of T.celulas) {
-      const ddx = c.x - x, ddy = (c.y - y) * 0.75, dist = Math.hypot(ddx, ddy);
-      if (dist > 0.06) continue;
+      const ddx = c.x - x, ddy = c.y - y, dist = Math.hypot(ddx, ddy);
+      if (dist > 0.11) continue;
       tocou = true; maxV = Math.max(maxV, c[campo]);
-      c[campo] = Math.max(0, c[campo] - (campo === "d" ? 0.08 : 0.1) * (1 - dist / 0.06));
+      c[campo] = Math.max(0, c[campo] - (campo === "d" ? 0.17 : 0.2) * (1 - dist / 0.11));
     }
-    const zi = ZONAS_TROCA.findIndex(z => dentro(z, x, y));
+    const zi = zonaTroca(x, y);
     if (maxV > 0.12) { pulso(); somEsfregar(campo === "d" ? 0.1 + 0.25 * maxV : 0.08 + 0.12 * maxV, x, y, campo === "d"); }
     else if (tocou) somEsfregar(0.02, x, y, false);
     if (zi >= 0) {
@@ -2146,7 +2153,7 @@ function acaoTroca(x, y) {
         statusTroca(campo === "d" ? `${Maiusc(z.n)} ficou limpinh${a}!` : `Pomada passada n${a} ${z.n}.`);
         tom([880, 1175], 0.08, "sine", 0.05);
       } else anunciar(chave, `${Maiusc(z.n)}, ${campo === "d" ? (v > 0.16 ? `suj${a}` : v > 0.07 ? `quase limp${a}` : `limp${a}`) : (v > 0.16 ? "sem pomada" : v > 0.07 ? "quase coberta" : "com pomada")}`);
-    } else anunciar("fora", CORPO_TROCA.some(z => dentro(z, x, y)) ? "Barriga" : "Trocador");
+    }
     if (campo === "d" && fracao("d", T.total) >= 0.95) {
       T.limpo = 1;
       for (let k = 0; k < (T.coco ? 3 : 1); k++) gastar("lenco");
@@ -2156,7 +2163,6 @@ function acaoTroca(x, y) {
       avancar("fralda", `Pomada em toda a pele, uma camada branca e grossa.`, 1500);
     }
   } else if (T.passo === "fralda") {
-    if (x < 0.2 || x > 0.8) { anunciar("borda", "Borda do trocador. A fralda passa pelo meio."); return; }
     if (dy < 0) {
       T.subir += -dy;
       if (Math.floor(T.subir / 0.06) !== Math.floor((T.subir + dy) / 0.06)) vibrar([20]);
@@ -2174,7 +2180,7 @@ function oQueFaltaTroca() {
     statusTroca(f.length ? `Falta ${T.passo === "abrir" ? "abrir" : "fechar"}: ${f.join(" e ")}.` : "As duas fitas estão prontas.");
   } else if (T.passo === "limpar" || T.passo === "pomada") {
     const campo = T.passo === "limpar" ? "d" : "c";
-    const f = ZONAS_TROCA.map((z, i) => zonaEstado(i, campo) > 0.07 ? z.n : null).filter(Boolean);
+    const f = ZONAS_TROCA.map((z, i) => zonaEstado(i, campo) > 0.07 ? `${z.n}, ${z.onde}` : null).filter(Boolean);
     statusTroca(f.length ? `Falta ${campo === "d" ? "limpar" : "passar pomada em"}: ${f.join("; ")}.` : "Pronto.");
   } else if (T.passo === "fralda") statusTroca(`A fralda está ${Math.round(Math.min(1, T.subir / 0.45) * 100)} por cento no lugar. Continue arrastando de baixo para cima.`);
 }
@@ -2215,7 +2221,7 @@ let pedidoTroca = false;
 function desenharTrocaLogo() { if (!pedidoTroca) { pedidoTroca = true; requestAnimationFrame(desenharTroca); } }
 function ajustarCanvas(cv) {
   const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.width * 4 / 3 * dpr);
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
   if (cv.id === "banheira") pedirDesenho(); else desenharTrocaLogo();
 }
 function elipse(g, z, W, H) { g.beginPath(); g.ellipse(z.x * W, z.y * H, z.rx * W, z.ry * H, 0, 0, Math.PI * 2); }
@@ -2224,44 +2230,50 @@ function desenharTroca() {
   if (!T) return;
   const cv = $("trocador"), g = cv.getContext("2d"), W = cv.width, H = cv.height;
   const css = getComputedStyle(document.documentElement), cor = n => css.getPropertyValue(n).trim();
-  g.clearRect(0, 0, W, H);
-  g.fillStyle = cor("--blanket"); g.globalAlpha = 0.45; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
-  const passo = T.passo, depoisDeAbrir = !(passo === "abrir"), velhaFora = ["pomada", "fralda", "fechar"].includes(passo) || T.limpo >= 1;
-  // fralda aberta por baixo do bebê (velha manchada, ou a nova subindo)
-  const fraldaAberta = (dy, mancha) => {
-    g.fillStyle = "#FBFBF7"; g.strokeStyle = "#9DB9C9"; g.lineWidth = W * 0.008;
-    g.beginPath(); g.ellipse(.5 * W, (.56 + dy) * H, .44 * W, .26 * H, 0, 0, Math.PI * 2); g.fill(); g.stroke();
-    if (mancha) { g.fillStyle = mancha; g.beginPath(); g.ellipse(.5 * W, (.6 + dy) * H, .2 * W, .1 * H, 0, 0, Math.PI * 2); g.fill(); }
-  };
-  if (depoisDeAbrir && !velhaFora) fraldaAberta(0, T.coco ? "rgba(140,95,35,.55)" : T.molhada ? "rgba(230,200,80,.45)" : null);
-  if (passo === "fralda") fraldaAberta(.5 * (1 - Math.min(1, T.subir / 0.45)), null);
-  if (passo === "fechar") fraldaAberta(0, null);
-  // corpo numa silhueta só
-  const corpo = new Path2D();
-  for (const z of CORPO_TROCA) { corpo.moveTo((z.x + z.rx) * W, z.y * H); corpo.ellipse(z.x * W, z.y * H, z.rx * W, z.ry * H, 0, 0, Math.PI * 2); }
-  g.strokeStyle = cor("--skin-line"); g.lineWidth = Math.max(3, W * 0.014); g.stroke(corpo);
-  g.fillStyle = cor("--skin"); g.fill(corpo);
-  g.fillStyle = cor("--skin-line"); g.beginPath(); g.arc(.5 * W, .2 * H, W * .012, 0, Math.PI * 2); g.fill(); // umbigo
-  g.save(); g.clip(corpo);
-  const raio = Math.max(W / GX, H / GY) * 1.05;
+  const passo = T.passo, velhaFora = ["pomada", "fralda", "fechar"].includes(passo) || T.limpo >= 1;
+  // pele de perto, ocupando tudo
+  g.fillStyle = cor("--skin"); g.fillRect(0, 0, W, H);
+  // fralda velha aberta, aparecendo nas bordas
+  if (passo !== "abrir" && !velhaFora) {
+    g.strokeStyle = T.coco ? "#C9B48A" : T.molhada ? "#EDE2A8" : "#FBFBF7"; g.lineWidth = W * 0.07; g.strokeRect(0, 0, W, H);
+  }
+  // dobras: as virilhas e o bumbum
+  g.strokeStyle = cor("--skin-line"); g.lineWidth = Math.max(3, W * 0.01); g.lineCap = "round";
+  for (const xx of [.3, .7]) { g.beginPath(); g.moveTo(xx * W, .04 * H); g.quadraticCurveTo((xx + (xx < .5 ? -.06 : .06)) * W, .3 * H, xx * W, .55 * H); g.stroke(); }
+  g.beginPath(); g.moveTo(.06 * W, .58 * H); g.quadraticCurveTo(.5 * W, .52 * H, .94 * W, .58 * H); g.stroke();
+  g.beginPath(); g.moveTo(.5 * W, .66 * H); g.lineTo(.5 * W, .97 * H); g.stroke();
+  // sujeira, assadura e pomada
+  const raio = Math.max(W / GX, H / GY) * 1.1;
   for (const c of T.celulas) {
     if (T.assadura && c.c > 0.05) { g.fillStyle = `rgba(220,60,50,${(0.22 * c.c).toFixed(3)})`; g.beginPath(); g.arc(c.x * W, c.y * H, raio, 0, Math.PI * 2); g.fill(); }
-    if (depoisDeAbrir && c.d > 0.04) { g.fillStyle = T.coco ? `rgba(120,80,30,${(c.d * .38).toFixed(3)})` : `rgba(215,185,70,${(c.d * .3).toFixed(3)})`; g.beginPath(); g.arc(c.x * W, c.y * H, raio, 0, Math.PI * 2); g.fill(); }
-    if (c.c < 0.95 && (passo !== "abrir" && passo !== "limpar")) { g.fillStyle = `rgba(255,255,255,${((1 - c.c) * .55).toFixed(3)})`; g.beginPath(); g.arc(c.x * W, c.y * H, raio * .9, 0, Math.PI * 2); g.fill(); }
+    if (passo !== "abrir" && c.d > 0.04) { g.fillStyle = T.coco ? `rgba(120,80,30,${(c.d * .38).toFixed(3)})` : `rgba(215,185,70,${(c.d * .3).toFixed(3)})`; g.beginPath(); g.arc(c.x * W, c.y * H, raio, 0, Math.PI * 2); g.fill(); }
+    if (c.c < 0.95 && passo !== "abrir" && passo !== "limpar") { g.fillStyle = `rgba(255,255,255,${((1 - c.c) * .55).toFixed(3)})`; g.beginPath(); g.arc(c.x * W, c.y * H, raio * .9, 0, Math.PI * 2); g.fill(); }
   }
-  g.restore();
-  // fralda fechada por cima: a velha antes de abrir, a nova no fim
-  const fechada = passo === "abrir" ? (i => T.abertas[i] < FITA_OK) : passo === "fechar" ? (i => T.fechadas[i] >= FITA_OK) : null;
+  // nomes das regiões, para quem enxerga
+  g.fillStyle = cor("--skin-line"); g.globalAlpha = 0.75; g.textAlign = "center";
+  const fs = Math.round(W * 0.042);
+  g.font = `700 ${fs}px ${cor("--font-body")}`;
+  for (const z of ZONAS_TROCA) z.n.split(" ").forEach((p, k, arr) =>
+    g.fillText(p, (z.x0 + z.x1) / 2 * W, ((z.y0 + z.y1) / 2 + (z.n === "bumbum" ? .08 : 0)) * H + (k - (arr.length - 1) / 2) * fs * 1.2));
+  g.globalAlpha = 1;
+  // fralda nova subindo de baixo
+  if (passo === "fralda") {
+    const alt = Math.min(1, T.subir / 0.45);
+    g.fillStyle = "#FBFBF7"; g.strokeStyle = "#9DB9C9"; g.lineWidth = W * 0.008;
+    g.fillRect(.04 * W, (1 - alt * .9) * H, .92 * W, alt * .9 * H); g.strokeRect(.04 * W, (1 - alt * .9) * H, .92 * W, alt * .9 * H);
+  }
+  // fralda fechada por cima, com as fitas: abertas nas bordas, presas mais para dentro
   if (passo === "abrir" || passo === "fechar") {
     g.fillStyle = passo === "abrir" && (T.coco || T.molhada) ? "#F3EED8" : "#FBFBF7"; g.strokeStyle = "#9DB9C9"; g.lineWidth = W * 0.008;
-    g.beginPath(); g.ellipse(.5 * W, .5 * H, .3 * W, .17 * H, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillRect(.08 * W, .05 * H, .84 * W, .9 * H); g.strokeRect(.08 * W, .05 * H, .84 * W, .9 * H);
     FITAS.forEach((f, i) => {
-      const presa = fechada(i), fx = presa ? (f.x < .5 ? .24 : .76) : f.x;
-      g.fillStyle = cor("--accent"); g.globalAlpha = presa ? 1 : 0.75;
-      g.fillRect((fx - .055) * W, (f.y - .03) * H, .11 * W, .06 * H); g.globalAlpha = 1;
+      const presa = passo === "abrir" ? T.abertas[i] < FITA_OK : T.fechadas[i] >= FITA_OK;
+      const x0 = i === 0 ? (presa ? .1 : 0) : (presa ? .7 : .8);
+      g.fillStyle = cor("--accent"); g.globalAlpha = presa ? 1 : 0.6;
+      g.fillRect(x0 * W, .3 * H, .2 * W, .14 * H); g.globalAlpha = 1;
     });
   }
-  if (T.cursor) { g.strokeStyle = cor("--focus"); g.lineWidth = W * .01; g.beginPath(); g.arc(T.cursor.x * W, T.cursor.y * H, W * .05, 0, Math.PI * 2); g.stroke(); }
+  if (T.cursor) { g.strokeStyle = cor("--focus"); g.lineWidth = W * .01; g.beginPath(); g.arc(T.cursor.x * W, T.cursor.y * H, W * .06, 0, Math.PI * 2); g.stroke(); }
 }
 (() => {
   const cv = $("trocador");

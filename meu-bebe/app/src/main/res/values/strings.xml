@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Meu Bebê</string>
+    <string name="canal_lembrete">Bebê precisa de atenção</string>
+    <string name="canal_lembrete_desc">Aviso a cada 10 minutos enquanto o bebê precisar de você.</string>
+    <string name="canal_chamado">Chamado urgente</string>
+    <string name="canal_chamado_desc">O bebê chama com bipes e vibração quando a situação fica crítica.</string>
+</resources>

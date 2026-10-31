@@ -132,6 +132,9 @@ ul.menu button.voltar { background: transparent; border-style: dashed; color: va
 kbd { font-family: var(--font-body); font-size: 0.9em; border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 6px; padding: 0 6px; background: var(--bg); color: var(--fg); }
 
 /* Berço */
+/* Banho: a banheira ocupa a largura, em retrato 3:4 */
+#banheira { display: block; width: min(100%, 440px, calc((100dvh - 230px) * 0.75)); aspect-ratio: 3 / 4; margin: 0 auto; border-radius: 18px; touch-action: none; background: var(--accent-soft); }
+.banho-status { font-weight: 700; min-height: 1.6em; text-align: center; }
 .retrato { display: grid; justify-items: center; gap: 6px; background: var(--accent-soft); border-radius: 12px; padding: 14px 10px 10px; }
 .retrato svg { width: 100%; max-width: 260px; height: auto; }
 .situacao { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
@@ -206,6 +209,18 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
     </div>
     <p id="codigo-msg" role="status" aria-live="polite"></p>
     <div class="botoes" id="codigo-botoes"></div>
+  </section>
+
+  <!-- Banho com o dedo -->
+  <section id="banho" class="painel" aria-labelledby="banho-titulo" hidden>
+    <h2 id="banho-titulo" tabindex="-1">Hora do banho</h2>
+    <canvas id="banheira" tabindex="0" role="application" aria-label="Banheira com o bebê" aria-describedby="banho-intro"></canvas>
+    <p id="banho-status" class="banho-status" aria-live="polite"></p>
+    <div class="botoes">
+      <button type="button" class="btn sec" id="banho-falta">Ouvir o que falta lavar</button>
+      <button type="button" class="btn" id="banho-fim">Enxaguar e terminar o banho</button>
+    </div>
+    <p id="banho-intro" class="dica"></p>
   </section>
 
   <!-- Jogo -->
@@ -293,7 +308,9 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
               <li>Cada dia do jogo é um mês de vida. As vacinas seguem o calendário do posto de saúde, que abre das 8h às 17h.</li>
             </ul>
             <h3>Sons</h3>
-            <p>Os choros, o riso, o arroto, o pum, o som de mamar e o de abrir a fralda são gravações. O pum avisa que a fralda acabou de encher, mesmo com o bebê dormindo. A golfada soa como uma tossidinha seguida de líquido caindo. Cada motivo tem seu próprio choro: fome, fralda, sono, cólica, doença, falta de colo e precisar arrotar. Aprenda a reconhecer cada um pelo ouvido. Antes de chorar, o bebê costuma resmungar com sonzinhos manhosos: é a hora de agir. Ao conversar, ele balbucia de volta. Enquanto o bebê chora, o choro volta a tocar baixinho de tempos em tempos. Ao fundo toca uma caixinha de música, que dá para desligar. Volume e liga-desliga ficam no menu Opções.</p>
+            <p>Os choros, o riso, o arroto, o pum, o som de mamar e o de abrir a fralda são gravações. O pum avisa que a fralda acabou de encher, mesmo com o bebê dormindo. A golfada soa como uma tossidinha seguida de líquido caindo. Cada motivo tem seu próprio choro: fome, fralda, sono, cólica, doença, falta de colo e precisar arrotar. Aprenda a reconhecer cada um pelo ouvido. Antes de chorar, o bebê costuma resmungar com sonzinhos manhosos: é a hora de agir. Ao conversar, ele balbucia de volta. Enquanto o bebê chora, o choro volta a tocar baixinho de tempos em tempos. Ao fundo toca uma caixinha de música, que dá para desligar.</p>
+            <h3>Banho com o dedo</h3>
+            <p>No menu Fralda e banho, "Dar banho, esfregando com o dedo" coloca o bebê na banheira. Passe o dedo pelo corpo: onde está sujo, o celular vibra e soa o barulho de esfregar; quando a parte fica limpa, a vibração para e o jogo avisa. O som acompanha o seu dedo: vai para o fone do lado em que ele está, e fica mais agudo perto da cabeça e mais grave perto dos pés. Esquerda e direita são as da tela. Com o TalkBack, toque duas vezes na banheira e segure, e então arraste. No computador, use as setas. "Ouvir o que falta lavar" diz as partes ainda sujas. Para quem tem pressa, existe o Banho rápido. Volume e liga-desliga ficam no menu Opções.</p>
             <h3>Com o app fechado</h3>
             <p>O tempo continua correndo. O bebê sente fome, suja a fralda e fica com sono mesmo com o celular no bolso. Quando ele começa a precisar de você, chega uma notificação, e outra a cada 10 minutos até você abrir o app. Se a situação ficar crítica, a notificação vira um chamado: três bipes, três vezes, e o celular vibra. Ao voltar, o jogo conta o que aconteceu enquanto você esteve fora. Para dormir ou trabalhar em paz, use Pausar o tempo e os avisos, no menu Opções: pausado, o bebê não muda e não chega aviso nenhum.</p>
             <p>O jogo salva sozinho. Para guardar o bebê fora do app, antes de desinstalar ou para levar a outro celular, use "Copiar o código do bebê", no menu Opções. Para trazer de volta, use "Tenho um código de bebê", na tela inicial.</p>
@@ -1121,7 +1138,8 @@ const MENUS = {
   higiene: { t: () => "Fralda e banho", itens: () => [
     { r: "Trocar a fralda", f: A.trocar },
     { r: "Passar pomada para assadura", f: () => A.remedio("pomada") },
-    { r: "Dar banho morno", f: A.banho },
+    { r: "Dar banho, esfregando com o dedo", f: abrirBanho },
+    { r: "Banho rápido", f: A.banho },
     { r: "Limpar com lenço umedecido", f: A.lenco }
   ]},
   sono: { t: () => "Sono", itens: () => [
@@ -1419,6 +1437,7 @@ function planejarAvisos() {
 }
 window.aoSair = () => {
   pararMusica();
+  if (B) terminarBanho();
   if (!S || $("jogo").hidden) return 0;
   passo(); salvar();
   const lista = planejarAvisos();
@@ -1430,6 +1449,7 @@ window.aoVoltar = () => {
   if (S && !$("jogo").hidden) { passo(); contarAusencia(); tocarMusica(); }
 };
 window.voltarAndroid = () => {
+  if (!$("banho").hidden) { terminarBanho(); return true; }
   if (!$("codigo").hidden) { fecharCodigo(); return true; }
   if (S && !$("jogo").hidden && pilha.length > 1) { voltar(); return true; }
   return false;
@@ -1483,6 +1503,271 @@ function continuarJogo() {
   entrarNoJogo(intro);
   setTimeout(() => { alertaSilencioso(); if (S.chamando) { somBebe("chamado", 1.4); vibrar([250, 120, 250, 120, 250]); } else if (S.chorando && !S.dormindo) somChoro(S.motivoAtual); }, 400);
 }
+
+/* ---------- Banho com o dedo ---------- */
+// O corpo é uma grade de células; cada célula guarda quanto de sujeira tem (0 a 1).
+// Coordenadas de 0 a 1: x na largura, y na altura da banheira (3:4). Partes pequenas primeiro.
+const PARTES = [
+  { n: "pescoço", x: .5, y: .255, rx: .085, ry: .03 },
+  { n: "mão da esquerda", x: .19, y: .52, rx: .055, ry: .042 },
+  { n: "mão da direita", x: .81, y: .52, rx: .055, ry: .042 },
+  { n: "pé da esquerda", x: .37, y: .905, rx: .07, ry: .045 },
+  { n: "pé da direita", x: .63, y: .905, rx: .07, ry: .045 },
+  { n: "região da fralda", x: .5, y: .585, rx: .15, ry: .05 },
+  { n: "cabeça", x: .5, y: .13, rx: .19, ry: .115 },
+  { n: "peito", x: .5, y: .345, rx: .175, ry: .07 },
+  { n: "barriga", x: .5, y: .465, rx: .185, ry: .075 },
+  { n: "braço da esquerda", x: .25, y: .39, rx: .065, ry: .115 },
+  { n: "braço da direita", x: .75, y: .39, rx: .065, ry: .115 },
+  { n: "perna da esquerda", x: .385, y: .745, rx: .08, ry: .125 },
+  { n: "perna da direita", x: .615, y: .745, rx: .08, ry: .125 }
+];
+const GX = 30, GY = 40;
+let B = null; // estado do banho em andamento
+function parteEm(x, y) {
+  for (let i = 0; i < PARTES.length; i++) {
+    const p = PARTES[i], dx = (x - p.x) / p.rx, dy = (y - p.y) / p.ry;
+    if (dx * dx + dy * dy <= 1) return i;
+  }
+  return -1;
+}
+function sujeiraDaParte(nome) {
+  const h = (100 - S.higiene) / 100;
+  let d = 0.3 + h * 0.6;
+  if (nome === "pescoço") d += 0.35;           // leite seco nas dobrinhas
+  if (nome.startsWith("mão") || nome.startsWith("pé")) d += 0.2;
+  if (nome === "região da fralda") d += S.fralda < 60 ? 0.45 : 0.1;
+  if (nome === "cabeça" && S.higiene < 60) d += 0.15; // cabelo suado
+  return Math.min(1, d);
+}
+function abrirBanho() {
+  if (!acordad()) return;
+  const celulas = [];
+  const semente = Math.random() * 10;
+  for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) {
+    const x = (i + .5) / GX, y = (j + .5) / GY, p = parteEm(x, y);
+    if (p < 0) continue;
+    // manchas: a sujeira se concentra em umas áreas e falta em outras
+    const mancha = 0.55 + 0.45 * Math.sin(i * 0.9 + semente) * Math.cos(j * 0.7 + semente * 1.3) + (Math.random() - .5) * .3;
+    celulas.push({ x, y, p, d: Math.max(0, Math.min(1, sujeiraDaParte(PARTES[p].n) * mancha)) });
+  }
+  const total = celulas.reduce((a, c) => a + c.d, 0);
+  B = { celulas, total, parteAtual: null, limpas: new Set(), marcos: new Set(), espuma: [], cursor: null,
+        ultimaVib: 0, ultimoAnuncio: 0, ultimoRiso: 0, chorou: S.fome < 25 };
+  PARTES.forEach((p, i) => { if (estadoParte(i) === "limpa") B.limpas.add(i); });
+  const android = !!window.Android;
+  $("banho-intro").textContent =
+    `Você testa a água com o cotovelo: morna. Deita ${S.nome} na banheira, com a nuca apoiada na sua mão. ` +
+    `Agora passe o dedo pelo corpo para lavar. Onde está sujo, ${android ? "o celular vibra e " : ""}soa o barulho de esfregar; quando a parte fica limpa, ${android ? "para de vibrar" : "o barulho some"}. ` +
+    `O som vai para o lado em que seu dedo está, e fica mais agudo perto da cabeça e mais grave perto dos pés. ` +
+    (android ? `Com o TalkBack ligado, toque duas vezes na banheira e segure, sem soltar, e então arraste o dedo. ` : `No computador, entre na banheira com Tab e use as setas para mover a esponja. `) +
+    (S.fome < 25 ? `Mas ${ele()} está com fome, e chora o banho inteiro.` : "");
+  $("banho-status").textContent = "";
+  $("jogo").hidden = true; $("banho").hidden = false;
+  ajustarBanheira();
+  iniciarSomBanho();
+  if (S.fome < 25) somChoro("fome", 0.7);
+  $("banheira").focus();
+}
+const masculina = n => /^(pescoço|pé|braço|peito)/.test(n);
+const Maiusc = t => t[0].toUpperCase() + t.slice(1);
+function estadoTexto(i) {
+  const e = estadoParte(i), a = masculina(PARTES[i].n) ? "o" : "a";
+  return e === "suja" ? "suj" + a : e === "limpa" ? "limp" + a : "quase limp" + a;
+}
+function estadoParte(i) {
+  let soma = 0, n = 0;
+  for (const c of B.celulas) if (c.p === i) { soma += c.d; n++; }
+  const m = n ? soma / n : 0;
+  return m > 0.16 ? "suja" : m > 0.07 ? "quase limpa" : "limpa";
+}
+function fracaoLimpa() { return B.total ? 1 - B.celulas.reduce((a, c) => a + c.d, 0) / B.total : 1; }
+function statusBanho(txt) {
+  const el = $("banho-status");
+  el.textContent = ""; setTimeout(() => { el.textContent = txt; }, 30);
+}
+function esfregar(x, y) {
+  if (!B) return;
+  const raio = 0.065, agora = performance.now();
+  let maxD = 0, tocouCorpo = false;
+  for (const c of B.celulas) {
+    const dx = (c.x - x), dy = (c.y - y) * 0.75;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > raio) continue;
+    tocouCorpo = true;
+    maxD = Math.max(maxD, c.d);
+    c.d = Math.max(0, c.d - 0.07 * (1 - dist / raio));
+  }
+  const p = parteEm(x, y);
+  // espuma onde esfregou
+  if (tocouCorpo && maxD > 0.05) B.espuma.push({ x, y, r: 0.015 + Math.random() * 0.02, vida: 1 });
+  // retorno: vibração e som só onde ainda há sujeira
+  if (maxD > 0.12) {
+    if (agora - B.ultimaVib > 110) { B.ultimaVib = agora; vibrar([35]); }
+    somEsfregar(0.10 + 0.25 * maxD, x, y, true);
+  } else if (tocouCorpo) somEsfregar(0.025, x, y, false);
+  // anúncios: parte nova sob o dedo, parte que acabou de ficar limpa, marcos de progresso
+  if (p >= 0 && !B.limpas.has(p) && estadoParte(p) === "limpa") {
+    B.limpas.add(p);
+    statusBanho(`${Maiusc(PARTES[p].n)} ficou limpinh${masculina(PARTES[p].n) ? "o" : "a"}!`);
+    tom([880, 1175], 0.08, "sine", 0.05);
+    B.parteAtual = p; B.ultimoAnuncio = agora;
+  } else if (p !== B.parteAtual && agora - B.ultimoAnuncio > 450) {
+    B.parteAtual = p; B.ultimoAnuncio = agora;
+    statusBanho(p < 0 ? "Água" : `${Maiusc(PARTES[p].n)}, ${estadoTexto(p)}`);
+  }
+  const f = fracaoLimpa();
+  for (const [m, t] of [[0.5, "Metade do banho feita."], [0.97, `Pronto, ${S.nome} está limpinh${o()}! Agora enxágue e termine o banho.`]]) {
+    if (f >= m && !B.marcos.has(m)) { B.marcos.add(m); setTimeout(() => statusBanho(t), 700); if (m > 0.9) som.bom(); }
+  }
+  // cócegas na barriga e nos pés
+  if (p >= 0 && /barriga|pé/.test(PARTES[p].n) && !B.chorou && S.humor > 35 && agora - B.ultimoRiso > 9000 && Math.random() < 0.03) {
+    B.ultimoRiso = agora; somBebe("riso", 0.8);
+  }
+  pedirDesenho();
+}
+function terminarBanho() {
+  if (!B) return;
+  const f = Math.min(1, fracaoLimpa() / 0.97);
+  const sujas = PARTES.map((p, i) => estadoParte(i) === "suja" ? p.n : null).filter(Boolean);
+  const febre = S.doenca && S.doenca.tipo === "febre";
+  S.higiene = f >= 1 ? 100 : S.higiene + (100 - S.higiene) * f;
+  S.humor += B.chorou ? -6 : 10 * f + 2; S.energia -= 10;
+  if (febre) S.temp -= 0.4;
+  S.pontos += f >= 1 ? 3 : f > 0.5 ? 1 : 0;
+  pararSomBanho();
+  B = null;
+  $("banho").hidden = true; $("jogo").hidden = false;
+  renderMenu(0);
+  falar(`Você enxágua com a caneca, da cabeça para os pés, protegendo os olhos com a mão. Toalha com capuz, a pele quente e macia, cheiro de sabonete neutro. ` +
+    (f >= 1 ? `${S.nome} ficou limpinh${o()} da cabeça aos pés.` : sujas.length ? `Mas ficou sujeira em: ${sujas.join(", ")}.` : `Ficou quase tudo limpo.`) +
+    (febre ? " A água morna ajudou a baixar um pouco a temperatura." : ""));
+  depois();
+}
+function oQueFalta() {
+  const sujas = PARTES.map((p, i) => ({ n: p.n, i, e: estadoParte(i) })).filter(x => x.e !== "limpa");
+  statusBanho(sujas.length ? `Ainda falta lavar: ${sujas.map(x => x.e === "quase limpa" ? x.n + ", " + estadoTexto(x.i) : x.n).join("; ")}.` : `Está tudo limpo. Pode terminar o banho.`);
+}
+// Desenho
+let pedido = false;
+function pedirDesenho() { if (!pedido) { pedido = true; requestAnimationFrame(desenharBanho); } }
+function ajustarBanheira() {
+  const cv = $("banheira"), r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.width * 4 / 3 * dpr);
+  pedirDesenho();
+}
+function desenharBanho() {
+  pedido = false;
+  if (!B) return;
+  const cv = $("banheira"), g = cv.getContext("2d"), W = cv.width, H = cv.height;
+  const css = getComputedStyle(document.documentElement), cor = n => css.getPropertyValue(n).trim();
+  g.clearRect(0, 0, W, H);
+  // água
+  const agua = g.createLinearGradient(0, 0, 0, H);
+  agua.addColorStop(0, "rgba(120,190,215,.55)"); agua.addColorStop(1, "rgba(60,140,180,.6)");
+  g.fillStyle = agua; g.fillRect(0, 0, W, H);
+  // corpo: primeiro o contorno de todas as partes, depois o recheio por cima, formando uma silhueta só
+  const corpo = new Path2D();
+  for (const p of PARTES) { corpo.moveTo((p.x + p.rx) * W, p.y * H); corpo.ellipse(p.x * W, p.y * H, p.rx * W, p.ry * H, 0, 0, Math.PI * 2); }
+  g.strokeStyle = cor("--skin-line"); g.lineWidth = Math.max(3, W * 0.014); g.lineJoin = "round";
+  g.stroke(corpo);
+  g.fillStyle = cor("--skin"); g.fill(corpo, "nonzero");
+  // bochechas e o cachinho de cabelo
+  g.fillStyle = cor("--cheek"); g.globalAlpha = 0.35;
+  for (const sx of [-1, 1]) { g.beginPath(); g.arc((.5 + sx * .11) * W, .165 * H, W * .035, 0, Math.PI * 2); g.fill(); }
+  g.globalAlpha = 1;
+  g.strokeStyle = cor("--skin-line"); g.lineWidth = Math.max(2, W * 0.009); g.lineCap = "round";
+  g.beginPath(); g.moveTo(.49 * W, .02 * H); g.quadraticCurveTo(.53 * W, -.005 * H, .55 * W, .03 * H); g.stroke();
+  // rosto
+  const cab = PARTES.find(p => p.n === "cabeça");
+  g.strokeStyle = cor("--fg"); g.lineWidth = Math.max(2, W * 0.008); g.lineCap = "round";
+  for (const s of [-1, 1]) { g.beginPath(); g.arc((cab.x + s * .07) * W, (cab.y - .005) * H, W * .022, Math.PI * 1.1, Math.PI * 1.9, true); g.stroke(); }
+  g.strokeStyle = cor("--skin-line");
+  g.beginPath();
+  if (B.chorou) g.arc(cab.x * W, (cab.y + .07) * H, W * .03, Math.PI * 1.15, Math.PI * 1.85);
+  else g.arc(cab.x * W, (cab.y + .035) * H, W * .045, Math.PI * .2, Math.PI * .8);
+  g.stroke();
+  // sujeira, só dentro do corpo
+  g.save(); g.clip(corpo);
+  const cw = W / GX, ch = H / GY;
+  for (const c of B.celulas) if (c.d > 0.04) {
+    g.fillStyle = `rgba(115,82,40,${(c.d * 0.32).toFixed(3)})`;
+    g.beginPath(); g.arc(c.x * W, c.y * H, Math.max(cw, ch) * 1.05, 0, Math.PI * 2); g.fill();
+  }
+  g.restore();
+  // espuma
+  B.espuma = B.espuma.filter(b => (b.vida -= 0.012) > 0).slice(-160);
+  for (const b of B.espuma) {
+    g.fillStyle = `rgba(255,255,255,${(b.vida * 0.85).toFixed(3)})`;
+    g.beginPath(); g.arc(b.x * W, b.y * H, b.r * W, 0, Math.PI * 2); g.fill();
+  }
+  // esponja do teclado
+  if (B.cursor) {
+    g.strokeStyle = cor("--focus"); g.lineWidth = W * 0.01;
+    g.beginPath(); g.arc(B.cursor.x * W, B.cursor.y * H, W * 0.05, 0, Math.PI * 2); g.stroke();
+  }
+  if (B.espuma.length) pedirDesenho();
+}
+// Som da água e da esponja
+let banhoAudio = null, calarEsponja = null;
+function iniciarSomBanho() {
+  if (!S.sons) return;
+  try {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); ctx.resume();
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), d = buf.getChannelData(0);
+    let ult = 0;
+    for (let i = 0; i < d.length; i++) { const w = Math.random() * 2 - 1; ult = (ult + 0.04 * w) / 1.04; d[i] = (w * 0.4 + ult * 3) * 0.5; }
+    const agua = ctx.createBufferSource(); agua.buffer = buf; agua.loop = true;
+    const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 650;
+    const ga = ctx.createGain(); ga.gain.value = 0.06 * S.volume;
+    agua.connect(lp).connect(ga).connect(ctx.destination); agua.start();
+    const esp = ctx.createBufferSource(); esp.buffer = buf; esp.loop = true; esp.playbackRate.value = 1.3;
+    const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2000; bp.Q.value = 1.1;
+    const ge = ctx.createGain(); ge.gain.value = 0;
+    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    esp.connect(bp).connect(ge);
+    if (pan) ge.connect(pan).connect(ctx.destination); else ge.connect(ctx.destination);
+    esp.start();
+    banhoAudio = { agua, esp, ge, bp, pan };
+  } catch (e) { banhoAudio = null; }
+}
+function somEsfregar(nivel, x, y, sujo) {
+  if (!banhoAudio) return;
+  const t = ctx.currentTime;
+  banhoAudio.ge.gain.setTargetAtTime(nivel * S.volume, t, 0.025);
+  // agudo na cabeça, grave nos pés; sujeira deixa o som mais áspero e grave
+  banhoAudio.bp.frequency.setTargetAtTime((sujo ? 900 : 2200) + (1 - y) * 2200, t, 0.04);
+  if (banhoAudio.pan) banhoAudio.pan.pan.setTargetAtTime(Math.max(-1, Math.min(1, (x - 0.5) * 2)), t, 0.03);
+  clearTimeout(calarEsponja);
+  calarEsponja = setTimeout(() => { if (banhoAudio) banhoAudio.ge.gain.setTargetAtTime(0, ctx.currentTime, 0.05); }, 150);
+}
+function pararSomBanho() {
+  if (!banhoAudio) return;
+  try { banhoAudio.agua.stop(); banhoAudio.esp.stop(); } catch (e) {}
+  banhoAudio = null;
+}
+// Toque, mouse e teclado
+(() => {
+  const cv = $("banheira");
+  const ponto = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
+  cv.addEventListener("pointerdown", e => { ativarAudio(); cv.setPointerCapture && cv.setPointerCapture(e.pointerId); esfregar(...ponto(e)); });
+  // passar por cima também lava: o mouse sem clicar e, no Android, o dedo explorando a tela
+  cv.addEventListener("pointermove", e => { if (B) { B.cursor = null; esfregar(...ponto(e)); } });
+  cv.addEventListener("keydown", e => {
+    if (!B) return;
+    const passo = { ArrowLeft: [-.05, 0], ArrowRight: [.05, 0], ArrowUp: [0, -.04], ArrowDown: [0, .04] }[e.key];
+    if (e.key === "Escape") { e.preventDefault(); terminarBanho(); return; }
+    if (!passo) return;
+    e.preventDefault();
+    B.cursor = B.cursor || { x: .5, y: .45 };
+    B.cursor.x = Math.max(0.02, Math.min(.98, B.cursor.x + passo[0]));
+    B.cursor.y = Math.max(0.02, Math.min(.98, B.cursor.y + passo[1]));
+    for (let k = 0; k < 4; k++) esfregar(B.cursor.x + (Math.random() - .5) * .03, B.cursor.y + (Math.random() - .5) * .03);
+  });
+  $("banho-falta").addEventListener("click", oQueFalta);
+  $("banho-fim").addEventListener("click", terminarBanho);
+  window.addEventListener("resize", () => { if (B) ajustarBanheira(); });
+})();
 
 /* ---------- Código do bebê ---------- */
 // O bebê inteiro vira um texto: BEBE1. seguido do estado compactado em base64.

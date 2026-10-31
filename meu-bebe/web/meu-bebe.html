@@ -335,6 +335,8 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
             <p>Cada cuidado bem feito vale 10 moedas, com o "tlin" da caixa registradora. À meia-noite, se o bebê passou bem o dia, sem chamados urgentes nem pronto-socorro, você ganha mais 50; se não, perde 20. Fralda, leite, lenço, sabonete, pomada e remédios acabam: confira no Inventário e compre na Loja, no Mercado ou na Farmácia. O jogo avisa quando algo está acabando.</p>
             <h3>Roupas e clima</h3>
             <p>Cada dia tem um clima, frio, fresco, agradável ou quente, e a temperatura cai à noite. Roupa de menos dá frio e abre caminho para o resfriado; roupa demais dá calor e piora a febre. Pijama ajuda a dormir melhor à noite. No Inventário, "O que está vestindo" descreve a roupa, diz o tempo lá fora e conta como está a nuca do bebê. No Guarda-roupa, escolher uma peça veste; escolher de novo uma peça que está vestida tira. Também dá para deixar só de fralda. Com frio ou calor demais, o bebê chora. Depois do banho, ele sai sem roupa e sem fralda. Sem fralda, xixi e cocô vão para a cama: o lençol fica sujo e molhado até você trocá-lo, no menu Fralda e banho.</p>
+            <h3>Golfada, gases e intestino preso</h3>
+            <p>Golfada pequena mancha a gola: o paninho de boca resolve. Golfada grande encharca a roupa e mela até o cabelo: só banho. Às vezes o bebê fica com gases presos, ou com o intestino preso depois de muitas horas sem cocô. No menu principal, "Ajudar a soltar" faz a bicicletinha nas perninhas: repita até sair tudo.</p>
             <h3>Banho com o dedo</h3>
             <p>No menu Fralda e banho, "Dar banho, esfregando com o dedo" coloca o bebê na banheira. Passe o dedo pelo corpo: onde está sujo, o celular vibra e soa o barulho de esfregar; quando a parte fica limpa, a vibração para e o jogo avisa. O som acompanha o seu dedo: vai para o fone do lado em que ele está, e fica mais agudo perto da cabeça e mais grave perto dos pés. Esquerda e direita são as da tela. Com o TalkBack, toque duas vezes na banheira e segure, e então arraste. No computador, use as setas. "Ouvir o que falta lavar" diz as partes ainda sujas. Para quem tem pressa, existe o Banho rápido.</p>
             <h3>Troca de fralda passo a passo</h3>
@@ -410,7 +412,7 @@ function novoEstado(nome, sexo, vel) {
     inv: { leite: 10, papinha: 3, fruta: 3, fralda: 15, lenco: 30, sabonete: 10, pomada: 5, antitermico: 3, colica: 2, gel: 2, soro: 5 },
     roupas: ["body-curto", "body-longo", "pijama", "meia"], veste: { corpo: "body-longo", pes: "meia" },
     brinquedos: ["chocalho"],
-    clima: "ameno", avisoClima: -9999, semFralda: false, camaSuja: false, diaStats: { soma: 0, n: 0, chamados: 0, hospital: 0 },
+    clima: "ameno", avisoClima: -9999, semFralda: false, camaSuja: false, sujoGolfo: 0, gases: false, prisao: false, ultimoCoco: 0, ultimaMamada: -9999, soltar: 0, avisoBarriga: -9999, diaStats: { soma: 0, n: 0, chamados: 0, hospital: 0 },
     sons: true, musica: true, trilha: "nuvem", volume: 0.6, pausado: false, ultimoEvento: -999,
     diario: []
   };
@@ -481,9 +483,20 @@ function tocarMusica() {
   } catch (e) { /* sem áudio */ }
 }
 function pararMusica() { if (musica) musica.pause(); }
+function peidar(tons) {
+  tons.forEach((r, i) => setTimeout(() => {
+    if (!S || !S.sons || silencio || !SONS.pum) return;
+    try {
+      const a = new Audio(SONS.pum);
+      a.preservesPitch = false; a.mozPreservesPitch = false; a.webkitPreservesPitch = false;
+      a.playbackRate = r; a.volume = Math.min(1, S.volume);
+      a.play().catch(() => {});
+    } catch (e) { /* sem áudio */ }
+  }, i * 650));
+}
 function arquivoChoro(t) {
   if (t === "doenca") return S.doenca && S.doenca.tipo === "colica" ? "choro-colica" : "choro-doente";
-  return { fome: "choro-fome", fralda: "choro-fralda", higiene: "choro-fralda", molhado: "choro-fralda", frio: "choro-doente", calor: "choro-doente", sono: "choro-sono", carinho: "choro-carinho", arroto: "choro-arroto" }[t] || "choro-fralda";
+  return { fome: "choro-fome", fralda: "choro-fralda", higiene: "choro-fralda", molhado: "choro-fralda", golfo: "choro-fralda", gases: "choro-colica", prisao: "choro-colica", frio: "choro-doente", calor: "choro-doente", sono: "choro-sono", carinho: "choro-carinho", arroto: "choro-arroto" }[t] || "choro-fralda";
 }
 function somChoro(t, fator = 1) { somBebe(arquivoChoro(t), fator); }
 const som = {
@@ -618,6 +631,9 @@ function motivos() {
   const conf = conforto();
   if (conf <= -2) m.push({ t: "frio", p: `Chora encolhid${o()}, com o queixo tremendo. As mãozinhas e os pés estão gelados.` });
   if (conf >= 2.5) m.push({ t: "calor", p: `Chora irritad${o()}, suad${o()}, com o rosto vermelho e o cabelo grudado na testa.` });
+  if (S.sujoGolfo >= 2) m.push({ t: "golfo", p: `Choraminga, melad${o()} de leite azedo no pescoço e no cabelo${Object.keys(S.veste).length ? ", com a roupa encharcada grudada na pele" : ""}.` });
+  if (S.gases) m.push({ t: "gases", p: `Choraminga e se contorce, a barriga estufada e dura. Solta um gemido e encolhe as perninhas.` });
+  if (S.prisao && S.humor < 60) m.push({ t: "prisao", p: `Faz força, fica vermelh${o()}, geme e chora. A barriga está dura, e nada sai.` });
   if (S.camaSuja) m.push({ t: "molhado", p: `Chora deitad${o()} no lençol sujo e molhado, com a pele grudenta e fria.` });
   if (S.fralda < 25) m.push({ t: "fralda", p: `Um choro irritado. ${S.nome} se contorce, chuta as perninhas, e há um cheiro forte no ar.` });
   if (S.energia < 20) m.push({ t: "sono", p: `Um choro manhoso, cortado por bocejos. ${S.nome} esfrega os olhos com as costas da mão e puxa a orelha.` });
@@ -657,7 +673,8 @@ function minuto() {
   else { S.fome -= 0.55; S.energia -= noite() ? 0.6 : 0.4; S.humor -= temBrinquedo("pelucia") ? 0.07 : 0.1; }
   if (S.semFralda) {
     S.fralda = 100;
-    const coco = Math.random() < 0.004, xixi = !coco && Math.random() < 0.012;
+    const coco = !S.prisao && Math.random() < 0.004, xixi = !coco && Math.random() < 0.012;
+    if (coco) S.ultimoCoco = S.min;
     if (coco || xixi) {
       S.camaSuja = true; S.higiene -= coco ? 35 : 15; S.humor -= coco ? 10 : 6; marca("acidente");
       if (coco) somBebe("pum");
@@ -667,7 +684,22 @@ function minuto() {
     }
   } else S.fralda -= 0.22;
   if (S.camaSuja) { S.humor -= 0.1; S.higiene -= 0.05; }
-  if (!S.semFralda && Math.random() < 0.004) {
+  if (S.sujoGolfo >= 2) { S.humor -= 0.08; S.higiene -= 0.04; } else if (S.sujoGolfo === 1) S.humor -= 0.03;
+  // gases presos depois de mamar, e intestino preso depois de muitas horas sem cocô
+  if (!S.gases && !dormindo && S.min - S.ultimaMamada < 90 && Math.random() < 0.002) S.gases = true;
+  if (S.gases) {
+    S.humor -= 0.12;
+    if (Math.random() < 0.004) { S.gases = false; S.soltar = 0; peidar([1.1]); if (!dormindo) falar(`${S.nome} solta um pum sozinh${o()}, arregala os olhos com o barulho e relaxa a barriga.`); }
+  }
+  if (!S.prisao && S.min - S.ultimoCoco > 720 && Math.random() < 0.003) { S.prisao = true; S.soltar = 0; }
+  if (S.prisao) S.humor -= 0.06;
+  if ((S.gases || S.prisao) && !dormindo && !S.chorando && S.min - S.avisoBarriga >= rs(240)) {
+    S.avisoBarriga = S.min;
+    falar(S.prisao ? `${S.nome} faz força, fica vermelh${o()} até as orelhas, geme baixinho... e nada sai. Faz tempo que não suja a fralda de cocô.` : `${S.nome} encolhe as perninhas contra a barriga e geme. A barriga está estufada.`);
+    somBebe("manha", 0.7);
+  }
+  if (!S.semFralda && !S.prisao && Math.random() < 0.004) {
+    S.ultimoCoco = S.min;
     S.fralda -= 45;
     somBebe("pum"); marca("coco");
     if (!dormindo) falar(`${S.nome} faz uma careta de concentração, fica vermelh${o()} e solta um gemido. Logo depois, um cheiro inconfundível sobe da fralda.`);
@@ -682,7 +714,9 @@ function minuto() {
   // cólica por ar preso
   if (S.arrotoPendente && S.min - S.arrotoDesde > 25) {
     S.arrotoPendente = false;
-    if (!S.doenca && Math.random() < 0.6) adoecer("colica");
+    const sorte = Math.random();
+    if (!S.doenca && sorte < 0.35) adoecer("colica");
+    else if (sorte < 0.7) S.gases = true;
   }
   // assadura
   S.sujoTempo = S.fralda < 15 ? S.sujoTempo + 1 : 0;
@@ -876,7 +910,7 @@ const A = {
     } else {
       if (!gastar("leite")) { falar(semEstoque("leite")); som.ruim(); return; }
       if (S.fome < 50) S.pontos += 2;
-      encher(50); S.humor += 5; S.arrotoPendente = true; S.arrotoDesde = S.min;
+      encher(50); S.humor += 5; S.arrotoPendente = true; S.arrotoDesde = S.min; S.ultimaMamada = S.min;
       somBebe("mamar");
       const resfriado = S.doenca && S.doenca.tipo === "resfriado";
       falar(`Você pinga uma gota de leite no pulso: morno, no ponto. ${S.nome} agarra a mamadeira com as duas mãos e ${resfriado ? "mama devagar, parando para respirar pela boca, porque o nariz está entupido" : "mama em goles ritmados, com aquele estalinho de sucção"}. No fim, os olhos pesam. A barriga ficou redonda e cheia de ar.`);
@@ -1044,12 +1078,61 @@ const A = {
     falar(S.dormindo ? `Você deixa o coelhinho perto, fora do berço, para quando ${ele()} acordar.` : `${S.nome} abraça o coelhinho de pelúcia, enfia a orelha dele na boca e fica olhando para você por cima da cabeça do bicho.`);
     depois();
   },
+  paninho() {
+    if (!S.sujoGolfo) { falar(`Você passa o paninho de boca no queixo de ${S.nome}. Não havia nada para limpar, mas ${ele()} gostou do carinho.`); return; }
+    if (S.sujoGolfo >= 2) { falar(`Você tenta com o paninho, mas é leite demais: ${Object.keys(S.veste).length ? "a roupa está encharcada, " : ""}o pescoço e o cabelo estão melados. Só um banho resolve.`); som.ruim(); return; }
+    S.sujoGolfo = 0; S.higiene += 4; S.humor += 3; S.pontos += 1;
+    falar(`Você dobra o paninho de boca e limpa o canto da boca, o queixo e a mancha ${Object.keys(S.veste).length ? "da gola" : "do peito"}. Pronto, limpinh${o()} de novo.`);
+    depois();
+  },
+  soltar() {
+    if (!acordad()) return;
+    const Ele = g("Ele", "Ela");
+    const alvo = S.prisao ? "prisao" : S.gases ? "gases" : null;
+    if (!alvo) {
+      S.soltar = 0; S.humor += 5;
+      falar(`Você deita ${S.nome} de costas e pedala as perninhas devagar, como numa bicicleta. ${Ele} ri, chuta o ar e solta um punzinho de leve. A barriga está tranquila.`);
+      peidar([1.4]); depois(); return;
+    }
+    S.soltar = (S.soltar || 0) + 1;
+    const total = alvo === "prisao" ? 4 : 3, n = S.soltar;
+    if (n < total) {
+      const passos = alvo === "gases" ? [
+        `Você deita ${S.nome} de costas, segura as perninhas e pedala devagar, como numa bicicleta. ${Ele} reclama, a barriga dura como um tambor... e escapa um pum curtinho.`,
+        `Agora você dobra os joelhinhos contra a barriga e segura um pouco. ${S.nome} faz careta, prende o ar... e solta dois puns seguidos, um fininho e um grosso. Difícil não rir.`
+      ] : [
+        `Você deita ${S.nome} de costas e pedala as perninhas, devagar. ${Ele} fica vermelh${o()}, faz força e geme. Sai só um pum tímido.`,
+        `Você dobra os joelhinhos contra a barriga. ${S.nome} prende a respiração, o rosto fica roxinho de tanta força... um pum comprido, mas o cocô não vem.`,
+        `Mais uma série de bicicletinha, com massagem em círculos no sentido do relógio. ${S.nome} solta uma sequência de puns, feito buzina de bicicleta, e geme. Está quase.`
+      ];
+      falar(passos[n - 1] + ` Continue ajudando.`);
+      peidar(n === 1 ? [1.5] : n === 2 ? [1.3, 0.85] : [1.4, 1.2, 1.0, 0.8]);
+      depois(); return;
+    }
+    S.soltar = 0; S.pontos += 2; S.humor += 15;
+    if (alvo === "gases") {
+      S.gases = false;
+      falar(`Na última pedalada, vem: um pum longo e sonoro, que parece não ter fim, e mais dois de brinde. A barriga amolece debaixo da sua mão. ${S.nome} solta o ar, relaxa o corpo inteiro e abre um sorriso de alívio.`);
+      peidar([0.75, 1.0, 1.3]); setTimeout(() => somBebe("riso"), 2600);
+    } else {
+      S.prisao = false; S.ultimoCoco = S.min;
+      const semFr = S.semFralda;
+      if (semFr) { S.camaSuja = true; S.higiene -= 40; marca("acidente"); } else { S.fralda = 3; S.higiene -= 10; }
+      falar(`Você faz a última série e ${S.nome} trava: o rosto vermelho, o queixo tremendo, a respiração presa... um gemido comprido, um pum que vira trovão... e sai. Sai tudo. Um cocô enorme, que ${semFr ? "se espalha pelo lençol, pelas pernas e pela sua mão, porque estava sem fralda" : "enche a fralda até as costas e ainda escapa pela perninha"}. O cheiro toma o quarto. ${S.nome} solta o corpo, aliviad${o()}, e ri como quem ganhou na loteria. ${semFr ? "Agora é banho e lençol limpo." : "Agora é trocar essa fralda."}`);
+      peidar([0.9, 0.7, 0.62]); setTimeout(() => somBebe("riso"), 3000);
+    }
+    depois();
+  },
   massagem() {
     if (!acordad()) return;
     if (S.doenca && S.doenca.tipo === "colica") {
       tratar(true); S.humor += 8;
       falar(`Você esfrega as mãos para esquentar e faz círculos na barriga de ${S.nome}, no sentido do relógio. Depois a bicicletinha com as pernas. Escapa um pum, depois outro. O choro vai perdendo força até virar um gemido cansado.`);
       som.bom();
+    } else if (S.gases || S.prisao) {
+      S.humor += 6; S.soltar = (S.soltar || 0) + 1;
+      falar(`Você esquenta as mãos e massageia a barriga em círculos, no sentido do relógio. ${S.nome} geme e solta um pum. Ajuda, mas ainda não resolveu: a bicicletinha nas perninhas, em "Ajudar a soltar", termina o serviço.`);
+      peidar([1.2]);
     } else {
       S.humor += 6;
       falar(`Você faz uma massagem lenta na barriga e nas perninhas de ${S.nome}. ${g("Ele", "Ela")} relaxa os ombros e fica olhando para você, mole e satisfeit${o()}.`);
@@ -1064,6 +1147,9 @@ const A = {
     if (S.energia < 40 && !S.dormindo) p.push(`Os olhos estão vermelhos e ${ele()} boceja.`);
     if (S.higiene < 40) p.push(`O pescoço tem leite seco nas dobrinhas e o cabelo está suado.`);
     if (S.arrotoPendente) p.push(`A barriga está estufada de ar.`);
+    if (S.gases) p.push(`A barriga está estufada e dura como um tambor; quando você aperta de leve, ${ele()} encolhe as pernas.`);
+    if (S.prisao) p.push(`Faz muitas horas que não sai cocô, e a barriga está dura embaixo do umbigo.`);
+    if (S.sujoGolfo) p.push(S.sujoGolfo >= 2 ? `Está melad${o()} de leite golfado, do pescoço ao cabelo.` : `Tem uma manchinha de leite golfado perto da boca.`);
     if (S.fome > 95) p.push(`A barriga está dura de tão cheia.`);
     if (!p.length) p.push(`Pele rosada, olhos atentos, respiração tranquila. Nada de errado.`);
     falar(`Você observa ${S.nome} com atenção. ` + p.join(" "));
@@ -1089,6 +1175,7 @@ const A = {
     if (S.doenca) { falar(`Você liga para a doutora Helena e descreve o que vê. Ela escuta e responde: ${DOENCAS[S.doenca.tipo].diag()}`); return; }
     const v = vacinaPendente();
     if (v) { falar(`A doutora Helena atende e, antes de tudo, pergunta da caderneta: "A vacina dos ${v.m} meses está atrasada. Leve ao posto de saúde."`); return; }
+    if (S.gases || S.prisao) { falar(`A doutora Helena explica: "${S.prisao ? "Intestino preso é comum." : "Gases presos são comuns."} Deite de costas e faça a bicicletinha com as perninhas, e massagem na barriga em círculos, no sentido do relógio. ${idade() >= 6 ? "Ofereça água e fruta, como mamão." : "Se durar muitos dias, me traga para eu ver."}"`); return; }
     const k = [["fome", "Ofereça a mamadeira em livre demanda, sempre que pedir."], ["fralda", "Troque a fralda com frequência, para não assar."], ["energia", "Bebê dessa idade dorme muitas horas por dia. Respeite os sinais de sono."], ["higiene", "Um banho morno por dia é suficiente."], ["humor", "Colo não vicia. Bebê precisa de contato e de conversa."]];
     k.sort((a, b) => S[a[0]] - S[b[0]]);
     falar(`A doutora Helena diz que, pelo que você conta, ${S.nome} está saudável. Um conselho: "${k[0][1]}"`);
@@ -1162,12 +1249,18 @@ function golfar() {
   marca("golfou");
   const acordou = S.dormindo;
   S.dormindo = false;
-  S.fome = clamp(S.fome - 20); S.higiene = clamp(S.higiene - 15); S.humor = clamp(S.humor - 6);
+  // golfada grande quando o exagero se repete, ou por azar; senão, só um pouquinho
+  const grande = S.excessos >= 2 || Math.random() < 0.35;
+  S.fome = clamp(S.fome - (grande ? 20 : 8)); S.higiene = clamp(S.higiene - (grande ? 15 : 5)); S.humor = clamp(S.humor - (grande ? 6 : 2));
   S.arrotoPendente = false;
+  S.sujoGolfo = Math.max(S.sujoGolfo || 0, grande ? 2 : 1);
+  const vestid = Object.keys(S.veste).some(p => ROUPAS[S.veste[p]]);
   let aviso = "";
   if (S.excessos >= 3) { S.saude = clamp(S.saude - 5); S.pontos -= 2; aviso = ` É a terceira vez que golfa de tanto mamar. A barriga de um bebê tem o tamanho de um ovo: ofereça leite quando ${ele()} pedir, não antes.`; S.excessos = 0; }
-  somBebe("golfada");
-  falar(`${acordou ? `${S.nome} acorda de repente. ` : ""}${S.nome} franze a testa, faz força com a barriga, tosse duas, três vezes, e golfa: um jato de leite morno e talhado sai pela boca, escorre pelo queixo e molha a roupinha e o lençol. O cheiro azedo de leite sobe. Depois, ${ele()} fica olhando para você, surpres${o()}, e respira aliviad${o()}. Comeu mais do que cabia.${aviso}`);
+  somBebe("golfada", grande ? 1 : 0.6);
+  falar((acordou ? `${S.nome} acorda de repente. ` : "") + (grande
+    ? `${S.nome} franze a testa, faz força com a barriga, tosse duas, três vezes, e golfa: um jato de leite morno e talhado sai pela boca, escorre pelo queixo e pelo pescoço, ${vestid ? "encharca a roupinha" : "escorre pelo peito"} e chega no cabelo. O cheiro azedo de leite sobe. É coisa demais para um paninho: só um banho resolve.`
+    : `${S.nome} solta um arrotinho molhado e um pouquinho de leite escorre pelo canto da boca, ${vestid ? "manchando a gola da roupa" : "descendo pelo queixo"}. Um paninho de boca resolve.`) + aviso);
 }
 function comidaSolida(qual) {
   if (!acordad()) return;
@@ -1247,6 +1340,8 @@ function comoEstaTexto() {
   if (cf <= -1.5 && !S.chorando) p.push(`As mãozinhas estão geladas.`);
   if (cf >= 1.5 && !S.chorando) p.push(`A nuca está suada.`);
   if (S.camaSuja && !S.chorando) p.push(`O lençol está sujo.`);
+  if (S.sujoGolfo === 1) p.push(`Tem uma mancha de leite golfado ${Object.keys(S.veste).length ? "na gola" : "no queixo"}.`);
+  if (S.sujoGolfo >= 2 && !S.chorando) p.push(`Está melad${o()} de leite golfado, até o cabelo.`);
   return p.join(" ");
 }
 function comoEsta() { falar(comoEstaTexto()); }
@@ -1369,7 +1464,7 @@ function fraseRoupa(sujeito = "Está") {
   return `${sujeito} com ${descricaoRoupa()}.`;
 }
 function tirarTudoNoBanho() {
-  S.veste = {}; S.semFralda = true; S.fralda = 100;
+  S.veste = {}; S.semFralda = true; S.fralda = 100; S.sujoGolfo = 0;
   avisos.push("Seu bebê ainda está sem roupa. E sem fralda: coloque uma antes que faça xixi na cama.");
 }
 function tirarRoupa() {
@@ -1388,6 +1483,7 @@ function vestir(id) {
   }
   if (parte === "corpo" && S.dormindo) { S.dormindo = false; S.humor -= 5; pre = `${S.nome} acorda com a troca de roupa e resmunga. `; }
   const antes = S.veste[parte];
+  if (parte === "corpo" && S.sujoGolfo === 1 && antes) { S.sujoGolfo = 0; pre += "A roupa manchada vai para lavar. "; }
   S.veste[parte] = id;
   const como = {
     corpo: `Você passa a cabeça pela gola com cuidado, um braço de cada vez, e fecha os botões de pressão entre as perninhas.`,
@@ -1413,6 +1509,7 @@ const MENUS = {
     { r: "Fralda e banho", sub: "higiene" },
     { r: "Sono", sub: "sono" },
     { r: "Colo e brincadeiras", sub: "carinho" },
+    { r: S.prisao ? "Ajudar a soltar o cocô preso" : S.gases ? "Ajudar a soltar os gases" : "Ajudar a soltar: bicicletinha nas perninhas", f: A.soltar },
     { r: "Inventário: guarda-roupa, remédios e mais", sub: "inventario" },
     { r: `Loja, ${S.moedas} moedas`, sub: "loja" },
     { r: vacinaPendente() ? "Saúde, com vacina pendente" : "Saúde e remédios", sub: "saude" },
@@ -1454,6 +1551,7 @@ const MENUS = {
   alimentar: { t: () => "Alimentar", itens: () => [
     { r: "Dar mamadeira de leite", f: A.mamadeira },
     { r: "Fazer arrotar no ombro", f: A.arrotar },
+    { r: "Limpar com o paninho de boca", f: A.paninho },
     { r: "Dar papinha salgada (a partir de 6 meses)", f: A.papinha },
     { r: "Dar fruta amassada (a partir de 6 meses)", f: A.fruta },
     { r: "Oferecer água (a partir de 6 meses)", f: A.agua }
@@ -1465,7 +1563,8 @@ const MENUS = {
     ...(S.camaSuja ? [{ r: "Trocar o lençol sujo", f: A.lencol }] : []),
     { r: "Dar banho, esfregando com o dedo", f: abrirBanho },
     { r: "Banho rápido", f: A.banho },
-    { r: "Limpar com lenço umedecido", f: A.lenco }
+    { r: "Limpar com lenço umedecido", f: A.lenco },
+    { r: "Limpar com o paninho de boca", f: A.paninho }
   ]},
   sono: { t: () => "Sono", itens: () => [
     { r: "Ninar no colo", f: A.ninar },
@@ -1703,7 +1802,7 @@ function recuperar(dt) {
   try { for (let i = 0; i < minutos; i++) minuto(); } finally { silencio = null; }
   desenhar(); salvar();
 }
-const NOMES_CHORO = { frio: "de frio", calor: "de calor", molhado: "deitado no lençol molhado", fome: "de fome", fralda: "por causa da fralda suja", sono: "de sono", higiene: "com a pele suja e coçando", carinho: "pedindo colo", arroto: "com ar preso na barriga", doenca: "de dor e mal-estar" };
+const NOMES_CHORO = { golfo: "melado de leite golfado", gases: "com gases presos", prisao: "com o intestino preso", frio: "de frio", calor: "de calor", molhado: "deitado no lençol molhado", fome: "de fome", fralda: "por causa da fralda suja", sono: "de sono", higiene: "com a pele suja e coçando", carinho: "pedindo colo", arroto: "com ar preso na barriga", doenca: "de dor e mal-estar" };
 function vezes(n) { return n === 1 ? "uma vez" : n === 2 ? "duas vezes" : n + " vezes"; }
 function textoAusencia(a) {
   const r = a.r, p = [];

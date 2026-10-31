@@ -92,6 +92,7 @@ input[type="radio"] { width: 1.2em; height: 1.2em; accent-color: var(--accent); 
 }
 .btn.sec { background: transparent; color: var(--accent); }
 .dica { color: var(--muted); font-size: 1rem; max-width: 62ch; }
+textarea { font: 0.95rem/1.4 ui-monospace, Menlo, Consolas, monospace; padding: 10px 12px; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); color: var(--fg); width: 100%; word-break: break-all; resize: vertical; }
 
 /* Jogo */
 .grade { display: grid; gap: 20px; grid-template-columns: 1fr; grid-template-areas: "alerta" "narra" "menu" "berco" "diario"; }
@@ -170,6 +171,7 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
     <div id="continuar-bloco" class="botoes" hidden>
       <button type="button" class="btn" id="btn-continuar">Continuar</button>
     </div>
+    <div class="botoes"><button type="button" class="btn sec" id="btn-codigo">Tenho um código de bebê</button></div>
     <form id="form-novo" novalidate>
       <div class="campo">
         <label for="nome">Nome do bebê</label>
@@ -192,6 +194,18 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
       </div>
       <div class="botoes"><button type="submit" class="btn" id="btn-comecar">Começar a cuidar</button></div>
     </form>
+  </section>
+
+  <!-- Código do bebê: guardar e recuperar -->
+  <section id="codigo" class="painel" aria-labelledby="codigo-titulo" hidden>
+    <h2 id="codigo-titulo" tabindex="-1">Código do bebê</h2>
+    <p class="dica" id="codigo-dica"></p>
+    <div class="campo">
+      <label for="codigo-texto" id="codigo-rotulo">Código do bebê</label>
+      <textarea id="codigo-texto" rows="6" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+    </div>
+    <p id="codigo-msg" role="status" aria-live="polite"></p>
+    <div class="botoes" id="codigo-botoes"></div>
   </section>
 
   <!-- Jogo -->
@@ -282,7 +296,7 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
             <p>Os choros, o riso, o arroto, o pum, o som de mamar e o de abrir a fralda são gravações. O pum avisa que a fralda acabou de encher, mesmo com o bebê dormindo. A golfada soa como uma tossidinha seguida de líquido caindo. Cada motivo tem seu próprio choro: fome, fralda, sono, cólica, doença, falta de colo e precisar arrotar. Aprenda a reconhecer cada um pelo ouvido. Antes de chorar, o bebê costuma resmungar com sonzinhos manhosos: é a hora de agir. Ao conversar, ele balbucia de volta. Enquanto o bebê chora, o choro volta a tocar baixinho de tempos em tempos. Ao fundo toca uma caixinha de música, que dá para desligar. Volume e liga-desliga ficam no menu Opções.</p>
             <h3>Com o app fechado</h3>
             <p>O tempo continua correndo. O bebê sente fome, suja a fralda e fica com sono mesmo com o celular no bolso. Quando ele começa a precisar de você, chega uma notificação, e outra a cada 10 minutos até você abrir o app. Se a situação ficar crítica, a notificação vira um chamado: três bipes, três vezes, e o celular vibra. Ao voltar, o jogo conta o que aconteceu enquanto você esteve fora. Para dormir ou trabalhar em paz, use Pausar o tempo e os avisos, no menu Opções: pausado, o bebê não muda e não chega aviso nenhum.</p>
-            <p>O jogo salva sozinho.</p>
+            <p>O jogo salva sozinho. Para guardar o bebê fora do app, antes de desinstalar ou para levar a outro celular, use "Copiar o código do bebê", no menu Opções. Para trazer de volta, use "Tenho um código de bebê", na tela inicial.</p>
             <h3>Créditos dos sons</h3>
             <ul>
               <li>Balbucio e resmungo manhoso: Donate-a-Cry Corpus, mesma licença dos choros.</li>
@@ -1149,6 +1163,8 @@ const MENUS = {
     { r: "Ouvir como o bebê chama", f: () => { falar(`Quando a situação fica crítica, ${S.nome} chama assim: três bipes, três vezes, e o celular vibra.`); somBebe("chamado", 1.4); vibrar([250, 120, 250, 120, 250]); }, fica: true },
     ...(window.Android && window.Android.testar ? [{ r: "Testar uma notificação agora", f: () => { window.Android.testar(`${S.nome} precisa de atenção`, "Teste: é assim que os avisos chegam."); falar("Notificação de teste enviada."); }, fica: true }] : []),
     { r: "Repetir a última mensagem", f: repetir },
+    { r: "Copiar o código do bebê, para guardar", f: () => abrirCodigo("copiar") },
+    { r: "Trazer um bebê de um código", f: () => abrirCodigo("colar") },
     { r: "Abrir instruções de como jogar", f: () => { const d = $("ajuda"); d.open = true; d.querySelector("summary").focus(); } },
     { r: Date.now() < confirmarNovoAte ? "Confirmar: apagar este bebê e começar de novo" : "Começar com um novo bebê", f: novoBebe, fica: true }
   ]}
@@ -1253,7 +1269,7 @@ function novoBebe() {
     return;
   }
   confirmarNovoAte = Date.now() + 10000;
-  falar("Isso apaga o bebê atual e todo o progresso. Para confirmar, ative a mesma opção de novo nos próximos 10 segundos.");
+  falar("Isso apaga o bebê atual e todo o progresso. Se quiser guardar este bebê antes, use Copiar o código do bebê. Para apagar, ative a mesma opção de novo nos próximos 10 segundos.");
 }
 let audioAtivo = false;
 function ativarAudio() { tocarMusica(); if (audioAtivo) return; audioAtivo = true; try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); ctx.resume(); } catch (e) {} }
@@ -1414,6 +1430,7 @@ window.aoVoltar = () => {
   if (S && !$("jogo").hidden) { passo(); contarAusencia(); tocarMusica(); }
 };
 window.voltarAndroid = () => {
+  if (!$("codigo").hidden) { fecharCodigo(); return true; }
   if (S && !$("jogo").hidden && pilha.length > 1) { voltar(); return true; }
   return false;
 };
@@ -1466,6 +1483,102 @@ function continuarJogo() {
   entrarNoJogo(intro);
   setTimeout(() => { alertaSilencioso(); if (S.chamando) { somBebe("chamado", 1.4); vibrar([250, 120, 250, 120, 250]); } else if (S.chorando && !S.dormindo) somChoro(S.motivoAtual); }, 400);
 }
+
+/* ---------- Código do bebê ---------- */
+// O bebê inteiro vira um texto: BEBE1. seguido do estado compactado em base64.
+const base64 = {
+  de: u8 => { let t = ""; for (const c of u8) t += String.fromCharCode(c); return btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); },
+  para: t => { t = t.replace(/-/g, "+").replace(/_/g, "/"); while (t.length % 4) t += "="; return Uint8Array.from(atob(t), c => c.charCodeAt(0)); }
+};
+async function passarPor(u8, Fluxo) {
+  const r = new Blob([u8]).stream().pipeThrough(new Fluxo("deflate"));
+  return new Uint8Array(await new Response(r).arrayBuffer());
+}
+async function gerarCodigo() {
+  const dados = Object.assign({}, S, { diario: [] });
+  const json = JSON.stringify(dados, (k, v) => typeof v === "number" && k !== "vel" && k !== "volume" && !Number.isInteger(v) ? Math.round(v * 100) / 100 : v);
+  const u8 = new TextEncoder().encode(json);
+  if (window.CompressionStream) return "BEBE1." + base64.de(await passarPor(u8, CompressionStream));
+  return "BEBE0." + base64.de(u8);
+}
+async function lerCodigo(txt) {
+  const m = txt.replace(/\s+/g, "").match(/BEBE([01])\.([A-Za-z0-9_-]+)/);
+  if (!m) throw new Error("formato");
+  let u8 = base64.para(m[2]);
+  if (m[1] === "1") u8 = await passarPor(u8, DecompressionStream);
+  const d = JSON.parse(new TextDecoder().decode(u8));
+  if (!d || typeof d.nome !== "string" || typeof d.min !== "number") throw new Error("dados");
+  return d;
+}
+let codigoDoJogo = false;
+function abrirCodigo(modo) {
+  const ta = $("codigo-texto"), bt = $("codigo-botoes");
+  codigoDoJogo = !$("jogo").hidden;
+  $("codigo-msg").textContent = "";
+  bt.replaceChildren();
+  const botao = (txt, f, secundario) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "btn" + (secundario ? " sec" : ""); b.textContent = txt;
+    b.addEventListener("click", f); bt.append(b);
+  };
+  if (modo === "copiar") {
+    $("codigo-titulo").textContent = `Código de ${S.nome}`;
+    $("codigo-dica").textContent = `Este código guarda ${S.nome} inteir${o()}: idade, saúde, vacinas e pontos. Guarde num lugar seguro, como uma mensagem para você mesma. Para trazer de volta, use "Tenho um código de bebê", na tela inicial.`;
+    $("codigo-rotulo").textContent = "Código do bebê, só para leitura";
+    ta.readOnly = true; ta.value = "Gerando o código...";
+    gerarCodigo().then(c => { ta.value = c; });
+    botao("Copiar o código", copiarCodigo);
+    if (window.Android && window.Android.compartilhar) botao("Mandar o código para outro app", () => window.Android.compartilhar(ta.value), true);
+    botao("Fechar", fecharCodigo, true);
+  } else {
+    $("codigo-titulo").textContent = "Tenho um código de bebê";
+    $("codigo-dica").textContent = "Cole aqui o código que você guardou. Ele começa com BEBE." + (S ? ` O bebê do código vai substituir ${S.nome}.` : "");
+    $("codigo-rotulo").textContent = "Código do bebê";
+    ta.readOnly = false; ta.value = "";
+    if (window.Android && window.Android.colar) botao("Colar o que copiei", () => {
+      ta.value = window.Android.colar() || "";
+      $("codigo-msg").textContent = ta.value ? "Código colado. Agora toque em Trazer o bebê de volta." : "Não há nada copiado.";
+    }, true);
+    botao("Trazer o bebê de volta", carregarCodigo);
+    botao("Cancelar", fecharCodigo, true);
+  }
+  $("inicio").hidden = true; $("jogo").hidden = true; $("codigo").hidden = false;
+  $("codigo-titulo").focus();
+}
+async function copiarCodigo() {
+  const ta = $("codigo-texto"), msg = $("codigo-msg");
+  try {
+    if (window.Android && window.Android.copiar) window.Android.copiar(ta.value);
+    else await navigator.clipboard.writeText(ta.value);
+    msg.textContent = "Código copiado. Agora cole numa mensagem ou numa nota para guardar.";
+  } catch (e) {
+    ta.focus(); ta.select();
+    msg.textContent = "Não consegui copiar sozinho. O código está selecionado: copie com o comando do seu leitor de tela ou do teclado.";
+  }
+}
+async function carregarCodigo() {
+  try {
+    const d = await lerCodigo($("codigo-texto").value);
+    clearInterval(relogio);
+    S = Object.assign(novoEstado(d.nome, d.sexo, d.vel), d);
+    if (!VEL.includes(S.vel)) S.vel = VEL[1];
+    if (!VOLUMES.includes(S.volume)) S.volume = 0.6;
+    S.ultimoReal = Date.now(); S.pausado = false; S.diario = [];
+    salvar();
+    $("codigo").hidden = true;
+    entrarNoJogo(`${S.nome} está de volta! Dia ${dia()}, ${hhmm()}, ${idade()} ${idade() === 1 ? "mês" : "meses"}. O tempo ficou parado enquanto ${ele()} estava guardad${o()} no código. ` + comoEstaTexto());
+  } catch (e) {
+    $("codigo-msg").textContent = "Esse código não funcionou. Confira se copiou o código inteiro, do BEBE do começo até o último caractere.";
+    $("codigo-texto").focus();
+  }
+}
+function fecharCodigo() {
+  $("codigo").hidden = true;
+  if (S && codigoDoJogo) { $("jogo").hidden = false; renderMenu(0); }
+  else { $("inicio").hidden = false; $("btn-codigo").focus(); }
+}
+$("btn-codigo").addEventListener("click", () => abrirCodigo("colar"));
+$("codigo").addEventListener("keydown", e => { if (e.key === "Escape") { e.preventDefault(); fecharCodigo(); } });
 
 function boot(dados) {
   if (window.Android) document.querySelector(".teclas").textContent = "Toque duas vezes numa opção para escolher. O botão voltar do celular volta ao menu anterior.";

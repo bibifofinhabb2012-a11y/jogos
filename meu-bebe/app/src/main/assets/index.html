@@ -335,6 +335,10 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
             <p>Cada cuidado bem feito vale 10 moedas, com o "tlin" da caixa registradora. À meia-noite, se o bebê passou bem o dia, sem chamados urgentes nem pronto-socorro, você ganha mais 50; se não, perde 20. Fralda, leite, lenço, sabonete, pomada e remédios acabam: confira no Inventário e compre na Loja, no Mercado ou na Farmácia. O jogo avisa quando algo está acabando.</p>
             <h3>Roupas e clima</h3>
             <p>Cada dia tem um clima, frio, fresco, agradável ou quente, e a temperatura cai à noite. Roupa de menos dá frio e abre caminho para o resfriado; roupa demais dá calor e piora a febre. Pijama ajuda a dormir melhor à noite. No Inventário, "O que está vestindo" descreve a roupa, diz o tempo lá fora e conta como está a nuca do bebê. No Guarda-roupa, escolher uma peça veste; escolher de novo uma peça que está vestida tira. Também dá para deixar só de fralda. Com frio ou calor demais, o bebê chora. Depois do banho, ele sai sem roupa e sem fralda. Sem fralda, xixi e cocô vão para a cama: o lençol fica sujo e molhado até você trocá-lo, no menu Fralda e banho.</p>
+            <h3>Dicas</h3>
+            <p>Quando algo acontece, como um dente nascendo ou um resfriado, o jogo dá uma dica do que fazer. Dá para desligar em Opções. "Pedir uma dica", no menu principal, diz o que é mais urgente agora, ou conta uma curiosidade quando está tudo bem. Toda manhã, junto com o tempo, vem a dica do dia.</p>
+            <h3>Dançar</h3>
+            <p>No app do celular, balance o aparelho de um lado para o outro, devagar e no ritmo de uma música: é como dançar com o bebê no colo. Ele ri e dança junto; com sono, adormece embalado. Logo depois de mamar, golfa. Sacudir com força assusta e faz chorar, como seria com um bebê de verdade.</p>
             <h3>Crescimento</h3>
             <p>Cada dia do jogo é um mês, e o bebê cresce: sorri, sustenta a cabeça, ri alto, rola, senta, fala as primeiras sílabas, engatinha, fica de pé, dá tchau, anda segurando nos móveis e, perto de um ano, fala a primeira palavra e dá os primeiros passos. Cada marco rende 20 moedas e fica anotado em "Marcos de crescimento", no menu Saúde. Depois que engatinha, o bebê às vezes some atrás de uma arte: use "Ir ver o que está aprontando", no menu principal, antes que leve um tombo. A papinha muda o cocô: cor, cheiro e consistência dependem do que ele comeu. Banana prende o intestino; mamão solta.</p>
             <h3>Golfada, gases e intestino preso</h3>
@@ -415,7 +419,7 @@ function novoEstado(nome, sexo, vel) {
     inv: { leite: 10, papinha: 3, fruta: 3, fralda: 15, lenco: 30, sabonete: 10, pomada: 5, antitermico: 3, colica: 2, gel: 2, soro: 5 },
     roupas: ["body-curto", "body-longo", "pijama", "meia"], veste: { corpo: "body-longo", pes: "meia" },
     brinquedos: ["chocalho"],
-    clima: "ameno", avisoClima: -9999, semFralda: false, camaSuja: false, sujoGolfo: 0, gases: false, prisao: false, ultimoCoco: 0, ultimaMamada: -9999, soltar: 0, avisoBarriga: -9999, marcos: [], ultimoMarco: -9999, perigo: null, comidas: [], cocoDesc: null, cocoComidaVisto: false, palavra: null, diaStats: { soma: 0, n: 0, chamados: 0, hospital: 0 },
+    clima: "ameno", avisoClima: -9999, semFralda: false, camaSuja: false, sujoGolfo: 0, gases: false, prisao: false, ultimoCoco: 0, ultimaMamada: -9999, soltar: 0, avisoBarriga: -9999, marcos: [], ultimoMarco: -9999, dicas: true, dicaN: 0, perigo: null, comidas: [], cocoDesc: null, cocoComidaVisto: false, palavra: null, diaStats: { soma: 0, n: 0, chamados: 0, hospital: 0 },
     sons: true, musica: true, trilha: "nuvem", volume: 0.6, pausado: false, ultimoEvento: -999,
     diario: []
   };
@@ -600,6 +604,83 @@ function adoecer(tipo, leve) {
   S.doenca = { tipo, inicio: S.min, tratadoEm: null, leve: !!leve };
   if (tipo === "dentes") S.dentesVezes++;
   som.doente();
+  if (S.dicas && !silencio) setTimeout(() => { if (S && S.doenca && S.doenca.tipo === tipo && !S.doenca.tratadoEm) acrescentar("Dica: " + DICAS_DOENCA[tipo]()); }, 2500);
+}
+const DICAS_DOENCA = {
+  dentes: () => `Tem um dente nascendo. Você pode oferecer um mordedor gelado${temBrinquedo("mordedor") ? "" : ", que tem na loja de brinquedos,"} ou passar o gel na gengiva. Pode dar uma febrinha.`,
+  resfriado: () => `É um resfriado. Pingue soro fisiológico e aspire o narizinho, no menu Saúde.`,
+  febre: () => `Parece febre. Meça a temperatura. Com febre: antitérmico, roupa leve e banho morno.`,
+  colica: () => `É cólica. Faça massagem na barriga e a bicicletinha nas perninhas; se não passar, gotas para cólica.`,
+  assadura: () => `A pele assou. Troque a fralda e passe a pomada para assadura.`
+};
+// A dica mais útil agora; se estiver tudo bem, uma curiosidade do jogo.
+const CURIOSIDADES = [
+  () => `Caso queira ver ${S.nome} dançar, segure o celular e balance de um lado para o outro, devagar, no ritmo de uma música. Veja o que acontece. Só não faça isso logo depois de mamar.`,
+  () => `Antes de chorar, ${S.nome} costuma resmungar com uns sonzinhos manhosos. É a hora de agir.`,
+  () => `Depois de mamar, faça arrotar. Ar preso vira gases e cólica.`,
+  () => `No banho com o dedo, o som vai para o lado da tela em que o seu dedo está: mais agudo na cabeça, mais grave nos pés.`,
+  () => `Antes de desinstalar o app, copie o código do bebê, no menu Opções. Com ele, ${S.nome} volta inteir${o()}.`,
+  () => `Pijama ajuda a dormir melhor à noite. Veja o tempo lá fora no Inventário, em "O que está vestindo".`,
+  () => idade() >= 6 ? `Banana prende o intestino; mamão solta. E papinha de beterraba deixa o cocô vermelho, sem perigo nenhum.` : `A partir dos 6 meses, ${S.nome} pode comer papinha e fruta. O cocô vai mudar, prepare-se.`,
+  () => `Cada cuidado bem feito vale 10 moedas, e um dia inteiro bem cuidado vale mais 50.`
+];
+function dicaAgora() {
+  const d = S.doenca;
+  if (d && !d.tratadoEm) return DICAS_DOENCA[d.tipo]();
+  if (S.perigo) return `${S.nome} está aprontando: use "Ir ver o que está aprontando", no menu principal.`;
+  if (S.gases || S.prisao) return `${S.prisao ? "O intestino está preso" : "Tem gases presos"}. Use "Ajudar a soltar", no menu principal, várias vezes seguidas.`;
+  if (S.sujoGolfo >= 2) return `Está melad${o()} de golfada: só um banho resolve.`;
+  if (S.sujoGolfo === 1) return `Tem uma manchinha de golfada: o paninho de boca resolve.`;
+  if (S.camaSuja) return `O lençol está sujo: troque no menu Fralda e banho.`;
+  if (S.semFralda) return `${S.nome} está sem fralda. Coloque uma antes que faça xixi na cama.`;
+  const c = conforto();
+  if (c <= -1.5) return `${S.nome} está com frio. Veja a roupa no Guarda-roupa, dentro do Inventário.`;
+  if (c >= 1.5) return `${S.nome} está com calor. Tire uma peça de roupa no Guarda-roupa.`;
+  const v = vacinaPendente(); if (v) return `A vacina dos ${v.m} meses está pendente. O posto abre das 8h às 17h.`;
+  const falta = ["leite", "fralda", "lenco"].find(k => (S.inv[k] || 0) <= 2);
+  if (falta) return `Está acabando: ${qtd(falta)}. Compre ${NOMES_LOJA[ITENS[falta].loja]}, no menu Loja.`;
+  const cur = CURIOSIDADES[S.dicaN % CURIOSIDADES.length]; S.dicaN++;
+  return cur();
+}
+function pedirDica() { falar("Dica: " + dicaAgora()); }
+// Balançar o celular = dançar com o bebê no colo. Ritmo suave faz rir; sacudida forte assusta.
+const picos = []; let ultimaDanca = -Infinity;
+window.balancou = forca => {
+  if (!S || $("jogo").hidden || S.pausado) return;
+  const t = performance.now();
+  if (forca > 22) { picos.length = 0; if (t - ultimaDanca > 8000) { ultimaDanca = t; sacudidaForte(); } return; }
+  picos.push(t); while (picos.length && t - picos[0] > 6000) picos.shift();
+  if (picos.length < 6 || t - ultimaDanca < 15000) return;
+  const iv = picos.slice(1).map((x, i) => x - picos[i]), media = iv.reduce((a, b) => a + b, 0) / iv.length;
+  const desvio = Math.sqrt(iv.reduce((a, b) => a + (b - media) ** 2, 0) / iv.length);
+  if (media < 280 || media > 1300 || desvio / media > 0.35) return;
+  picos.length = 0; ultimaDanca = t;
+  dancar(media);
+};
+function dancar(media) {
+  if (S.dormindo) { falar(`Você dança devagarinho com ${S.nome} no colo. ${g("Ele", "Ela")} continua dormindo, embalad${o()}, a bochecha amassada no seu ombro.`); return; }
+  if (S.min - S.ultimaMamada < 30 && S.fome > 60) {
+    falar(`Você começa a dançar com ${S.nome} no colo, mas a barriga ainda está cheia da mamada...`);
+    setTimeout(() => { golfar(true); depois(); }, 1500);
+    return;
+  }
+  const extra = atenderDesejo("musica");
+  if (S.energia < 45 && media > 650 && !motivos().some(x => x.t !== "sono")) {
+    S.dormindo = true; S.humor += 6;
+    falar(`Você dança devagar, de um lado para o outro. A cabeça de ${S.nome} vai pesando no seu ombro, as pálpebras fecham... dormiu, embalad${o()} pela dança.` + extra);
+    depois(); return;
+  }
+  if (S.chorando) { S.humor += 5; falar(`Você dança com ${S.nome} no colo, no ritmo. O choro diminui um pouco, mas não passa: alguma coisa ainda incomoda.`); depois(); return; }
+  S.humor += 12; S.energia -= 5;
+  if (!extra) somBebe("riso");
+  falar(`Você segura ${S.nome} no colo e dança no ritmo. ${g("Ele", "Ela")} solta uma gargalhada, sacode os bracinhos para cima e para baixo e bate as perninhas, dançando junto, com os olhos brilhando.` + extra);
+  depois();
+}
+function sacudidaForte() {
+  S.humor -= 15; S.pontos -= 2;
+  falar(`Devagar! ${S.nome} se assusta com o tranco, arregala os olhos e cai no choro. Bebê de verdade nunca pode ser sacudido: o pescoço e o cérebro ainda são frágeis, e chacoalhar pode machucar sério. Dançar é balançar suave, no colo.`);
+  somChoro("carinho");
+  depois();
 }
 function tratar(bonusCura) {
   const d = S.doenca;
@@ -641,7 +722,7 @@ function motivos() {
   if (S.fralda < 25) m.push({ t: "fralda", p: `Um choro irritado. ${S.nome} se contorce, chuta as perninhas, e há um cheiro forte no ar.` });
   if (S.energia < 20) m.push({ t: "sono", p: `Um choro manhoso, cortado por bocejos. ${S.nome} esfrega os olhos com as costas da mão e puxa a orelha.` });
   if (S.higiene < 15) m.push({ t: "higiene", p: `Choraminga e se coça. A pele está grudenta e o cabelinho, suado.` });
-  if (S.humor < 25) m.push({ t: "carinho", p: `Chora olhando para você e estende os bracinhos. O choro para por um segundo quando você chega perto.` });
+  if (S.humor < (S.doenca ? 45 : 25)) m.push({ t: "carinho", p: `Chora olhando para você e estende os bracinhos. O choro para por um segundo quando você chega perto.` });
   return m;
 }
 function avaliarChoro() {
@@ -698,7 +779,7 @@ function minuto() {
   if (S.prisao) S.humor -= 0.06;
   if ((S.gases || S.prisao) && !dormindo && !S.chorando && S.min - S.avisoBarriga >= rs(240)) {
     S.avisoBarriga = S.min;
-    falar(S.prisao ? `${S.nome} faz força, fica vermelh${o()} até as orelhas, geme baixinho... e nada sai. Faz tempo que não suja a fralda de cocô.` : `${S.nome} encolhe as perninhas contra a barriga e geme. A barriga está estufada.`);
+    falar((S.prisao ? `${S.nome} faz força, fica vermelh${o()} até as orelhas, geme baixinho... e nada sai. Faz tempo que não suja a fralda de cocô.` : `${S.nome} encolhe as perninhas contra a barriga e geme. A barriga está estufada.`) + (S.dicas ? ` Dica: use "Ajudar a soltar", no menu principal.` : ""));
     somBebe("manha", 0.7);
   }
   if (!S.semFralda && !S.prisao && Math.random() < 0.004) {
@@ -736,6 +817,7 @@ function minuto() {
   if (S.doenca) {
     const d = S.doenca, def = DOENCAS[d.tipo];
     if (!d.tratadoEm) { S.saude -= 0.1; S.humor -= 0.12; }
+    if (!dormindo) S.humor -= 0.08; // doentinho, quer mais colo
     else {
       const prazo = d.curaRapida ? def.cura / 2 : def.cura;
       if (S.min - d.tratadoEm >= prazo) curar();
@@ -756,6 +838,7 @@ function minuto() {
   // temperatura
   let alvo = 36.7;
   if (S.doenca && S.doenca.tipo === "febre") alvo = (S.doenca.leve ? 38.0 : 38.8) + (conf >= 1.5 ? 0.2 : calorVestido() <= 1.5 ? -0.3 : 0);
+  if (S.doenca && S.doenca.tipo === "dentes" && !S.doenca.tratadoEm) alvo = 37.9; // a febrinha dos dentes
   if (S.min - S.ultimoAntitermico < 300) alvo = Math.min(alvo, 37.1);
   S.temp += (alvo - S.temp) * 0.04;
 
@@ -783,7 +866,7 @@ function minuto() {
     somBebe("manha", 0.7);
     falar(`${S.nome} desiste de esperar sua atenção. Vira o rosto, emburrad${o()}, e fica quiet${o()} olhando o teto.`);
     S.proximoDesejo = S.min + rs(180 + Math.random() * 120);
-  } else if (!S.desejo && !S.dormindo && !S.chorando && !S.doenca && S.min >= S.proximoDesejo && livre()) {
+  } else if (!S.desejo && !S.dormindo && !S.chorando && (!S.doenca || S.doenca.tratadoEm) && S.min >= S.proximoDesejo - (S.doenca ? rs(120) : 0) && livre()) {
     pedirCuidado();
   }
 
@@ -801,7 +884,7 @@ function minuto() {
   if (h === 0) { avaliarDia(); S.clima = rnd(["frio", "fresco", "fresco", "ameno", "ameno", "quente", "quente"]); }
   if (h === 7 * 60) {
     const c = CLIMAS[S.clima];
-    falar(`Amanhece. Hoje é um ${c.nome}: ${Math.round(tempAmbiente())} graus agora, chegando a ${c.base + 4} à tarde.${c.base <= 19 ? " Bom dia para agasalho." : c.base >= 28 ? " Roupa leve, hoje." : ""}`);
+    falar(`Amanhece. Hoje é um ${c.nome}: ${Math.round(tempAmbiente())} graus agora, chegando a ${c.base + 4} à tarde.${c.base <= 19 ? " Bom dia para agasalho." : c.base >= 28 ? " Roupa leve, hoje." : ""}${S.dicas ? " Dica do dia: " + CURIOSIDADES[S.dicaN++ % CURIOSIDADES.length]() : ""}`);
   }
   // virada do mês
   if (S.min % 1440 === 0) {
@@ -980,7 +1063,7 @@ function pedirCuidado() {
     { t: "esconde", p: `${S.nome} puxa a ponta do paninho para cima do rosto e dá uma risadinha por baixo dele.` },
     { t: "musica", p: `${S.nome} se acalma toda vez que ouve um som cantado da rua e fica balançando a cabeça, como quem pede mais.` }
   ];
-  const d = rnd(tipos);
+  const d = S.doenca && Math.random() < 0.7 ? tipos[0] : rnd(tipos); // doentinho quer colo
   S.desejo = { t: d.t, ate: S.min + rs(180) };
   S.ultimoEvento = S.min;
   falar(d.p);
@@ -1333,6 +1416,11 @@ const A = {
       falar(`Você dá ${r.nome} sem sintoma nenhum. ${S.nome} faz careta com o gosto e cospe metade. Remédio sem necessidade não é cuidado, é risco.`);
       som.ruim(); depois(); return;
     }
+    if (tipo === "antitermico" && S.doenca.tipo === "dentes" && S.temp >= 37.5) {
+      gastar(tipo); S.ultimoAntitermico = S.min; S.humor += 5;
+      falar(`Você dá o antitérmico, gota por gota. A febrinha dos dentes vai baixar, mas a gengiva continua doendo: o mordedor gelado ou o gel ajudam.`);
+      som.bom(); depois(); return;
+    }
     if (S.doenca.tipo !== r.alvo) {
       if (tipo === "antitermico") S.ultimoAntitermico = S.min;
       gastar(tipo);
@@ -1364,12 +1452,12 @@ function encher(qto) {
     S.excessos = (S.excessos || 0) + 1;
   }
 }
-function golfar() {
+function golfar(forcarGrande) {
   marca("golfou");
   const acordou = S.dormindo;
   S.dormindo = false;
   // golfada grande quando o exagero se repete, ou por azar; senão, só um pouquinho
-  const grande = S.excessos >= 2 || Math.random() < 0.35;
+  const grande = forcarGrande || S.excessos >= 2 || Math.random() < 0.35;
   S.fome = clamp(S.fome - (grande ? 20 : 8)); S.higiene = clamp(S.higiene - (grande ? 15 : 5)); S.humor = clamp(S.humor - (grande ? 6 : 2));
   S.arrotoPendente = false;
   S.sujoGolfo = Math.max(S.sujoGolfo || 0, grande ? 2 : 1);
@@ -1623,6 +1711,7 @@ let confirmarNovoAte = 0;
 const MENUS = {
   principal: { t: () => `Cuidar de ${S.nome}`, itens: () => [
     { r: `Como ${S.nome} está?`, f: comoEsta },
+    { r: "Pedir uma dica", f: pedirDica },
     { r: "Alimentar", sub: "alimentar" },
     { r: "Fralda e banho", sub: "higiene" },
     { r: "Sono", sub: "sono" },
@@ -1729,6 +1818,7 @@ const MENUS = {
       falar(`Tocando ${TRILHAS[S.trilha]}.`); tocarMusica(); salvar(); }, fica: true },
     { r: "Ouvir como o bebê chama", f: () => { falar(`Quando a situação fica crítica, ${S.nome} chama assim: três bipes, três vezes, e o celular vibra.`); somBebe("chamado", 1.4); vibrar([250, 120, 250, 120, 250]); }, fica: true },
     ...(window.Android && window.Android.testar ? [{ r: "Testar uma notificação agora", f: () => { window.Android.testar(`${S.nome} precisa de atenção`, "Teste: é assim que os avisos chegam."); falar("Notificação de teste enviada."); }, fica: true }] : []),
+    { r: S.dicas ? "Dicas automáticas: ligadas. Desligar" : "Dicas automáticas: desligadas. Ligar", f: () => { S.dicas = !S.dicas; falar(S.dicas ? "Dicas ligadas: o jogo avisa o que fazer quando algo acontece." : "Dicas desligadas: agora é com você. \"Pedir uma dica\" continua no menu principal."); salvar(); }, fica: true },
     { r: "Repetir a última mensagem", f: repetir },
     { r: "Copiar o código do bebê, para guardar", f: () => abrirCodigo("copiar") },
     { r: "Trazer um bebê de um código", f: () => abrirCodigo("colar") },

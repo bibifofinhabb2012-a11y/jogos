@@ -334,7 +334,7 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
             <h3>Moedas, loja e inventário</h3>
             <p>Cada cuidado bem feito vale 10 moedas, com o "tlin" da caixa registradora. À meia-noite, se o bebê passou bem o dia, sem chamados urgentes nem pronto-socorro, você ganha mais 50; se não, perde 20. Fralda, leite, lenço, sabonete, pomada e remédios acabam: confira no Inventário e compre na Loja, no Mercado ou na Farmácia. O jogo avisa quando algo está acabando.</p>
             <h3>Roupas e clima</h3>
-            <p>Cada dia tem um clima, frio, fresco, agradável ou quente, e a temperatura cai à noite. Roupa de menos dá frio e abre caminho para o resfriado; roupa demais dá calor e piora a febre. Pijama ajuda a dormir melhor à noite. No Inventário, "O que está vestindo" descreve a roupa, diz o tempo lá fora e conta como está a nuca do bebê. No Guarda-roupa, escolher uma peça veste; escolher de novo um agasalho, touca ou meia tira.</p>
+            <p>Cada dia tem um clima, frio, fresco, agradável ou quente, e a temperatura cai à noite. Roupa de menos dá frio e abre caminho para o resfriado; roupa demais dá calor e piora a febre. Pijama ajuda a dormir melhor à noite. No Inventário, "O que está vestindo" descreve a roupa, diz o tempo lá fora e conta como está a nuca do bebê. No Guarda-roupa, escolher uma peça veste; escolher de novo uma peça que está vestida tira. Também dá para deixar só de fralda. Com frio ou calor demais, o bebê chora. Depois do banho, ele sai sem roupa e sem fralda. Sem fralda, xixi e cocô vão para a cama: o lençol fica sujo e molhado até você trocá-lo, no menu Fralda e banho.</p>
             <h3>Banho com o dedo</h3>
             <p>No menu Fralda e banho, "Dar banho, esfregando com o dedo" coloca o bebê na banheira. Passe o dedo pelo corpo: onde está sujo, o celular vibra e soa o barulho de esfregar; quando a parte fica limpa, a vibração para e o jogo avisa. O som acompanha o seu dedo: vai para o fone do lado em que ele está, e fica mais agudo perto da cabeça e mais grave perto dos pés. Esquerda e direita são as da tela. Com o TalkBack, toque duas vezes na banheira e segure, e então arraste. No computador, use as setas. "Ouvir o que falta lavar" diz as partes ainda sujas. Para quem tem pressa, existe o Banho rápido.</p>
             <h3>Troca de fralda passo a passo</h3>
@@ -410,7 +410,7 @@ function novoEstado(nome, sexo, vel) {
     inv: { leite: 10, papinha: 3, fruta: 3, fralda: 15, lenco: 30, sabonete: 10, pomada: 5, antitermico: 3, colica: 2, gel: 2, soro: 5 },
     roupas: ["body-curto", "body-longo", "pijama", "meia"], veste: { corpo: "body-longo", pes: "meia" },
     brinquedos: ["chocalho"],
-    clima: "ameno", avisoClima: -9999, diaStats: { soma: 0, n: 0, chamados: 0, hospital: 0 },
+    clima: "ameno", avisoClima: -9999, semFralda: false, camaSuja: false, diaStats: { soma: 0, n: 0, chamados: 0, hospital: 0 },
     sons: true, musica: true, trilha: "nuvem", volume: 0.6, pausado: false, ultimoEvento: -999,
     diario: []
   };
@@ -483,7 +483,7 @@ function tocarMusica() {
 function pararMusica() { if (musica) musica.pause(); }
 function arquivoChoro(t) {
   if (t === "doenca") return S.doenca && S.doenca.tipo === "colica" ? "choro-colica" : "choro-doente";
-  return { fome: "choro-fome", fralda: "choro-fralda", higiene: "choro-fralda", sono: "choro-sono", carinho: "choro-carinho", arroto: "choro-arroto" }[t] || "choro-fralda";
+  return { fome: "choro-fome", fralda: "choro-fralda", higiene: "choro-fralda", molhado: "choro-fralda", frio: "choro-doente", calor: "choro-doente", sono: "choro-sono", carinho: "choro-carinho", arroto: "choro-arroto" }[t] || "choro-fralda";
 }
 function somChoro(t, fator = 1) { somBebe(arquivoChoro(t), fator); }
 const som = {
@@ -615,6 +615,10 @@ function motivos() {
   if (S.doenca && !S.doenca.tratadoEm) m.push({ t: "doenca", p: DOENCAS[S.doenca.tipo].pista() });
   if (S.arrotoPendente && S.min - S.arrotoDesde >= 10) m.push({ t: "arroto", p: `Choraminga em gemidos curtos logo depois de mamar. Estica o corpo para trás, arqueando as costas, e se contorce no seu braço.` });
   if (S.fome < 25) m.push({ t: "fome", p: `É um choro ritmado, que vai e volta. ${S.nome} vira o rosto procurando alguma coisa com a boca e chupa a própria mão.` });
+  const conf = conforto();
+  if (conf <= -2) m.push({ t: "frio", p: `Chora encolhid${o()}, com o queixo tremendo. As mãozinhas e os pés estão gelados.` });
+  if (conf >= 2.5) m.push({ t: "calor", p: `Chora irritad${o()}, suad${o()}, com o rosto vermelho e o cabelo grudado na testa.` });
+  if (S.camaSuja) m.push({ t: "molhado", p: `Chora deitad${o()} no lençol sujo e molhado, com a pele grudenta e fria.` });
   if (S.fralda < 25) m.push({ t: "fralda", p: `Um choro irritado. ${S.nome} se contorce, chuta as perninhas, e há um cheiro forte no ar.` });
   if (S.energia < 20) m.push({ t: "sono", p: `Um choro manhoso, cortado por bocejos. ${S.nome} esfrega os olhos com as costas da mão e puxa a orelha.` });
   if (S.higiene < 15) m.push({ t: "higiene", p: `Choraminga e se coça. A pele está grudenta e o cabelinho, suado.` });
@@ -651,8 +655,19 @@ function minuto() {
 
   if (dormindo) { S.fome -= 0.32; S.energia += 0.85 + (noite() && vestePijama() ? 0.15 : 0); }
   else { S.fome -= 0.55; S.energia -= noite() ? 0.6 : 0.4; S.humor -= temBrinquedo("pelucia") ? 0.07 : 0.1; }
-  S.fralda -= 0.22;
-  if (Math.random() < 0.004) {
+  if (S.semFralda) {
+    S.fralda = 100;
+    const coco = Math.random() < 0.004, xixi = !coco && Math.random() < 0.012;
+    if (coco || xixi) {
+      S.camaSuja = true; S.higiene -= coco ? 35 : 15; S.humor -= coco ? 10 : 6; marca("acidente");
+      if (coco) somBebe("pum");
+      falar(coco
+        ? `${S.nome} faz força, fica vermelh${o()}... e faz cocô ali mesmo, sem fralda. Espalha no lençol, nas pernas e nas costas.${Object.keys(S.veste).length ? " A roupa também sujou." : ""}`
+        : `Uma poça morna se espalha devagar pelo lençol: ${S.nome} fez xixi sem fralda.${Object.keys(S.veste).length ? " A roupa ficou molhada." : ""}`);
+    }
+  } else S.fralda -= 0.22;
+  if (S.camaSuja) { S.humor -= 0.1; S.higiene -= 0.05; }
+  if (!S.semFralda && Math.random() < 0.004) {
     S.fralda -= 45;
     somBebe("pum"); marca("coco");
     if (!dormindo) falar(`${S.nome} faz uma careta de concentração, fica vermelh${o()} e solta um gemido. Logo depois, um cheiro inconfundível sobe da fralda.`);
@@ -716,7 +731,7 @@ function minuto() {
   ["fome", "fralda", "energia", "higiene", "humor", "saude"].forEach(k => S[k] = clamp(S[k]));
 
   // sono
-  const incomodo = S.fome < 20 || S.fralda < 15 || (S.doenca && !S.doenca.tratadoEm && S.doenca.tipo !== "resfriado");
+  const incomodo = S.fome < 20 || S.fralda < 15 || S.camaSuja || conforto() <= -2.5 || (S.doenca && !S.doenca.tratadoEm && S.doenca.tipo !== "resfriado");
   if (dormindo) {
     if (incomodo && (S.energia >= 15 || S.fome < 8)) { S.dormindo = false; falar(`${S.nome} acorda num susto, se remexendo no berço.`); }
     else if (S.energia >= 100 && !noite()) { S.dormindo = false; S.humor = clamp(S.humor + 10); falar(`${S.nome} acorda descansad${o()}, se espreguiça com os punhos fechados e solta um gritinho para avisar que está de pé. Ou melhor, deitad${o()}.`); }
@@ -892,7 +907,27 @@ const A = {
     }
     depois();
   },
+  semFralda() {
+    if (S.dormindo) { S.dormindo = false; S.humor -= 5; }
+    S.semFralda = true; S.fralda = 100;
+    falar(`Você tira a fralda e deixa ${S.nome} sem. O bumbum fica livre, ao ar.`);
+    depois();
+  },
+  lencol() {
+    S.camaSuja = false; S.humor += 5; S.pontos += 1;
+    falar(`Você tira ${S.nome} do berço, recolhe o lençol sujo e o forro molhado, e estica um lençol limpo, cheirando a sabão. ${S.higiene < 50 ? `Mas ${ele()} ainda precisa de um banho ou de um lenço.` : ""}`);
+    depois();
+  },
   trocar() {
+    if (S.semFralda) {
+      if (!gastar("fralda")) { falar(semEstoque("fralda")); som.ruim(); return; }
+      if (S.dormindo) { S.dormindo = false; S.humor -= 5; }
+      if (S.higiene < 60) { gastar("lenco"); S.higiene += 8; }
+      S.semFralda = false; S.fralda = 100; S.humor += 5; S.pontos += 1;
+      somBebe("fralda-abrir", 0.7);
+      falar(`${S.higiene < 60 ? "Você limpa com o lenço e " : "Você "}coloca uma fralda nova em ${S.nome}, bem fechada, com dois dedos de folga na cintura.`);
+      depois(); return;
+    }
     if (S.fralda <= 85 && !tem("fralda")) { falar(semEstoque("fralda")); som.ruim(); return; }
     let pre = "";
     if (S.dormindo) { S.dormindo = false; S.humor -= 5; pre = `${S.nome} acorda com o frio da fralda aberta. `; }
@@ -921,6 +956,7 @@ const A = {
     if (gastar("sabonete")) S.higiene = 100;
     else { S.higiene = Math.max(S.higiene, 75); avisos.push("Sem sabonete, o banho foi só com água e limpou menos."); }
     S.humor += S.fome < 25 ? 0 : 10; S.energia -= 10;
+    tirarTudoNoBanho();
     if (febre) S.temp -= 0.4;
     S.pontos += 1;
     falar(`Você testa a água com o cotovelo: morna. Apoia a nuca de ${S.nome} na palma da mão e desce o corpo devagar. ${S.fome < 25 ? `Mas a fome fala mais alto e o banho vira choro do começo ao fim.` : `As mãozinhas batem na água, os olhos se arregalam com o barulho.`} Cheiro de sabonete neutro, toalha com capuz, a pele quente e macia. ${febre ? "A água morna ajuda a baixar um pouco a temperatura." : ""}`);
@@ -1188,7 +1224,7 @@ function situacao() {
 function estadoTexto() {
   const linhas = Object.entries(NIVEIS).map(([k, d]) => `${d.r}: ${d.n()[nivel(S[k])]}, ${Math.round(S[k])} por cento`);
   const doenca = S.doenca ? `Doença: ${DOENCAS[S.doenca.tipo].nome}${S.doenca.tratadoEm ? ", em tratamento" : ", sem tratamento"}` : "Doença: nenhuma conhecida";
-  return `${S.nome}, ${idade()} ${idade() === 1 ? "mês" : "meses"}. ${situacao()}. ` + linhas.join(". ") + `. ${doenca}. Vestindo ${descricaoRoupa()}. Lá fora: ${climaTexto()}. Moedas: ${S.moedas}. Pontos de cuidado: ${S.pontos}.`;
+  return `${S.nome}, ${idade()} ${idade() === 1 ? "mês" : "meses"}. ${situacao()}. ` + linhas.join(". ") + `. ${doenca}. ${fraseRoupa()} Lá fora: ${climaTexto()}. Moedas: ${S.moedas}. Pontos de cuidado: ${S.pontos}.`;
 }
 function comoEstaTexto() {
   const p = [];
@@ -1206,6 +1242,11 @@ function comoEstaTexto() {
   if (S.doenca && S.doenca.tratadoEm) p.push(`Ainda se recupera, mas o tratamento está fazendo efeito.`);
   if (S.desejo) p.push(`E parece estar esperando alguma coisa de você.`);
   const v = vacinaPendente(); if (v) p.push(`A vacina dos ${v.m} meses está pendente.`);
+  p.push(fraseRoupa());
+  const cf = conforto();
+  if (cf <= -1.5 && !S.chorando) p.push(`As mãozinhas estão geladas.`);
+  if (cf >= 1.5 && !S.chorando) p.push(`A nuca está suada.`);
+  if (S.camaSuja && !S.chorando) p.push(`O lençol está sujo.`);
   return p.join(" ");
 }
 function comoEsta() { falar(comoEstaTexto()); }
@@ -1237,7 +1278,9 @@ const ROUPAS = {
   "casaquinho": { art: "o", nome: "casaquinho de tricô verde-musgo", parte: "agasalho", calor: 2, preco: 60, uso: "Vai por cima de qualquer roupa." },
   "touca": { art: "a", nome: "touca de lã branca, com pompom", parte: "cabeca", calor: 1, preco: 30, uso: "Esquenta a cabeça no frio." },
   "meia": { art: "as", nome: "meias brancas", parte: "pes", calor: 0.5, preco: 0, uso: "" },
-  "meia-la": { art: "as", nome: "meias de lã cinza", parte: "pes", calor: 1, preco: 25, uso: "Pés quentinhos no frio." }
+  "meia-la": { art: "as", nome: "meias de lã cinza", parte: "pes", calor: 1, preco: 25, uso: "Pés quentinhos no frio." },
+  "vestido-bolinhas": { art: "o", nome: "vestido rosa com bolinhas brancas", parte: "corpo", calor: 1.5, cor: "#EFA3B8", preco: 70, uso: "Leve e fresquinho.", so: "f" },
+  "macacao-dino": { art: "o", nome: "macacão verde com estampa de dinossauros", parte: "corpo", calor: 3, cor: "#7FAE6E", preco: 80, uso: "Quentinho, com dinossauros de todos os tamanhos.", so: "m" }
 };
 const BRINQUEDOS = {
   chocalho: { nome: "chocalho", preco: 0, efeito: "Diverte e faz rir." },
@@ -1301,11 +1344,11 @@ const vestePijama = () => !!(ROUPAS[S.veste.corpo] && ROUPAS[S.veste.corpo].pija
 function tempAmbiente() { const h = minutoDoDia() / 60; return CLIMAS[S.clima].base + 4 * Math.cos((h - 15) / 24 * 2 * Math.PI); }
 function calorIdeal(t) { return t >= 29 ? 1 : t >= 25 ? 2 : t >= 21 ? 3 : t >= 17 ? 4.5 : 6; }
 // positivo: roupa demais; negativo: roupa de menos. A manta do berço esquenta quem dorme.
-function conforto() { return calorVestido() + (S.dormindo ? 1.5 : 0) - calorIdeal(tempAmbiente()); }
+function conforto() { return calorVestido() + (S.dormindo ? 1.5 : 0) - (S.camaSuja ? 1 : 0) - calorIdeal(tempAmbiente()); }
 function descricaoRoupa() {
   const pecas = ["corpo", "agasalho", "cabeca", "pes"].map(p => S.veste[p]).filter(id => ROUPAS[id]).map(id => `${ROUPAS[id].art} ${ROUPAS[id].nome}`);
-  if (!pecas.length) return "nada, só a fralda";
-  return pecas.length === 1 ? pecas[0] : pecas.slice(0, -1).join(", ") + " e " + pecas[pecas.length - 1];
+  if (!pecas.length) return S.semFralda ? `nada: está pelad${o()}, sem roupa e sem fralda` : "só a fralda, sem roupa";
+  return (pecas.length === 1 ? pecas[0] : pecas.slice(0, -1).join(", ") + " e " + pecas[pecas.length - 1]) + (S.semFralda ? ", e sem fralda" : "");
 }
 const climaTexto = () => `${Math.round(tempAmbiente())} graus, ${CLIMAS[S.clima].nome}${noite() ? ", de noite" : ""}`;
 function sentirNuca() {
@@ -1317,13 +1360,29 @@ function sentirNuca() {
   return `Você toca a nuca: quentinha e seca, na medida.`;
 }
 function verRoupa() {
-  falar(`${S.nome} está com ${descricaoRoupa()}. Lá fora: ${climaTexto()}. ${S.dormindo ? "Dormindo, a manta do berço ajuda a esquentar. " : ""}${sentirNuca()}`);
+  falar(`${fraseRoupa(S.nome + " está")} Lá fora: ${climaTexto()}. ${S.dormindo ? "Dormindo, a manta do berço ajuda a esquentar. " : ""}${sentirNuca()}`);
+}
+// Do banho, o bebê sai enrolado na toalha, sem roupa e sem fralda.
+// Frase pronta sobre a roupa: "Está com o body...", "Está só de fralda", "Está pelada".
+function fraseRoupa(sujeito = "Está") {
+  if (!Object.keys(S.veste).some(p => ROUPAS[S.veste[p]])) return S.semFralda ? `${sujeito} pelad${o()}, sem roupa e sem fralda.` : `${sujeito} só de fralda, sem roupa.`;
+  return `${sujeito} com ${descricaoRoupa()}.`;
+}
+function tirarTudoNoBanho() {
+  S.veste = {}; S.semFralda = true; S.fralda = 100;
+  avisos.push("Seu bebê ainda está sem roupa. E sem fralda: coloque uma antes que faça xixi na cama.");
+}
+function tirarRoupa() {
+  if (!Object.keys(S.veste).length) { falar(`${S.nome} já está sem roupa.`); return; }
+  if (S.dormindo) { S.dormindo = false; S.humor -= 5; }
+  S.veste = {};
+  falar(`Você tira a roupa toda e deixa ${S.nome} ${S.semFralda ? "pelad" + o() + ", sem fralda" : "só de fralda"}. ${sentirNuca()}`);
+  depois();
 }
 function vestir(id) {
   const r = ROUPAS[id], parte = r.parte;
   let pre = "";
   if (S.veste[parte] === id) {
-    if (parte === "corpo") { falar(`${S.nome} já está com ${r.art} ${r.nome}. Para trocar, escolha outra roupa de corpo.`); return; }
     delete S.veste[parte];
     falar(`Você tira ${r.art} ${r.nome}. ${sentirNuca()}`); desenhar(); salvar(); return;
   }
@@ -1369,7 +1428,7 @@ const MENUS = {
     { r: "Brinquedos", sub: "invBrinquedos" },
     { r: `Moedas: ${S.moedas}`, f: () => falar(`Você tem ${S.moedas} moedas. Cada cuidado bem feito vale 10, e um dia em que ${S.nome} passa bem vale mais 50.`) }
   ]},
-  guardaroupa: { t: () => "Guarda-roupa", itens: () => S.roupas.map(id => ({ r: `${Maiusc(ROUPAS[id].nome)}${vestindo(id) ? ", vestindo" : ""}`, f: () => vestir(id), fica: true })) },
+  guardaroupa: { t: () => "Guarda-roupa", itens: () => [{ r: S.semFralda ? "Tirar toda a roupa" : "Deixar só de fralda, sem roupa", f: tirarRoupa, fica: true }].concat(S.roupas.map(id => ({ r: `${Maiusc(ROUPAS[id].nome)}${vestindo(id) ? ", vestindo" : ""}`, f: () => vestir(id), fica: true }))) },
   invRemedios: { t: () => "Caixa de remédios", itens: () => ["antitermico", "colica", "gel", "soro", "pomada"].map(itemInv) },
   invDespensa: { t: () => "Despensa", itens: () => ["leite", "papinha", "fruta"].map(itemInv) },
   invTrocador: { t: () => "Trocador e banheiro", itens: () => ["fralda", "lenco", "pomada", "sabonete"].map(itemInv) },
@@ -1383,7 +1442,7 @@ const MENUS = {
   mercado: { t: () => `Mercado, ${S.moedas} moedas`, itens: () => Object.keys(ITENS).filter(k => ITENS[k].loja === "mercado").map(itemLoja) },
   farmacia: { t: () => `Farmácia, ${S.moedas} moedas`, itens: () => Object.keys(ITENS).filter(k => ITENS[k].loja === "farmacia").map(itemLoja) },
   lojaRoupas: { t: () => `Roupas, ${S.moedas} moedas`, itens: () => {
-    const l = Object.keys(ROUPAS).filter(id => !S.roupas.includes(id) && ROUPAS[id].preco > 0);
+    const l = Object.keys(ROUPAS).filter(id => !S.roupas.includes(id) && ROUPAS[id].preco > 0 && (!ROUPAS[id].so || ROUPAS[id].so === S.sexo));
     return l.length ? l.map(id => ({ r: `${Maiusc(ROUPAS[id].nome)}: ${ROUPAS[id].preco} moedas. ${ROUPAS[id].uso}`, f: () => comprarRoupa(id), fica: true }))
       : [{ r: "Você já tem todas as roupas da loja", f: () => falar("O guarda-roupa está completo.") }];
   }},
@@ -1401,7 +1460,9 @@ const MENUS = {
   ]},
   higiene: { t: () => "Fralda e banho", itens: () => [
     { r: "Trocar a fralda, passo a passo", f: abrirTroca },
-    { r: "Troca rápida de fralda", f: A.trocar },
+    { r: S.semFralda ? "Colocar uma fralda, rápido" : "Troca rápida de fralda", f: A.trocar },
+    ...(S.semFralda ? [] : [{ r: "Tirar a fralda e deixar sem", f: A.semFralda }]),
+    ...(S.camaSuja ? [{ r: "Trocar o lençol sujo", f: A.lencol }] : []),
     { r: "Dar banho, esfregando com o dedo", f: abrirBanho },
     { r: "Banho rápido", f: A.banho },
     { r: "Limpar com lenço umedecido", f: A.lenco }
@@ -1642,7 +1703,7 @@ function recuperar(dt) {
   try { for (let i = 0; i < minutos; i++) minuto(); } finally { silencio = null; }
   desenhar(); salvar();
 }
-const NOMES_CHORO = { fome: "de fome", fralda: "por causa da fralda suja", sono: "de sono", higiene: "com a pele suja e coçando", carinho: "pedindo colo", arroto: "com ar preso na barriga", doenca: "de dor e mal-estar" };
+const NOMES_CHORO = { frio: "de frio", calor: "de calor", molhado: "deitado no lençol molhado", fome: "de fome", fralda: "por causa da fralda suja", sono: "de sono", higiene: "com a pele suja e coçando", carinho: "pedindo colo", arroto: "com ar preso na barriga", doenca: "de dor e mal-estar" };
 function vezes(n) { return n === 1 ? "uma vez" : n === 2 ? "duas vezes" : n + " vezes"; }
 function textoAusencia(a) {
   const r = a.r, p = [];
@@ -1656,6 +1717,7 @@ function textoAusencia(a) {
   if (r.adoeceu) p.push(`ficou doente`);
   if (r.curou) p.push(`sarou`);
   if (r.exausto) p.push(`dormiu de exaustão`);
+  if (r.acidente) p.push(`fez xixi ou cocô na cama ${vezes(r.acidente)}, sem fralda`);
   if (r.chamou) p.push(`chamou você ${vezes(r.chamou)}`);
   if (r.hospital) p.push(`foi levad${o()} ao pronto-socorro ${vezes(r.hospital)}`);
   if (r.diaBom) p.push(`passou bem ${r.diaBom === 1 ? "o dia, e você ganhou 50 moedas" : r.diaBom + " dias, e você ganhou " + 50 * r.diaBom + " moedas"}`);
@@ -1759,7 +1821,7 @@ $("form-novo").addEventListener("submit", e => {
   const sexo = document.querySelector('input[name="sexo"]:checked').value;
   S = novoEstado(nome[0].toUpperCase() + nome.slice(1), sexo, VEL[parseInt($("vel").value, 10)] || VEL[1]);
   salvar();
-  entrarNoJogo(`São 8 da manhã. ${S.nome} tem um mês de vida e acaba de acordar no berço, de punhos fechados, piscando para a luz que entra pela janela. A partir de agora, ${ele()} depende de você. ${window.Android ? "Deslize para a direita para chegar ao menu de cuidados." : "Pressione Tab para chegar ao menu de cuidados."}`);
+  entrarNoJogo(`São 8 da manhã. ${S.nome} tem um mês de vida e acaba de acordar no berço, de punhos fechados, piscando para a luz que entra pela janela. ${fraseRoupa()} A partir de agora, ${ele()} depende de você. ${window.Android ? "Deslize para a direita para chegar ao menu de cuidados." : "Pressione Tab para chegar ao menu de cuidados."}`);
 });
 $("btn-continuar").addEventListener("click", () => {
   ativarAudio();
@@ -1912,6 +1974,7 @@ function terminarBanho() {
   S.humor += B.chorou ? -6 : 10 * f + 2; S.energia -= 10;
   if (febre) S.temp -= 0.4;
   S.pontos += f >= 1 ? 3 : f > 0.5 ? 1 : 0;
+  tirarTudoNoBanho();
   pararSomBanho();
   B = null;
   $("banho").hidden = true; $("jogo").hidden = false;
@@ -2081,11 +2144,12 @@ function abrirTroca() {
     const mancha = 0.6 + 0.4 * Math.sin(i * 1.1 + semente) * Math.cos(j * 0.8 + semente) + (Math.random() - .5) * .3;
     celulas.push({ x, y, z, d: Math.max(0, Math.min(1, base * mancha)), c: 1 });
   }
-  T = { passo: "abrir", coco, molhada, assadura, fraldaAntes: S.fralda, celulas, total: celulas.reduce((a, c) => a + c.d, 0),
+  T = { passo: S.semFralda ? "limpar" : "abrir", coco, molhada, assadura, fraldaAntes: S.fralda, celulas, total: celulas.reduce((a, c) => a + c.d, 0),
         abertas: [0, 0], fechadas: [0, 0], subir: 0, limpo: 1, creme: 0, ult: null, cursor: null, avisadas: new Set(),
         zonaAtual: null, ultimoAnuncio: 0, ultimaVib: 0, pre };
   $("jogo").hidden = true; $("troca").hidden = false;
   $("troca-pular").hidden = true;
+  if (S.semFralda) { T.abertas = [1, 1]; if (T.total < 1) T.passo = "pomada"; }
   ajustarCanvas($("trocador"));
   iniciarSomBanho(false);
   mostrarPasso();
@@ -2190,6 +2254,7 @@ function oQueFaltaTroca() {
 }
 function terminarTroca() {
   const t = T; if (!t) return;
+  S.semFralda = false;
   const limpo = Math.min(1, fracao("d", t.total) / 0.95);
   S.fralda = 100; S.sujoTempo = 0;
   S.higiene += 6 + 10 * limpo; S.humor += 8;

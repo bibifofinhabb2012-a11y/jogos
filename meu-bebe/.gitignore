@@ -4,3 +4,7 @@ app/build/
 local.properties
 *.iml
 .idea/
+
+# modelo do classificador, baixado sob demanda
+ferramentas/yamnet.tflite
+ferramentas/yamnet_labels.txt

@@ -1,0 +1,21 @@
+{
+  "name": "atendimento-mago",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Assistente de atendimento no WhatsApp do Mago, com painel de administração.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/index.js",
+    "usuario": "node --disable-warning=ExperimentalWarning scripts/usuario.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
+  },
+  "dependencies": {
+    "baileys": "7.0.0-rc14",
+    "express": "5.3.0",
+    "pino": "9.14.0",
+    "qrcode": "1.5.4"
+  }
+}

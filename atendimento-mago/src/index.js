@@ -6,8 +6,11 @@ import { abrirBanco } from './db.js'
 import { criarAssistente } from './assistente.js'
 import { criarWhatsapp } from './whatsapp.js'
 import { criarPainel } from './painel/app.js'
+import { criarLinkAcesso } from './painel/acesso.js'
 
 const PORTA = Number(process.env.PORTA || 3000)
+// HOST=127.0.0.1 deixa o painel visível só neste computador (o túnel continua funcionando).
+const HOST = process.env.HOST || '0.0.0.0'
 const PASTA_DADOS = path.resolve(process.env.PASTA_DADOS || 'dados')
 const ENDERECO_PUBLICO = (process.env.ENDERECO_PUBLICO || `http://localhost:${PORTA}`).replace(/\/$/, '')
 
@@ -20,11 +23,15 @@ if (banco.ajuste('pix_chave').startsWith('PREENCHER')) {
   log.warn('A chave Pix ainda não foi preenchida. Abra o painel, em Pix, antes de atender clientes.')
 }
 const whatsapp = criarWhatsapp({ pastaSessao: path.join(PASTA_DADOS, 'whatsapp-sessao'), banco, log })
-const assistente = criarAssistente({ banco, envio: whatsapp.envio, pastaArquivos, log })
+const linkPainel = async (telefone) => {
+  const u = banco.usuarioPorTelefone(telefone)
+  return u ? criarLinkAcesso(banco, u.id, ENDERECO_PUBLICO) : null
+}
+const assistente = criarAssistente({ banco, envio: whatsapp.envio, pastaArquivos, linkPainel, log })
 whatsapp.usarAssistente(assistente)
 
 const painel = criarPainel({ banco, assistente, whatsapp, pastaArquivos, enderecoPublico: ENDERECO_PUBLICO, log })
-painel.listen(PORTA, () => log.info(`Painel em ${ENDERECO_PUBLICO} (porta ${PORTA})`))
+painel.listen(PORTA, HOST, () => log.info(`Painel em ${ENDERECO_PUBLICO} (porta ${PORTA})`))
 
 await whatsapp.conectar()
 

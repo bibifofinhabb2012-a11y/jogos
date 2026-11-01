@@ -249,3 +249,15 @@ test('funções de data e dinheiro', () => {
   assert.equal(reaisFalado(100), '1 real')
   assert.equal(normalizarComando('Pagou, 12!'), 'pagou 12')
 })
+
+test('comando painel manda link só para número cadastrado, com ou sem o 9', async () => {
+  const { criarLinkAcesso } = await import('../src/painel/acesso.js')
+  banco.criarUsuario({ nome: 'Mago', telefone: '5551988880000' })
+  const envio = { enviarTexto: async () => {}, enviarArquivo: async () => {}, enviarTextoMago: async (t) => saida.push({ para: 'MAGO', texto: t }), enviarArquivoMago: async () => {} }
+  const linkPainel = async (tel) => { const u = banco.usuarioPorTelefone(tel); return u ? criarLinkAcesso(banco, u.id, 'https://x.trycloudflare.com') : null }
+  const b = criarAssistente({ banco, envio, pastaArquivos: pasta, linkPainel })
+  await b.comandoDoMago('Painel.', '555188880000')
+  assert.match(ultima().texto, /^Link para entrar no painel\. Vale por 10 minutos:\nhttps:\/\/x\.trycloudflare\.com\/entrar\/link\/\S+$/)
+  await b.comandoDoMago('painel', '5551977770000')
+  assert.equal(ultima().texto, 'Este número não está cadastrado no painel.')
+})

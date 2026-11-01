@@ -160,7 +160,7 @@ export function criarWhatsapp ({ pastaSessao, banco, log }) {
     if (k.fromMe) {
       if (idade > DEZ_MINUTOS) return // mensagens antigas reenviadas depois de reconectar
       if (eu().includes(jid) || eu().includes(jidNormalizedUser(remoto))) {
-        if (texto) await assistente.comandoDoMago(texto)
+        if (texto) await assistente.comandoDoMago(texto, estado.numero)
       } else {
         await assistente.magoRespondeuCliente(jid)
       }
@@ -170,7 +170,7 @@ export function criarWhatsapp ({ pastaSessao, banco, log }) {
 
     const aviso = banco.ajuste('aviso_numero')
     if (aviso && jid === await jidDoTelefone(aviso)) {
-      if (texto) await assistente.comandoDoMago(texto)
+      if (texto) await assistente.comandoDoMago(texto, soDigitos(aviso))
       return
     }
 

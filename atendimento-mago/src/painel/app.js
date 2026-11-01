@@ -389,7 +389,7 @@ export function criarPainel ({ banco, assistente, whatsapp, pastaArquivos, ender
     ['aviso_numero', 'Número que recebe os pedidos (opcional)', 'Em branco, os pedidos chegam na conversa do Mago com ele mesmo. Se preencher, chegam neste número, e os comandos também são aceitos dele.', false]
   ]
   const CAMPOS_COMANDOS = [['cmd_pagou', 'Confirmar pagamento'], ['cmd_assumir', 'Assumir cliente'], ['cmd_liberar', 'Liberar cliente'],
-    ['cmd_valor', 'Enviar valor do trabalho'], ['cmd_hoje', 'Pedidos de hoje'], ['cmd_ajuda', 'Lista de comandos']]
+    ['cmd_valor', 'Enviar valor do trabalho'], ['cmd_hoje', 'Pedidos de hoje'], ['cmd_ajuda', 'Lista de comandos'], ['cmd_painel', 'Receber link do painel']]
   app.get('/ajustes', (req, res) => {
     mostrar(req, res, 'Ajustes', html`
       <form method="post" action="/ajustes">

@@ -17,12 +17,30 @@ Assistente de menu no WhatsApp do Mago, com painel de administração. Não usa 
 
 O assistente roda no WhatsApp pessoal do Mago, como um "aparelho conectado", do mesmo jeito que o WhatsApp Web.
 
-- **Pedidos e comandos** ficam na conversa do Mago com ele mesmo ("Mensagem para mim"). O Mago dita ali `pagou 12`, `assumir 12`, `liberar 12`, `valor 12 200`, `pedidos de hoje` ou `ajuda`. Tudo que não começa com um comando é ignorado, então ele pode continuar usando essa conversa para anotações.
+- **Pedidos e comandos** ficam na conversa do Mago com ele mesmo ("Mensagem para mim"). O Mago dita ali `pagou 12`, `assumir 12`, `liberar 12`, `valor 12 200`, `pedidos de hoje`, `painel` (recebe um link para entrar no painel) ou `ajuda`. Tudo que não começa com um comando é ignorado, então ele pode continuar usando essa conversa para anotações.
 - **Contatos pessoais** (família, amigos) devem ser marcados em Painel › Contatos. O assistente nunca responde a quem está marcado.
 - **Se o Mago escreve numa conversa**, o assistente fica quieto nela por 12 horas. O tempo pode ser mudado em Ajustes.
 - **Grupos, status e canais** são sempre ignorados.
 
-## Instalar no servidor
+## Instalar num PC com Windows (o jeito fácil)
+
+1. No PC que vai ficar ligado, abra o PowerShell: tecla Windows, escreva `powershell` e tecle Enter.
+2. Cole a linha abaixo e tecle Enter:
+
+```powershell
+irm https://raw.githubusercontent.com/bibifofinhabb2012-a11y/jogos/atendimento-mago/atendimento-mago/instalador/instalar.ps1 | iex
+```
+
+3. Responda as perguntas: seu nome, usuário e senha do painel, seu WhatsApp, o WhatsApp do Mago e os dados do Pix.
+
+O instalador baixa tudo sozinho, sem pedir administrador, e guarda em `C:\Users\<você>\AtendimentoMago`. No fim, abre o painel no navegador e explica como conectar o WhatsApp. Ficam três atalhos na área de trabalho (painel, ligar e desligar), e o assistente liga sozinho sempre que alguém entra no Windows.
+
+- **Endereço do painel na internet.** Se você aceitar, o instalador usa o túnel gratuito da Cloudflare. O endereço muda toda vez que o PC reinicia. Por isso, o jeito de entrar de fora é o Mago ditar `painel` na conversa dele com ele mesmo: chega um link novo, ele toca e entra.
+- **Atualizar.** Rode a mesma linha de novo. Pedidos, ajustes e a conexão do WhatsApp continuam como estão.
+- **Problemas.** O registro fica em `AtendimentoMago\registro.txt`.
+- **Cuidados.** O PC não pode dormir (o instalador oferece desligar a suspensão na tomada). Se for notebook, fechar a tampa costuma suspender. Se o Windows pedir senha ao ligar, o assistente só começa depois que alguém entra.
+
+## Instalar num servidor Linux
 
 É preciso um servidor ligado o tempo todo (uma VPS Linux pequena serve), com Node.js 22.13 ou mais novo. Hospedagem gratuita que desliga quando ninguém usa não funciona, porque a conexão com o WhatsApp precisa ficar aberta.
 
@@ -100,6 +118,8 @@ Os testes automáticos cobrem a conversa inteira, os comandos e o painel com um 
 - **Notificação dos pedidos.** Mensagens que um aparelho conectado manda para a conversa "Mensagem para mim" provavelmente chegam **sem notificação** no celular do Mago. Se isso se confirmar, preencha em Ajustes um **número que recebe os pedidos** (um segundo chip, por exemplo). Os pedidos passam a chegar ali com notificação normal, e os comandos ditados desse número também são aceitos.
 - **Comandos ditados.** Confirmar que o TalkBack e o teclado por voz escrevem "pagou 12" com algarismos. Se escreverem "pagou doze", o assistente não entende ainda.
 - **Identificação dos clientes.** O WhatsApp está migrando para identificadores sem número de telefone (LID). O código usa o número quando o WhatsApp informa, mas vale conferir no painel, em Contatos, se os números aparecem certos.
+
+- **Instalador do Windows.** Foi escrito sem um Windows à mão para testar. Se algum passo der erro, a mensagem diz qual foi, e rodar de novo é seguro.
 
 ## Risco do número
 

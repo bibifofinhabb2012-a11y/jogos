@@ -11,6 +11,8 @@ import { normalizarTelefone } from '../src/util.js'
 const { values: a } = parseArgs({
   options: { nome: { type: 'string' }, usuario: { type: 'string' }, senha: { type: 'string' }, numero: { type: 'string' } }
 })
+// A senha também pode vir pela variável SENHA_PAINEL, para não aparecer na lista de processos.
+a.senha ??= process.env.SENHA_PAINEL || undefined
 if (!a.nome || (!a.usuario && !a.numero)) {
   console.error('Uso: npm run usuario -- --nome NOME [--usuario LOGIN --senha SENHA] [--numero WHATSAPP]')
   process.exit(1)

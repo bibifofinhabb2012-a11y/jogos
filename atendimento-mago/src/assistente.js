@@ -21,7 +21,7 @@ const EXTENSOES = {
  * @param {{enviarTexto, enviarArquivo, enviarTextoMago, enviarArquivoMago}} o.envio
  * @param {string} o.pastaArquivos  onde guardar fotos e comprovantes
  */
-export function criarAssistente ({ banco, envio, pastaArquivos, agora = () => Date.now(), log = console }) {
+export function criarAssistente ({ banco, envio, pastaArquivos, linkPainel, agora = () => Date.now(), log = console }) {
   // Uma mensagem de cada vez, na ordem em que chegam. O volume é baixo e isso evita corridas.
   let fila = Promise.resolve()
   const emFila = (fn) => {
@@ -344,19 +344,21 @@ export function criarAssistente ({ banco, envio, pastaArquivos, agora = () => Da
       `${a.cmd_assumir} 12: o assistente para de responder o cliente do pedido 12.`,
       `${a.cmd_liberar} 12: devolve o cliente ao assistente e conclui o pedido.`,
       `${a.cmd_valor} 12 200: envia ao cliente o valor de 200 reais do trabalho.`,
-      `${a.cmd_hoje}: lista os pedidos do dia.`
+      `${a.cmd_hoje}: lista os pedidos do dia.`,
+      `${a.cmd_painel}: manda um link para entrar no painel.`
     ].join('\n')
   }
 
   // Retorna true se reconheceu um comando. Texto que não é comando é ignorado
   // (o Mago pode usar a conversa consigo mesmo para anotações).
-  function comandoDoMago (texto) {
+  // telefone: de onde veio o comando (o número do próprio Mago ou o número de aviso).
+  function comandoDoMago (texto, telefone) {
     return emFila(async () => {
       const s = normalizarComando(texto)
       const a = banco.ajustes()
       const comandos = [
         ['pagou', a.cmd_pagou], ['assumir', a.cmd_assumir], ['liberar', a.cmd_liberar],
-        ['valor', a.cmd_valor], ['hoje', a.cmd_hoje], ['ajuda', a.cmd_ajuda]
+        ['valor', a.cmd_valor], ['hoje', a.cmd_hoje], ['ajuda', a.cmd_ajuda], ['painel', a.cmd_painel]
       ].map(([acao, palavra]) => [acao, normalizarComando(palavra)])
         .filter(([, p]) => p)
         .sort((x, y) => y[1].length - x[1].length)
@@ -371,6 +373,10 @@ export function criarAssistente ({ banco, envio, pastaArquivos, agora = () => Da
       let r
       if (acao === 'ajuda') r = { texto: ajuda() }
       else if (acao === 'hoje') r = acoes.pedidosDeHoje()
+      else if (acao === 'painel') {
+        const url = linkPainel && telefone ? await linkPainel(telefone) : null
+        r = { texto: url ? `Link para entrar no painel. Vale por 10 minutos:\n${url}` : 'Este número não está cadastrado no painel.' }
+      }
       else if (!id) r = { texto: `Faltou o número do pedido. Exemplo: ${palavra} 12.` }
       else if (acao === 'pagou') r = await acoes.confirmarPagamento(id)
       else if (acao === 'assumir') r = await acoes.assumir(id)

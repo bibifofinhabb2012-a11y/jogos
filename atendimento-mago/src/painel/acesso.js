@@ -10,6 +10,14 @@ const COOKIE = 'sessao'
 
 export const sha = (s) => crypto.createHash('sha256').update(s).digest('hex')
 
+// Cria um link de entrada de uso único, válido por 10 minutos.
+export function criarLinkAcesso (banco, usuarioId, enderecoPublico) {
+  const token = crypto.randomBytes(24).toString('base64url')
+  banco.apagarCodigos(usuarioId)
+  banco.criarAcesso(sha(token), usuarioId, 'link', Date.now() + DEZ_MIN)
+  return `${enderecoPublico}/entrar/link/${token}`
+}
+
 export function hashSenha (senha) {
   const sal = crypto.randomBytes(16).toString('hex')
   return `scrypt$${sal}$${crypto.scryptSync(senha, sal, 64).toString('hex')}`
@@ -120,9 +128,8 @@ export function montarAcesso ({ app, banco, whatsapp, enderecoPublico }) {
         if (jid) {
           banco.apagarCodigos(u.id)
           if (forma === 'link') {
-            const token = crypto.randomBytes(24).toString('base64url')
-            banco.criarAcesso(sha(token), u.id, 'link', Date.now() + DEZ_MIN)
-            await whatsapp.envio.enviarTexto(jid, `Link de acesso ao painel do Mago. Vale por 10 minutos:\n${enderecoPublico}/entrar/link/${token}`)
+            const link = criarLinkAcesso(banco, u.id, enderecoPublico)
+            await whatsapp.envio.enviarTexto(jid, `Link de acesso ao painel do Mago. Vale por 10 minutos:\n${link}`)
           } else {
             const codigo = String(crypto.randomInt(0, 1000000)).padStart(6, '0')
             banco.criarAcesso(sha(`${u.id}:${codigo}`), u.id, 'codigo', Date.now() + DEZ_MIN)

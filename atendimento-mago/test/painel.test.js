@@ -154,7 +154,7 @@ test('todas as páginas abrem e mudanças no painel valem no assistente', async 
   assert.equal((await pedir(`/arquivo/${id}/foto`, { cookie })).status, 200)
 
   // Comandos repetidos são recusados
-  r = await seguir(await pedir('/ajustes', { cookie, form: { pausa_horas: '12', limite_horas: '24', retencao_dias: '90', aviso_numero: '', cmd_pagou: 'ok', cmd_assumir: 'ok', cmd_liberar: 'liberar', cmd_valor: 'valor', cmd_hoje: 'hoje', cmd_ajuda: 'ajuda' } }), cookie)
+  r = await seguir(await pedir('/ajustes', { cookie, form: { pausa_horas: '12', limite_horas: '24', retencao_dias: '90', aviso_numero: '', cmd_pagou: 'ok', cmd_assumir: 'ok', cmd_liberar: 'liberar', cmd_valor: 'valor', cmd_hoje: 'hoje', cmd_ajuda: 'ajuda', cmd_painel: 'painel' } }), cookie)
   assert.match(r.corpo, /role="alert"[^>]*>Dois comandos/)
 
   // Escape de HTML

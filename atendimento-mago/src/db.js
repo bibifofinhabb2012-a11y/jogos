@@ -1,6 +1,7 @@
 // Banco de dados (SQLite, um arquivo só) e todas as consultas.
 import { DatabaseSync } from 'node:sqlite'
 import { TEXTOS } from './textos.js'
+import { variantesTelefone } from './util.js'
 
 const ESQUEMA = `
 CREATE TABLE IF NOT EXISTS ajustes (chave TEXT PRIMARY KEY, valor TEXT NOT NULL);
@@ -88,7 +89,8 @@ export const AJUSTES_PADRAO = {
   cmd_liberar: 'liberar',
   cmd_valor: 'valor',
   cmd_hoje: 'pedidos de hoje',
-  cmd_ajuda: 'ajuda'
+  cmd_ajuda: 'ajuda',
+  cmd_painel: 'painel'
 }
 
 function semear (db) {
@@ -212,7 +214,12 @@ function criarConsultas (db) {
 
     // Usuários do painel e acessos
     usuario: (id) => q('SELECT * FROM usuarios WHERE id = ?').get(id),
-    usuarioPorTelefone: (tel) => q('SELECT * FROM usuarios WHERE telefone = ?').get(tel),
+    usuarioPorTelefone (tel) {
+      for (const v of variantesTelefone(tel)) {
+        const u = q('SELECT * FROM usuarios WHERE telefone = ?').get(v)
+        if (u) return u
+      }
+    },
     usuarioPorLogin: (u) => q('SELECT * FROM usuarios WHERE usuario = ?').get(u),
     usuarios: () => q('SELECT * FROM usuarios ORDER BY nome').all(),
     criarUsuario: (u) => Number(q('INSERT INTO usuarios (nome, telefone, usuario, senha) VALUES (?, ?, ?, ?)')

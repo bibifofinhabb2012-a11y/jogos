@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning src/index.js",
     "usuario": "node --disable-warning=ExperimentalWarning scripts/usuario.js",
+    "ajustes": "node --disable-warning=ExperimentalWarning scripts/ajustes.js",
     "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
   },
   "dependencies": {

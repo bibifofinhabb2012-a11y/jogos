@@ -127,6 +127,15 @@ export function normalizarTelefone (s) {
   return d
 }
 
+// Números brasileiros de celular aparecem com e sem o 9 depois do DDD. Retorna as duas formas.
+export function variantesTelefone (d) {
+  d = soDigitos(d)
+  const v = [d]
+  if (d.startsWith('55') && d.length === 13 && d[4] === '9') v.push(d.slice(0, 4) + d.slice(5))
+  if (d.startsWith('55') && d.length === 12) v.push(d.slice(0, 4) + '9' + d.slice(4))
+  return v
+}
+
 export function telefoneDoJid (jid) {
   if (!jid || !jid.endsWith('@s.whatsapp.net')) return ''
   return jid.split('@')[0].split(':')[0]

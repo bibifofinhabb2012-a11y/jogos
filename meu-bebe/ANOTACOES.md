@@ -26,17 +26,17 @@ Tudo o que uma sessão nova precisa para continuar o trabalho sem a conversa ori
 ## Como publicar uma versão nova do app
 
 1. Edite `web/meu-bebe.html` e copie para `app/src/main/assets/index.html`, trocando a meta viewport.
-2. Suba `versionCode` e `versionName` em `meu-bebe/app/build.gradle` (última: versionCode 12, versão 2.1).
+2. Suba `versionCode` e `versionName` em `meu-bebe/app/build.gradle` (última: versionCode 13, versão 2.2).
 3. Commit e push na `main`. O fluxo `.github/workflows/meu-bebe-apk.yml` compila sozinho em uns 2 minutos.
 4. O APK fica na execução do Actions, no item `meu-bebe-apk`. Mande o link da execução para ela.
 5. Lembre a ela: antes de desinstalar a versão antiga, copiar o código do bebê (Opções). Cada compilação usa uma chave de depuração nova, então o Android não instala por cima; o código do bebê resolve. A solução definitiva (chave fixa guardada como segredo do GitHub, que só ela pode criar) ficou para depois.
 
 ## Restrições do ambiente (aprendidas na prática)
 
-- A rede é limitada. Funcionam: GitHub (git e arquivos raw), npm, PyPI, storage.googleapis.com. Bloqueados: dl.google.com (SDK Android), Freesound, Pixabay, Wikimedia, Zenodo, Hugging Face. Por isso o APK é compilado no GitHub Actions, não aqui.
+- A rede da sessão depende do ambiente que ela escolheu. Mesmo com acesso completo, o Freesound responde 403 vazio para a sessão. O APK e a busca de sons rodam no GitHub Actions.
 - Não rode programas binários de pacotes de terceiros (aapt2, d8 de npm): o sistema de segurança bloqueia, com razão.
 - Não ponha chaves, senhas ou keystores no repositório (é público).
-- Freesound: ela vai liberar `freesound.org` e `cdn.freesound.org` na rede do ambiente e guardar a chave da API como `FREESOUND_API_KEY`. Com isso, busque por API, prefira licenças CC0 e CC BY, registre autor e link nos créditos, e confira com o classificador. Ela escolhe pelo ouvido.
+- Freesound: a busca roda no GitHub Actions, fluxo "Buscar sons no Freesound" (`.github/workflows/freesound.yml`), com o segredo `FREESOUND_API_KEY` do repositório (ela já criou). Dispare com `gh api -X POST repos/bibifofinhabb2012-a11y/jogos/actions/workflows/freesound.yml/dispatches -f ref=main -f "inputs[buscas]=nome | termos"`. Os sons caem na branch `sons-candidatos`, com `creditos.json` (autor, licença, link). Filtra só CC0 e CC BY. Passe no classificador e mostre a ela só os melhores, numa página com um botão por som (ela não quer ouvir dezenas um por um).
 
 ## Como o jogo funciona por dentro (resumo)
 
@@ -51,6 +51,9 @@ Tudo o que uma sessão nova precisa para continuar o trabalho sem a conversa ori
 - Banho e troca de fralda interativos: tela cheia, grade de células com sujeira, vibração e som posicional onde ainda falta limpar.
 
 ## O que o jogo já tem
+
+Versão 2.2: doenças graves (hipotermia no frio, desidratação no calor, diarreia de guloseima) que pioram rápido e levam ao pronto-socorro; soro de reidratação oral; Doceria com guloseimas e consequências (agitação de açúcar, sede, gases, engasgo com pirulito, recusa de papinha, diarreia); roupas novas e a parte `maos` (luvinhas); brinquedos novos com preferido e rejeitado sorteados por bebê (`S.favorito`, `S.desgosto`); menu Conversar (chamar pelo nome, imitar, nariz, ensinar palavras, que viram fala a partir dos 9 meses); balbucio contínuo quando acordado e contente (`atualizarBalbucio`, desliga em Opções); choro de bebê maior a partir dos 4 meses (`choro-maior-forte|irritado|manha-N.mp3`); riso, arroto, goles, fralda e respiração trocados por sons do Freesound que ela escolheu. Corrigido: havia duas funções `estadoTexto`, a do banho virou `estadoParteTexto`.
+
 
 Alimentação (mamadeira, arroto, papinha e fruta a partir dos 6 meses, golfada pequena ou grande), fralda (troca rápida, troca passo a passo com o dedo, sem fralda, xixi e cocô na cama, lençol), banho rápido e banho com o dedo, sono (ninar, canção, berço, respiração dormindo), colo e brincadeiras (chocalho, mordedor, pelúcia, móbile, dança balançando o celular), saúde (febre, resfriado, cólica, dentes com febrinha, assadura, gases, intestino preso, "Ajudar a soltar"), remédios com doses e intervalo do antitérmico, vacinas do calendário do posto, pediatra por telefone, pronto-socorro, roupas com clima e conforto, inventário, loja (mercado, farmácia, roupas, brinquedos), moedas, marcos de crescimento até 12 meses, perigos de quem engatinha, cocô que muda com a comida, dicas (automáticas, a pedido e do dia), código do bebê para guardar e recuperar, música de caixinha (Nuvem de Algodão, original em mi bemol; Rock-a-bye Baby; Brahms), notificações e chamados com o app fechado.
 
@@ -69,4 +72,4 @@ Alimentação (mamadeira, arroto, papinha e fruta a partir dos 6 meses, golfada 
 
 ## Créditos e licenças dos sons
 
-Estão no próprio jogo, em "Como jogar". Resumo: choros, balbucio, resmungo e tosse do Donate-a-Cry Corpus (ODbL e DbCL); riso, arroto, goles, rasgo da fralda, água da golfada e respiração do ESC-50 (CC BY-NC 3.0, uso não comercial); pum do pacote TerminalFart (Apache 2.0); músicas, chocalho, moeda, bipes e sons do banho sintetizados para o jogo. Se o jogo um dia for vendido, os sons do ESC-50 precisam ser trocados.
+Estão no próprio jogo, em "Como jogar". Resumo: choros até 4 meses, balbucio, resmungo e tosse do Donate-a-Cry Corpus (ODbL e DbCL); riso, arroto, goles, fralda, respiração, choros de bebê maior e balbucios extras do Freesound (CC0 e CC BY, com autor e link nos créditos); água da golfada do ESC-50 (CC BY-NC 3.0, o único som de uso não comercial que sobrou); pum do TerminalFart (Apache 2.0); músicas, chocalho, moeda, bipes e sons do banho sintetizados. Se o jogo um dia for vendido, falta trocar a água da golfada.

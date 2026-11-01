@@ -60,10 +60,23 @@ function Instalar-AtendimentoMago {
     }
   }
 
+  # Usa o curl.exe do Windows 10 e 11 (rápido, com tempo-limite); se não houver, o Invoke-WebRequest.
   function Baixar($url, $destino) {
+    $curl = Join-Path $env:SystemRoot 'System32\curl.exe'
     for ($i = 1; $i -le 3; $i++) {
-      try { Invoke-WebRequest -Uri $url -OutFile $destino -UseBasicParsing; return }
-      catch { if ($i -eq 3) { throw "Não consegui baixar $url. Confira a internet e rode o instalador de novo." }; Start-Sleep -Seconds (3 * $i) }
+      try {
+        if (Test-Path $curl) {
+          & $curl -sSfL --connect-timeout 30 --speed-limit 1000 --speed-time 60 -o $destino $url
+          if ($LASTEXITCODE -eq 0) { return }
+          throw "curl saiu com código $LASTEXITCODE"
+        }
+        Invoke-WebRequest -Uri $url -OutFile $destino -UseBasicParsing -TimeoutSec 600
+        return
+      } catch {
+        if ($i -eq 3) { throw "Não consegui baixar $url. Confira a internet e rode o instalador de novo." }
+        Write-Host "O download falhou. Tentando de novo, tentativa $($i + 1) de 3."
+        Start-Sleep -Seconds (3 * $i)
+      }
     }
   }
 
@@ -153,7 +166,9 @@ function Instalar-AtendimentoMago {
   }
   if ($precisaNode) {
     $arq = if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'arm64' } else { 'x64' }
-    $versoes = Invoke-RestMethod -Uri 'https://nodejs.org/dist/index.json' -UseBasicParsing
+    Write-Host 'Procurando a versão mais nova.'
+    Baixar 'https://nodejs.org/dist/index.json' "$temp\versoes.json"
+    $versoes = Get-Content "$temp\versoes.json" -Raw | ConvertFrom-Json
     $v = $versoes | Where-Object { $_.lts -and ($_.files -contains "win-$arq-zip") -and ([int]($_.version.TrimStart('v').Split('.')[0]) -ge 22) } | Select-Object -First 1
     if (-not $v) { throw 'Não achei uma versão do Node.js para este computador.' }
     $nomeZip = "node-$($v.version)-win-$arq"

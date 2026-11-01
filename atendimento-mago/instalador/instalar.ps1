@@ -67,6 +67,17 @@ function Instalar-AtendimentoMago {
     }
   }
 
+  # O tar.exe do Windows 10 e 11 descompacta muito mais rápido que o Expand-Archive.
+  function Extrair($zip, $destino) {
+    New-Item -ItemType Directory -Force -Path $destino | Out-Null
+    $tar = Join-Path $env:SystemRoot 'System32\tar.exe'
+    if (Test-Path $tar) {
+      & $tar -xf $zip -C $destino
+      if ($LASTEXITCODE -eq 0) { return }
+    }
+    Expand-Archive -Path $zip -DestinationPath $destino -Force
+  }
+
   function Parar {
     Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
       Where-Object { ($_.Name -eq 'powershell.exe' -or $_.Name -eq 'pwsh.exe') -and $_.CommandLine -like "*$base\iniciar.ps1*" } |
@@ -87,6 +98,7 @@ function Instalar-AtendimentoMago {
 
   # ------------------------------------------------------------------
   Write-Host 'Instalador do Atendimento do Mago.'
+  Write-Host 'Importante: não clique dentro desta janela. Se clicar, o Windows pausa o instalador. Se acontecer, tecle Esc para continuar.'
   $configArq = Join-Path $base 'config.json'
   $atualizando = Test-Path $configArq
   if ($atualizando) {
@@ -146,8 +158,10 @@ function Instalar-AtendimentoMago {
     if (-not $v) { throw 'Não achei uma versão do Node.js para este computador.' }
     $nomeZip = "node-$($v.version)-win-$arq"
     Write-Host "Versão $($v.version)."
+    Write-Host 'Baixando, uns 35 megabytes.'
     Baixar "https://nodejs.org/dist/$($v.version)/$nomeZip.zip" "$temp\node.zip"
-    Expand-Archive -Path "$temp\node.zip" -DestinationPath "$temp\node" -Force
+    Write-Host 'Descompactando. Pode levar alguns minutos, a tela fica parada enquanto isso.'
+    Extrair "$temp\node.zip" "$temp\node"
     Remove-Item (Join-Path $base 'node') -Recurse -Force -ErrorAction SilentlyContinue
     Move-Item "$temp\node\$nomeZip" (Join-Path $base 'node')
   } else {
@@ -158,7 +172,7 @@ function Instalar-AtendimentoMago {
   # ---------- programa ----------
   Passo 3 'baixando o programa do assistente'
   Baixar "https://codeload.github.com/$repo/zip/refs/heads/$ramo" "$temp\programa.zip"
-  Expand-Archive -Path "$temp\programa.zip" -DestinationPath "$temp\programa" -Force
+  Extrair "$temp\programa.zip" "$temp\programa"
   $origem = Get-ChildItem "$temp\programa" -Directory | Select-Object -First 1 | ForEach-Object { Join-Path $_.FullName 'atendimento-mago' }
   if (-not (Test-Path (Join-Path $origem 'package.json'))) { throw 'O pacote baixado não tem o programa. Avise quem fez o instalador.' }
   $programa = Join-Path $base 'programa'
@@ -166,7 +180,7 @@ function Instalar-AtendimentoMago {
   Move-Item $origem $programa
   foreach ($f in 'iniciar.ps1', 'parar.ps1') { Copy-Item (Join-Path $programa "instalador\$f") (Join-Path $base $f) -Force }
 
-  Write-Host 'Instalando as peças do programa. Pode levar um ou dois minutos.'
+  Write-Host 'Instalando as peças do programa. Pode levar alguns minutos, a tela fica parada enquanto isso.'
   Push-Location $programa
   try {
     & (Join-Path $base 'node\npm.cmd') ci --omit=dev --no-audit --no-fund --loglevel=error

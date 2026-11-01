@@ -1,0 +1,56 @@
+name: Buscar sons no Freesound
+
+# Roda à mão (Actions > Buscar sons no Freesound > Run workflow).
+# Os sons vão para a branch sons-candidatos, pasta sons-candidatos/.
+# Não mexe em meu-bebe/, então não gera APK.
+
+on:
+  workflow_dispatch:
+    inputs:
+      buscas:
+        description: 'Uma busca por linha: nome | termos em inglês'
+        default: |
+          riso | baby laughing
+          arroto | baby burp
+          goles | baby drinking bottle swallow
+          fralda | diaper velcro tape open
+          golfada | liquid splash small spill
+          respiracao | baby breathing sleeping
+      quantidade:
+        description: 'Quantos sons por busca'
+        default: '8'
+      duracao_max:
+        description: 'Duração máxima em segundos'
+        default: '20'
+
+permissions:
+  contents: write
+
+jobs:
+  buscar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Usar a branch sons-candidatos
+        run: |
+          git fetch origin sons-candidatos || true
+          if git rev-parse --verify origin/sons-candidatos >/dev/null 2>&1; then
+            git checkout -B sons-candidatos origin/sons-candidatos
+          else
+            git checkout -B sons-candidatos
+          fi
+      - name: Buscar e baixar
+        env:
+          FREESOUND_API_KEY: ${{ secrets.FREESOUND_API_KEY }}
+          BUSCAS: ${{ inputs.buscas }}
+          QUANTIDADE: ${{ inputs.quantidade }}
+          DURACAO_MAX: ${{ inputs.duracao_max }}
+        run: python3 .github/freesound/buscar.py
+      - name: Guardar na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add sons-candidatos
+          git diff --cached --quiet && { echo "Nada novo."; exit 0; }
+          git commit -q -m "Sons candidatos do Freesound"
+          git push origin sons-candidatos

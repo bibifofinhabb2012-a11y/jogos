@@ -8,12 +8,13 @@
 constexpr int LADO = 1000;
 
 enum class Chao : uint8_t { Grama, Pasto, Terra, Cascalho, Calcada, Taco, Ceramica, Madeira, Agua, TerraArada, Folhas };
-enum class Obstaculo : uint8_t { Nada, Cerca, CercaMadeira, Tela, Parede, Arvore, Corrego, Porteira, Porta };
+enum class Obstaculo : uint8_t { Nada, Cerca, CercaMadeira, Tela, Parede, Arvore, Corrego, Porteira, Porta, Vidro, PortaBox };
 
 struct Celula {
     Chao chao = Chao::Pasto;
     Obstaculo obs = Obstaculo::Nada;
     bool aberta = false;  // portas e porteiras: dá para passar só abertas
+    int16_t movel = -1;   // móvel em cima deste quadrado (índice na lista de móveis do jogo)
 };
 
 struct Lugar {
@@ -34,9 +35,16 @@ public:
     bool dentro(int x, int y) const;
     // ponto de água do córrego mais perto de (x, y), procurando até "raio" metros
     bool aguaMaisPerto(int x, int y, int raio, int& ax, int& ay) const;
-    bool ehPassagem(int x, int y) const { return valido(x, y) && (em(x, y).obs == Obstaculo::Porta || em(x, y).obs == Obstaculo::Porteira); }
+    bool ehPassagem(int x, int y) const {
+        if (!valido(x, y)) return false;
+        Obstaculo o = em(x, y).obs;
+        return o == Obstaculo::Porta || o == Obstaculo::Porteira || o == Obstaculo::PortaBox;
+    }
+    // o box do chuveiro: (ix, iy) é onde se fica; o chuveiro fica ao norte, a porta ao sul
+    void box(int ix, int iy);
     std::vector<std::pair<int, int>> passagens() const;  // todas as portas e porteiras, para salvar
 
+    const std::vector<Lugar>& listaLugares() const { return lugares; }
     static const char* nome(Chao ch);           // "grama", "piso de taco"...
     static const char* somPasso(Chao ch);       // nome do grupo de sons de passo
     static const char* nome(Obstaculo o);       // "cerca de arame farpado"...

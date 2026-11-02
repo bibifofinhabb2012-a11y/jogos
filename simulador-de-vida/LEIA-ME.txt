@@ -11,33 +11,48 @@ Setas para a esquerda e para a direita: andar de lado.
 Control mais seta para o lado: virar 45 graus.
 Shift mais seta para o lado: virar 90 graus.
 Shift mais seta para cima ou para baixo: dar meia-volta.
-R: sentar; se estiver sentado, agachado ou deitado, levantar.
-Control mais R: deitar.
+R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na sua frente; em outra posição, levantar.
+Control mais R: deitar; de frente para a cama, deita nela e dorme.
 Shift mais R: agachar.
-Shift mais Enter: abrir ou fechar a porta ou porteira encostada em você.
+Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você.
+Espaço: usa o que está na mão selecionada: comer, beber, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro; com a mão vazia, de frente para um móvel, mexe nele: abre a geladeira e o guarda-roupa, acende o fogão, abre a torneira, dá a descarga.
+Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta.
+Alt mais Espaço: liga e desliga o chuveiro, de dentro do box.
 B: onde você está.
-L: onde você está, a que distância das divisas, e o que tem à frente.
+Shift mais B: onde você está, a que distância das divisas e o que tem à frente.
+Ç: próxima categoria de objetos: móveis, portas e porteiras, lugares.
+Shift mais Ç: categoria anterior.
+L: próximo objeto da categoria, do mais perto para o mais longe.
+K: objeto anterior.
+O: rastreia o objeto escolhido: um bip soa de onde ele está; O de novo desliga.
+Alt mais O: anda sozinho até o objeto, abrindo as portas; qualquer tecla para.
 Q: dia e hora.
-I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda.
+I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, uma letra pula para o próximo item com aquela inicial, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda, Esc fecha.
 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia.
 2: o mesmo para a mão direita.
 3: diz o que tem nas duas mãos.
-Espaço: usa o que está na mão selecionada: comer, beber, olhar a bússola, dormir, contar o dinheiro.
 T: combina o que está nas duas mãos; com as duas vazias, bate palmas.
 U: fome.
 S: sede.
 E: energia.
 H: saúde.
+W: limpeza: se precisa de banho.
 V: intestino.
 Shift mais V: bexiga.
-Control mais Q, segurando: fazer cocô, sentado, até acabar.
-Shift mais Q, segurando: fazer xixi, agachado, até acabar.
+Control mais Q, segurando: fazer cocô, sentando, até acabar.
+Shift mais Q, segurando: fazer xixi, de cócoras, até acabar.
+Tab: menu: tutorial, configurações de volume, sair; Tab de novo volta ao jogo.
+Nos menus: setas para cima e para baixo escolhem, Enter faz, Shift Enter pega ou guarda tudo, setas para os lados mudam volume, uma letra pula, Esc volta.
 F2: repete a última fala.
 F1: esta ajuda.
 Esc duas vezes: salva e sai.
 
+Para começar, o tutorial ensina o básico passo a passo: aperte Tab e escolha Tutorial.
 Barra numa mão e a outra vazia, T abre a barra, que fica na mesma mão. Garrafa numa mão e a outra vazia, T abre a garrafa e a tampa fica na outra mão; T de novo tampa.
-Para andar, é preciso estar de pé. Cocô só sentado; xixi só agachado. Soltar a tecla antes do fim deixa o resto para depois.
+Para andar, é preciso estar de pé. Na diagonal, não dá para raspar quina de parede.
+A casa tem sala (sofá, poltrona, mesa de centro), cozinha (pia, fogão a gás, geladeira com 10 garrafas de água),
+quarto com cama, guarda-roupa de três portas e banheiro da suíte, banheiro social e segundo quarto.
+Nos banheiros: pia, vaso e box com chuveiro. Abra a porta do box com Shift Enter, entre, e ligue o chuveiro com Alt Espaço.
 
 O jogo salva sozinho a cada minuto e ao sair.
 Os créditos dos sons estão em sons/CREDITOS.txt.

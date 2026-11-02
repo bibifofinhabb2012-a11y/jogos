@@ -1,5 +1,5 @@
 Sons do Simulador de Vida. Todos do Freesound (freesound.org), com licença CC0 (domínio público) ou CC BY (pede crédito).
-O ruído branco do sono foi gerado para o jogo.
+O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tutorial) foram gerados para o jogo.
 
 "Footsteps on Grass", de harrietniamh. freesound.org/s/400123. CC BY 4.0.
 "running in grass", de EvanSki. freesound.org/s/411148. CC0.
@@ -50,4 +50,17 @@ O ruído branco do sono foi gerado para o jogo.
 "Rooster Crow 2", de BenjaminNelan. freesound.org/s/435507. CC0.
 "Rooster Crow 3", de BenjaminNelan. freesound.org/s/435506. CC0.
 "SFX_Car_Engine_Outside_Idle.wav", de GiocoSound. freesound.org/s/401552. CC0.
+"Refrigerator Hum", de p0lter. freesound.org/s/413566. CC0.
+"Fridge open and close.m4a", de thebeigee. freesound.org/s/530824. CC0.
+"Gas Stove Ignition 3", de C-V. freesound.org/s/751151. CC0.
+"gas stove burner flame", de MeanRaccoon. freesound.org/s/816922. CC0.
+"Water Out of Faucet Into Sink", de vmgraw. freesound.org/s/235618. CC0.
+"cruise ship, bathroom, toilet, flush, open, mono 01.wav", de alexanderdanner. freesound.org/s/625609. CC0.
+"Shower Running (no reverb)", de SpooksJH. freesound.org/s/802544. CC0.
+"showerslideopen.wav", de Mihacappy. freesound.org/s/828148. CC0.
+"Kids chair against floor_medium drag.wav", de tlcolbe. freesound.org/s/406703. CC0.
+"Kids chair against floor_deep drag.wav", de tlcolbe. freesound.org/s/406700. CC0.
+"Kids chair against floor_faster deep drag.wav", de tlcolbe. freesound.org/s/406699. CC0.
+"25. cama rechinando Bed creaking.wav", de cabusta9. freesound.org/s/443796. CC0.
+"sitting down", de soundmast123. freesound.org/s/556591. CC BY 3.0.
 "Metal_Rattling_Small.wav", de GiocoSound. freesound.org/s/421154. CC0.

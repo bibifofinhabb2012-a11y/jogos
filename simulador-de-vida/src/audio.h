@@ -28,4 +28,10 @@ int fonteMovel(const std::string& nome, float x, float y, float z, float volume,
 void moverFonte(int id, float x, float y, float z);
 void pararFonte(int id);
 bool existe(const std::string& nome);
+
+// Volume por categoria (ambiente, passos, efeitos, interface, musica), de 0 a 1,5.
+// A categoria sai do nome do som: passos-* são passos; vento, córrego, bichos e geladeira, ambiente;
+// gota, bip, chegou e menus, interface; o resto, efeitos.
+float volume(const std::string& categoria);
+void definirVolume(const std::string& categoria, float v);
 }

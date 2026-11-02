@@ -133,6 +133,35 @@ print("água", passos("sv-agua", 328168, "passos-agua", 5, 0.5)); u(328168)
 for i, sid in enumerate([435508, 435507, 435506], 1): trecho("sv-galo", sid, f"galo-{i}", alvo=-20); u(sid)
 laco("sv-carro", 401552, "carro", -18); u(401552)
 
+# casa: cozinha, banheiro, móveis
+laco("sv-geladeira", 413566, "geladeira", -24); u(413566)
+trecho("sv-geladeira-porta", 530824, "geladeira-porta", 0, 2.5, -20); u(530824)
+trecho("sv-fogao", 751151, "fogao", 0, 3.5, -20); u(751151)
+trecho("sv-fogao", 751151, "fogao-desligar", 0, 0.5, -24)
+laco("sv-chama", 816922, "chama", -24); u(816922)
+trecho("sv-torneira", 235618, "torneira", alvo=-20); u(235618)
+trecho("sv-descarga", 625609, "descarga", alvo=-18); u(625609)
+laco("sv-chuveiro", 802544, "chuveiro", -20); u(802544)
+trecho("sv-box", 828148, "box", alvo=-20); u(828148)
+for i, sid in enumerate([406703, 406700, 406699], 1): trecho("sv-arrastar", sid, f"arrastar-{i}", alvo=-20); u(sid)
+trecho("sv-cama", 443796, "cama", alvo=-20); u(443796)
+trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
+
+# sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial
+def tons(partes, nome, alvo=-22):
+    pedacos = []
+    for f0, f1, dur, dec in partes:
+        t = np.arange(int(dur * TAXA)) / TAXA
+        f = np.linspace(f0, f1, len(t))
+        pedacos.append(np.sin(2 * np.pi * np.cumsum(f) / TAXA) * np.exp(-t * dec))
+    gravar(np.concatenate(pedacos).astype(np.float32), nome, alvo)
+tons([(900, 1500, 0.07, 45)], "gota", -26)
+tons([(1000, 1000, 0.09, 30)], "bip", -20)
+tons([(660, 660, 0.12, 12), (990, 990, 0.25, 9)], "chegou", -20)
+tons([(500, 800, 0.08, 25)], "menu-abrir", -26)
+tons([(800, 500, 0.08, 25)], "menu-fechar", -26)
+tons([(523, 523, 0.1, 10), (659, 659, 0.1, 10), (784, 784, 0.3, 7)], "tutorial-ok", -22)
+
 # bússola precária: a agulha chacoalhando na caixinha de lata
 x = ler(arquivo("sv-bussola", 421154))
 jan = int(0.05 * TAXA); env = np.convolve(np.abs(x), np.ones(jan) / jan, mode="same")
@@ -148,7 +177,7 @@ gravar(r, "ruido", -26)
 cred = {x["id"]: x for x in json.load(open(os.path.join(ORIGEM, "creditos.json")))}
 with open(os.path.join(DESTINO, "CREDITOS.txt"), "w", encoding="utf-8") as f:
     f.write("Sons do Simulador de Vida. Todos do Freesound (freesound.org), com licença CC0 (domínio público) ou CC BY (pede crédito).\n")
-    f.write("O ruído branco do sono foi gerado para o jogo.\n\n")
+    f.write("O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tutorial) foram gerados para o jogo.\n\n")
     for sid in dict.fromkeys(usados):
         c = cred.get(sid)
         if not c: continue

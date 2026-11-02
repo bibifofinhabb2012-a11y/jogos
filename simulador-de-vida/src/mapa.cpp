@@ -53,6 +53,13 @@ Mapa::Mapa() : c(LADO * LADO) {
     for (int y = 161; y <= 307; y++) { em(494, y).obs = Obstaculo::Parede; em(506, y).obs = Obstaculo::Parede; }  // corredor
     for (int x = 401; x <= 493; x++) em(x, 230).obs = Obstaculo::Parede;     // cozinha | quarto
     for (int x = 507; x <= 598; x++) em(x, 200).obs = Obstaculo::Parede;     // banheiro | segundo quarto
+    // suíte: banheiro dentro do quarto, no canto sudoeste
+    retangulo(401, 231, 425, 250, Chao::Ceramica);
+    for (int y = 231; y <= 251; y++) em(426, y).obs = Obstaculo::Parede;
+    for (int x = 401; x <= 426; x++) em(x, 251).obs = Obstaculo::Parede;
+    abrir(426, 241, Obstaculo::Porta, Chao::Ceramica);       // quarto -> banheiro da suíte
+    box(595, 198);   // box do banheiro social
+    box(403, 249);   // box da suíte
     abrir(500, 109, Obstaculo::Porta, Chao::Taco, false);   // porta da frente, no meio da varanda: fechada
     abrir(500, 308, Obstaculo::Porta, Chao::Taco, false);   // porta dos fundos: fechada
     abrir(500, 160, Obstaculo::Porta, Chao::Taco);           // sala -> corredor
@@ -76,6 +83,9 @@ Mapa::Mapa() : c(LADO * LADO) {
 
     // do mais específico para o mais geral
     lugares = {
+        {"box do chuveiro", 595, 198, 595, 198, true},
+        {"box do chuveiro da suíte", 403, 249, 403, 249, true},
+        {"banheiro da suíte", 401, 231, 425, 250, true},
         {"sala", 401, 110, 598, 159, true},
         {"corredor", 495, 161, 505, 307, true},
         {"cozinha", 401, 161, 493, 229, true},
@@ -107,12 +117,19 @@ void Mapa::contorno(int x0, int y0, int x1, int y1, Obstaculo o) {
     for (int x = x0; x <= x1; x++) { em(x, y0).obs = o; em(x, y1).obs = o; }
     for (int y = y0; y <= y1; y++) { em(x0, y).obs = o; em(x1, y).obs = o; }
 }
+void Mapa::box(int ix, int iy) {
+    for (int dx : {-1, 1}) { em(ix + dx, iy).obs = Obstaculo::Vidro; em(ix + dx, iy + 1).obs = Obstaculo::Vidro; }
+    em(ix, iy).chao = Chao::Ceramica;
+    abrir(ix, iy - 1, Obstaculo::PortaBox, Chao::Ceramica, false);
+}
+
 void Mapa::abrir(int x, int y, Obstaculo o, Chao ch, bool aberta) { em(x, y).obs = o; em(x, y).chao = ch; em(x, y).aberta = aberta; }
 
 bool Mapa::passa(int x, int y) const {
     if (!valido(x, y)) return false;
     const Celula& k = em(x, y);
-    return k.obs == Obstaculo::Nada || ((k.obs == Obstaculo::Porta || k.obs == Obstaculo::Porteira) && k.aberta);
+    if (k.movel >= 0) return false;
+    return k.obs == Obstaculo::Nada || (ehPassagem(x, y) && k.aberta);
 }
 
 std::vector<std::pair<int, int>> Mapa::passagens() const {
@@ -197,6 +214,8 @@ const char* Mapa::nome(Obstaculo o) {
         case Obstaculo::Corrego: return "córrego";
         case Obstaculo::Porteira: return "porteira";
         case Obstaculo::Porta: return "porta";
+        case Obstaculo::Vidro: return "vidro do box";
+        case Obstaculo::PortaBox: return "porta do box";
     }
     return "obstáculo";
 }

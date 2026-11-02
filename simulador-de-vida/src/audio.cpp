@@ -20,6 +20,23 @@ static ALCcontext* contexto = nullptr;
 static std::map<std::string, std::vector<ALuint>> banco;  // grupo -> variações
 static std::vector<ALuint> fontes;                          // fontes de toque único, reaproveitadas
 static std::map<int, ALuint> lacos;                         // fontes contínuas e móveis
+static std::map<int, std::pair<std::string, float>> lacoInfo;  // categoria e volume pedido de cada uma
+static std::map<std::string, float> volumes = {{"ambiente", 1}, {"passos", 1}, {"efeitos", 1}, {"interface", 1}, {"musica", 1}};
+
+static std::string categoriaDe(const std::string& nome) {
+    if (nome.rfind("passos", 0) == 0) return "passos";
+    static const char* amb[] = {"vento", "corrego", "grilos", "cigarra", "passaros", "sapos", "galo", "geladeira", "carro"};
+    for (const char* a : amb) if (nome == a) return "ambiente";
+    static const char* intf[] = {"gota", "bip", "chegou", "menu-abrir", "menu-fechar", "tutorial-ok"};
+    for (const char* a : intf) if (nome == a) return "interface";
+    if (nome.rfind("musica", 0) == 0) return "musica";
+    return "efeitos";
+}
+float volume(const std::string& c) { auto it = volumes.find(c); return it == volumes.end() ? 1.0f : it->second; }
+void definirVolume(const std::string& c, float v) {
+    volumes[c] = v;
+    for (auto& [id, info] : lacoInfo) if (info.first == c && lacos.count(id)) alSourcef(lacos[id], AL_GAIN, info.second * v);
+}
 static int proximoId = 1;
 static std::mt19937 sorte{std::random_device{}()};
 
@@ -131,7 +148,7 @@ void tocar(const std::string& nome, float volume, float tom) {
     ALuint b = buffer(nome); if (!b) return;
     ALuint f = fonteLivre(); alSourceStop(f);
     alSourcei(f, AL_BUFFER, (ALint)b); alSourcei(f, AL_LOOPING, AL_FALSE);
-    configurar(f, false, 0, 0, 0, volume, 1, tom);
+    configurar(f, false, 0, 0, 0, volume * audio::volume(categoriaDe(nome)), 1, tom);
     alSourcePlay(f);
 }
 
@@ -140,7 +157,7 @@ void tocar3D(const std::string& nome, float x, float y, float z, float volume, f
     ALuint b = buffer(nome); if (!b) return;
     ALuint f = fonteLivre(); alSourceStop(f);
     alSourcei(f, AL_BUFFER, (ALint)b); alSourcei(f, AL_LOOPING, AL_FALSE);
-    configurar(f, true, x, y, z, volume, alcance, tom);
+    configurar(f, true, x, y, z, volume * audio::volume(categoriaDe(nome)), alcance, tom);
     alSourcePlay(f);
 }
 
@@ -150,10 +167,12 @@ static int novaFonte(const std::string& nome, bool em3D, float x, float y, float
     ALuint f = 0; alGenSources(1, &f);
     alSourcei(f, AL_BUFFER, (ALint)b);
     alSourcei(f, AL_LOOPING, repetir ? AL_TRUE : AL_FALSE);
-    configurar(f, em3D, x, y, z, volume, alcance, 1.0f);
+    std::string cat = categoriaDe(nome);
+    configurar(f, em3D, x, y, z, volume * audio::volume(cat), alcance, 1.0f);
     alSourcePlay(f);
     int id = proximoId++;
     lacos[id] = f;
+    lacoInfo[id] = {cat, volume};
     return id;
 }
 
@@ -165,10 +184,14 @@ void lacoPosicao(int id, float x, float y, float z) {
     float p[3]; paraAL(x, y, z, p); alSourcefv(it->second, AL_POSITION, p);
 }
 void moverFonte(int id, float x, float y, float z) { lacoPosicao(id, x, y, z); }
-void lacoVolume(int id, float volume) { auto it = lacos.find(id); if (it != lacos.end()) alSourcef(it->second, AL_GAIN, volume); }
+void lacoVolume(int id, float v) {
+    auto it = lacos.find(id); if (it == lacos.end()) return;
+    lacoInfo[id].second = v;
+    alSourcef(it->second, AL_GAIN, v * audio::volume(lacoInfo[id].first));
+}
 void lacoTom(int id, float tom) { auto it = lacos.find(id); if (it != lacos.end()) alSourcef(it->second, AL_PITCH, tom); }
 void pararFonte(int id) {
     auto it = lacos.find(id); if (it == lacos.end()) return;
-    alSourceStop(it->second); alDeleteSources(1, &it->second); lacos.erase(it);
+    alSourceStop(it->second); alDeleteSources(1, &it->second); lacos.erase(it); lacoInfo.erase(id);
 }
 }

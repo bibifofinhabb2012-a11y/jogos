@@ -7,20 +7,18 @@
 #include <sstream>
 #include "audio.h"
 #include "fala.h"
+#include "util.h"
 
-static std::mt19937 sorte{std::random_device{}()};
-static double acaso(double a, double b) { return std::uniform_real_distribution<double>(a, b)(sorte); }
 
 // Relógio: 1 segundo de verdade = 12 segundos do jogo (um dia dura 2 horas de verdade).
 // Dormindo, 1 segundo de verdade = 10 minutos do jogo.
 constexpr double MIN_POR_SEG = 0.2, MIN_POR_SEG_DORMINDO = 10.0;
-constexpr int DX[8] = {0, 1, 1, 1, 0, -1, -1, -1}, DY[8] = {1, 1, 0, -1, -1, -1, 0, 1};
 
 Jogo::Jogo() { novo(); }
 
 void Jogo::novo() {
     x = 500; y = 9; rumo = 0; postura = Postura::EmPe; intestino = 30; bexiga = 30; excretando = 0;
-    fome = 85; sede = 85; energia = 90; saude = 100;
+    fome = 85; sede = 85; energia = 90; saude = 100; higiene = 90;
     minutos = 7 * 60;
     mochila = {
         {{"barra", 0}, 100}, {{"garrafa", 4}, 10}, {{"antibiotico", 0}, 50}, {{"atadura", 0}, 10},
@@ -28,13 +26,15 @@ void Jogo::novo() {
     };
     maoDireita = maoEsquerda = {};
     mapa = Mapa();
+    criarMoveis();
+    segurando = sentadoEm = -1; tomandoBanho = 0;
+    menus.clear(); categoria = -1; alvos.clear(); rastreando = false; caminho.clear();
     mochilaAberta = false; itemMochila = 0; dormindo = false;
     for (double& a : ultimoAviso) a = 100;
     lugarAtual = mapa.nomeLugar(x, y);
 }
 
 // ---------- nomes ----------
-static std::string goles(int n) { return n == 1 ? "1 gole" : std::to_string(n) + " goles"; }
 
 std::string Jogo::nomeCoisa(const Coisa& c, bool comArtigo) const {
     const std::string& t = c.tipo;
@@ -53,36 +53,17 @@ std::string Jogo::nomeCoisa(const Coisa& c, bool comArtigo) const {
     else if (t == "saco-dormir") n = "saco de dormir";
     else if (t == "carteira") n = "carteira, com " + std::to_string(c.carga) + (c.carga == 1 ? " moeda" : " moedas");
     else if (t == "bussola") n = "bússola";
+    else if (t == "camisa") n = "camisa de flanela xadrez, do seu pai";
+    else if (t == "calca") n = "calça jeans gasta";
+    else if (t == "chapeu") n = "chapéu de palha";
     else if (t == "tampa") n = "tampa de garrafa";
     else n = t;
     if (!comArtigo) return n;
-    bool fem = t != "antibiotico" && t != "pacote" && t != "gesso" && t != "saco-dormir";
+    bool fem = t != "antibiotico" && t != "pacote" && t != "gesso" && t != "saco-dormir" && t != "chapeu";
     return std::string(fem ? "a " : "o ") + n;
 }
 
-static std::string plural(const Coisa& c, int qtd, const std::string& singular) {
-    if (qtd == 1) return singular;
-    const std::string& t = c.tipo;
-    if (t == "barra") return "barras de ração embrulhadas";
-    if (t == "barra-aberta") return "barras de ração abertas";
-    if (t == "antibiotico") return "comprimidos de antibiótico";
-    if (t == "atadura") return "ataduras";
-    if (t == "gesso") return "pacotes de gesso em pó";
-    if (t == "tampa") return "tampas de garrafa";
-    if (t == "garrafa" || t == "garrafa-aberta") {
-        std::string estado = t == "garrafa" ? "tampadas" : "abertas";
-        return c.carga >= 4 ? "garrafas de água " + estado + ", cheias"
-             : c.carga == 0 ? "garrafas vazias, " + estado
-             : "garrafas de água " + estado + ", com " + goles(c.carga);
-    }
-    return singular;
-}
 
-static std::string maiuscula(std::string s) {
-    // só a primeira letra, e só se for ASCII (as palavras do jogo não começam com acento)
-    if (!s.empty() && s[0] >= 'a' && s[0] <= 'z') s[0] = (char)(s[0] - 32);
-    return s;
-}
 
 // ---------- mochila e mãos ----------
 void Jogo::guardar(const Coisa& c0, int qtd) {
@@ -225,9 +206,14 @@ void Jogo::usar(bool direita) {
         intestino = std::min(100.0, intestino + 12);
         c = {};
         audio::tocar("mastigar");
+        evento("comeu");
         fala::dizer("Você come a barra de ração. Seca, com gosto de aveia e papelão, mas enche a barriga.");
     } else if (t == "barra") {
         fala::dizer("A barra está embrulhada. Para abrir: com a outra mão vazia, aperte T.");
+    } else if (t == "garrafa-aberta" && movelFrente() >= 0 && moveis[movelFrente()].tipo == "pia" && c.carga < 4) {
+        c.carga = 4;
+        audio::tocar3D("torneira", moveis[movelFrente()].x + 0.5f, moveis[movelFrente()].y + 0.5f, 0.9f, 0.9f, 2);
+        fala::dizer("Você abre a torneira e enche a garrafa. Água limpa, da caixa d'água.");
     } else if (t == "garrafa-aberta" && c.carga > 0) {
         if (sede > 97) { fala::dizer("Você está sem sede."); return; }
         sede = std::min(100.0, sede + 12);
@@ -252,6 +238,7 @@ void Jogo::usar(bool direita) {
     } else if (t == "gesso") {
         fala::dizer("Gesso em pó precisa ser misturado com água: segure uma garrafa aberta na outra mão e aperte T. E só serve para osso quebrado.");
     } else if (t == "saco-dormir") {
+        if (postura != Postura::Deitado) { fala::dizer("Para entrar no saco de dormir, deite primeiro: Control R. Depois, Espaço."); return; }
         dormir();
     } else if (t == "carteira") {
         audio::tocar("moedas", 0.7f);
@@ -299,6 +286,7 @@ void Jogo::avisosDoCorpo() {
         {energia, 2, {30, 15, 6}, {"O cansaço começa a pesar.", "Exaustão. Procure um lugar para dormir.", "Você mal para em pé. Durma já, ou o corpo desliga sozinho."}},
         {100 - intestino, 3, {30, 15, 6}, {"Começa a dar vontade de fazer cocô.", "A barriga aperta: precisa dar um cagão.", "Não vai dar para segurar muito mais. Sente e aperte Control Q."}},
         {100 - bexiga, 4, {30, 15, 6}, {"Começa a dar vontade de fazer xixi.", "A bexiga está cheia: precisa fazer xixi.", "Vai escapar. Agache e aperte Shift Q."}},
+        {higiene, 5, {40, 20, 8}, {"O suor começa a pesar e a dar cheiro.", "A sujeira já incomoda: precisa de um banho.", "O cheiro já está forte. Banho, já."}},
     };
     for (auto& it : itens) {
         double& marca = ultimoAviso[it.i];
@@ -313,9 +301,15 @@ void Jogo::dormir() {
     if (energia > 75) { fala::dizer("Você ainda não está com sono."); return; }
     dormindo = true;
     postura = Postura::Deitado;
-    audio::tocar("saco-dormir");
     if (!somSono) somSono = audio::laco("ruido", false, 0.35f);
-    fala::dizer("Você estende o saco de dormir no chão de " + std::string(Mapa::nome(mapa.em(x, y).chao)) + ", entra e fecha o zíper até o queixo. " +
+    if (sentadoEm >= 0 && moveis[sentadoEm].tipo == "cama") {
+        fala::dizer("Você puxa o lençol, afunda a cabeça no travesseiro e dorme. E diz como a energia está se recuperando. Qualquer outra tecla, menos U, S, V e Q, acorda.");
+        evento("dormiu");
+        return;
+    }
+    audio::tocar("saco-dormir");
+    evento("dormiu");
+    fala::dizer("Você entra no saco de dormir, no chão de " + std::string(Mapa::nome(mapa.em(x, y).chao)) + ", e fecha o zíper até o queixo. " +
                 (mapa.dentro(x, y) ? "Dentro de casa, o silêncio ajuda." : "Ao ar livre, o vento passa por cima do saco.") +
                 " Você dorme. E diz como a energia está se recuperando. Qualquer outra tecla, menos U, S e Q, acorda antes da hora.");
 }
@@ -335,6 +329,8 @@ std::string Jogo::direcao(int r) const {
 }
 
 void Jogo::virar(int lado) {
+    if (segurando >= 0) { fala::dizer("Você está segurando " + nomeMovel(segurando, true) + ". Para virar, solte primeiro: Control Espaço."); return; }
+    evento("virar");
     rumo = (rumo + lado + 8) % 8;
     fala::dizer(maiuscula(direcao(rumo)) + ".");
 }
@@ -366,9 +362,9 @@ void Jogo::abrirPorta() {
     if (postura != Postura::EmPe) { fala::dizer("Para abrir, levante primeiro: aperte R."); return; }
     Celula& k = mapa.em(x + DX[alvo], y + DY[alvo]);
     k.aberta = !k.aberta;
-    bool porteira = k.obs == Obstaculo::Porteira;
-    audio::tocar3D(porteira ? "porteira" : (k.aberta ? "porta-abrir" : "porta-fechar"), x + DX[alvo] + 0.5f, y + DY[alvo] + 0.5f, 1.0f, 0.9f, 3);
-    std::string n = porteira ? "a porteira" : "a porta";
+    bool porteira = k.obs == Obstaculo::Porteira, box = k.obs == Obstaculo::PortaBox;
+    audio::tocar3D(porteira ? "porteira" : box ? "box" : (k.aberta ? "porta-abrir" : "porta-fechar"), x + DX[alvo] + 0.5f, y + DY[alvo] + 0.5f, 1.0f, 0.9f, 3);
+    std::string n = porteira ? "a porteira" : box ? "a porta de vidro do box" : "a porta";
     fala::dizer(std::string(k.aberta ? "Você abre " : "Você fecha ") + n + ", " + relativo(alvo) + ".");
 }
 
@@ -378,6 +374,8 @@ void Jogo::mudarPostura(Postura p) {
     bool vaso = mapa.nomeLugar(x, y) == "banheiro";
     andandoFrente = andandoTras = false; andandoLado = 0;
     postura = p;
+    if (p == Postura::EmPe && sentadoEm >= 0) { sentadoEm = -1; fala::dizer("Você se levanta."); evento("levantar"); return; }
+    sentadoEm = -1;
     switch (p) {
         case Postura::EmPe: fala::dizer("Você se levanta."); break;
         case Postura::Sentado: fala::dizer(vaso ? "Você senta no vaso sanitário." : "Você senta no chão de " + chao + "."); break;
@@ -405,8 +403,8 @@ void Jogo::dizerBexiga() {
 // Segurar Control Q (cocô, sentado) ou Shift Q (xixi, agachado) até acabar.
 void Jogo::comecarExcretar(int tipo) {
     if (excretando) return;
-    if (tipo == 2 && postura != Postura::Sentado) { fala::dizer("Para fazer cocô, é preciso estar sentado. Aperte R para sentar."); return; }
-    if (tipo == 1 && postura != Postura::Agachado) { fala::dizer("Para fazer xixi, é preciso estar agachado. Aperte Shift R para agachar."); return; }
+    if (tipo == 2 && postura != Postura::Sentado) { fala::dizer("Cocô se faz sentando. Aperte R para sentar, e depois segure Control Q."); return; }
+    if (tipo == 1 && postura != Postura::Agachado) { fala::dizer("Xixi se faz de cócoras. Aperte Shift R para agachar, e depois segure Shift Q."); return; }
     if (tipo == 2 && intestino < 10) { fala::dizer("Você faz força, mas não tem cocô nenhum para sair."); return; }
     if (tipo == 1 && bexiga < 8) { fala::dizer("Não tem xixi para sair."); return; }
     excretando = tipo; excretaT = 0; proximoPlop = 1.0;
@@ -444,6 +442,10 @@ void Jogo::olhar() {
             std::string l = mapa.nomeLugar(px, py);
             if (l != aqui) mudanca = "A " + std::to_string(i) + (i == 1 ? " metro" : " metros") + ", começa: " + l + ". ";
         }
+        if (k.movel >= 0) {
+            txt += mudanca + "À frente, a " + std::to_string(i) + (i == 1 ? " metro: " : " metros: ") + nomeMovel(k.movel) + ".";
+            return fala::dizer(txt);
+        }
         if (k.obs != Obstaculo::Nada) {
             txt += mudanca + "À frente, a " + std::to_string(i) + (i == 1 ? " metro: " : " metros: ") + Mapa::nome(k.obs) +
                    (k.obs == Obstaculo::Porta || k.obs == Obstaculo::Porteira ? (k.aberta ? ", aberta." : ", fechada.") : "." + passagemPerto(px, py, rumo));
@@ -464,13 +466,44 @@ void Jogo::passo(int sentido) { passoPara(sentido > 0 ? rumo : (rumo + 4) % 8); 
 
 void Jogo::passoPara(int r) {
     int nx = x + DX[r], ny = y + DY[r];
+    if (segurando >= 0) {  // arrastando um móvel: empurra para a frente, puxa para trás, leva de lado
+        Movel& m = moveis[segurando];
+        int mx = m.x + DX[r], my = m.y + DY[r];
+        bool frente = r == rumo, tras = r == (rumo + 4) % 8;
+        if (frente) {
+            if (!moverMovel(segurando, mx, my)) { andandoFrente = false; fala::dizer(maiuscula(nomeMovel(segurando, true)) + " não passa: tem coisa no caminho."); return; }
+        } else if (tras) {
+            if (!mapa.passa(nx, ny)) { andandoTras = false; fala::dizer("Atrás de você tem obstáculo. Não dá para puxar."); return; }
+            int ox = x, oy = y;
+            x = nx; y = ny;
+            moverMovel(segurando, ox, oy);
+            audio::tocar(Mapa::somPasso(mapa.em(x, y).chao), 0.5f);
+            return;
+        } else {
+            if (!mapa.passa(nx, ny) || !moverMovel(segurando, mx, my)) { andandoLado = 0; fala::dizer("Não dá para levar " + nomeMovel(segurando, true) + " para esse lado."); return; }
+        }
+    }
+    // diagonal só com os dois lados do canto livres: não dá para raspar quina de parede, vidro ou porta fechada
+    if (r % 2 == 1 && segurando < 0 && mapa.passa(nx, ny) && (!mapa.passa(x + DX[r], y) || !mapa.passa(x, y + DY[r]))) {
+        andandoFrente = andandoTras = false; andandoLado = 0;
+        audio::tocar3D("parede", nx + 0.5f, ny + 0.5f, 1.0f, 0.5f, 2);
+        fala::dizer("Quina. Na diagonal não passa; vá reto.");
+        return;
+    }
+    if (mapa.valido(nx, ny) && mapa.em(nx, ny).movel >= 0) {
+        int i = mapa.em(nx, ny).movel;
+        andandoFrente = andandoTras = false; andandoLado = 0;
+        audio::tocar3D("parede", nx + 0.5f, ny + 0.5f, 0.8f, 0.5f, 2, 1.2f);
+        fala::dizer(maiuscula(nomeMovel(i)) + ".");
+        return;
+    }
     if (!mapa.passa(nx, ny)) {
         Obstaculo o = mapa.valido(nx, ny) ? mapa.em(nx, ny).obs : Obstaculo::Cerca;
         const char* som = o == Obstaculo::Corrego ? "passos-agua" : (o == Obstaculo::Parede || o == Obstaculo::Arvore) ? "parede" : "cerca";
         audio::tocar3D(som, nx + 0.5f, ny + 0.5f, 1.0f, 0.9f, 2, o == Obstaculo::Arvore ? 0.8f : 1.0f);
         std::string n = mapa.valido(nx, ny) ? Mapa::nome(o) : "fim do mapa";
         andandoFrente = andandoTras = false; andandoLado = 0;
-        if (o == Obstaculo::Porta || o == Obstaculo::Porteira) { audio::tocar3D("parede", nx + 0.5f, ny + 0.5f, 1.0f, 0.5f, 2, 1.3f); fala::dizer(maiuscula(n) + " fechada. Aperte Shift Enter para abrir."); return; }
+        if (o == Obstaculo::Porta || o == Obstaculo::Porteira || o == Obstaculo::PortaBox) { audio::tocar3D("parede", nx + 0.5f, ny + 0.5f, 1.0f, 0.5f, 2, 1.3f); fala::dizer(maiuscula(n) + " fechada. Aperte Shift Enter para abrir."); return; }
         fala::dizer(maiuscula(n) + "." + passagemPerto(nx, ny, r));
         ultimoObstaculo = n;
         return;
@@ -478,6 +511,8 @@ void Jogo::passoPara(int r) {
     ultimoObstaculo.clear();
     Obstaculo o = mapa.em(nx, ny).obs;
     x = nx; y = ny;
+    contadorPassos++;
+    higiene -= 0.004;
     energia -= correndo ? 0.05 : 0.015;
     sede -= correndo ? 0.03 : 0.008;
     audio::tocar(Mapa::somPasso(mapa.em(x, y).chao), (float)acaso(0.55, 0.75) * (correndo ? 1.2f : 1.0f), (float)acaso(0.94, 1.06));
@@ -506,31 +541,46 @@ std::string Jogo::passagemPerto(int ox, int oy, int r) const {
 }
 
 void Jogo::ajuda() {
-    fala::dizer("Teclas. Seta para cima: andar para a frente; segure para continuar; com Control, correr. Seta para baixo: andar de costas. Setas para a esquerda e para a direita: andar de lado. Control mais seta para o lado: virar 45 graus. Shift mais seta para o lado: virar 90 graus. Shift mais seta para cima ou para baixo: dar meia-volta. R: sentar; se estiver sentado, agachado ou deitado, levantar. Control mais R: deitar. Shift mais R: agachar. Shift mais Enter: abrir ou fechar a porta ou porteira encostada em você. B: onde você está. L: onde você está, a que distância das divisas, e o que tem à frente. Q: dia e hora. I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda. 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia. 2: o mesmo para a mão direita. 3: diz o que tem nas duas mãos. Espaço: usa o que está na mão selecionada: comer, beber, olhar a bússola, dormir, contar o dinheiro. T: combina o que está nas duas mãos; com as duas vazias, bate palmas. U: fome. S: sede. E: energia. H: saúde. V: intestino. Shift mais V: bexiga. Control mais Q, segurando: fazer cocô, sentado, até acabar. Shift mais Q, segurando: fazer xixi, agachado, até acabar. F2: repete a última fala. F1: esta ajuda. Esc duas vezes: salva e sai.");
+    fala::dizer("Teclas. Seta para cima: andar para a frente; segure para continuar; com Control, correr. Seta para baixo: andar de costas. Setas para a esquerda e para a direita: andar de lado. Control mais seta para o lado: virar 45 graus. Shift mais seta para o lado: virar 90 graus. Shift mais seta para cima ou para baixo: dar meia-volta. R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na sua frente; em outra posição, levantar. Control mais R: deitar; de frente para a cama, deita nela e dorme. Shift mais R: agachar. Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você. Espaço: usa o que está na mão selecionada: comer, beber, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro; com a mão vazia, de frente para um móvel, mexe nele: abre a geladeira e o guarda-roupa, acende o fogão, abre a torneira, dá a descarga. Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta. Alt mais Espaço: liga e desliga o chuveiro, de dentro do box. B: onde você está. Shift mais B: onde você está, a que distância das divisas e o que tem à frente. Ç: próxima categoria de objetos: móveis, portas e porteiras, lugares. Shift mais Ç: categoria anterior. L: próximo objeto da categoria, do mais perto para o mais longe. K: objeto anterior. O: rastreia o objeto escolhido: um bip soa de onde ele está; O de novo desliga. Alt mais O: anda sozinho até o objeto, abrindo as portas; qualquer tecla para. Q: dia e hora. I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, uma letra pula para o próximo item com aquela inicial, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda, Esc fecha. 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia. 2: o mesmo para a mão direita. 3: diz o que tem nas duas mãos. T: combina o que está nas duas mãos; com as duas vazias, bate palmas. U: fome. S: sede. E: energia. H: saúde. W: limpeza: se precisa de banho. V: intestino. Shift mais V: bexiga. Control mais Q, segurando: fazer cocô, sentando, até acabar. Shift mais Q, segurando: fazer xixi, de cócoras, até acabar. Tab: menu: tutorial, configurações de volume, sair; Tab de novo volta ao jogo. Nos menus: setas para cima e para baixo escolhem, Enter faz, Shift Enter pega ou guarda tudo, setas para os lados mudam volume, uma letra pula, Esc volta. F2: repete a última fala. F1: esta ajuda. Esc duas vezes: salva e sai.");
 }
 
 // ---------- teclas ----------
-void Jogo::tecla(Tecla t, bool shift, bool ctrl) {
-    (void)ctrl;
+void Jogo::tecla(Tecla t, bool shift, bool ctrl, bool alt, char letra) {
     if (carroT < 0 && carroPai) carroT = 0;  // primeira tecla: o pai vai embora
     if (t != Tecla::Esc) confirmarSair = false;
+    // andando sozinho até um alvo: qualquer tecla para
+    if (!caminho.empty() && !(t == Tecla::O && alt)) { caminho.clear(); fala::dizer("Parou. O rastreio continua: siga o bip, ou Alt O para continuar."); return; }
+    // menus abertos (geladeira, guarda-roupa, Tab) recebem as teclas primeiro
+    if (!menus.empty()) { teclaMenu(t, shift, letra); return; }
+    if (t == Tecla::Tab) { menuPrincipal(); return; }
     if (dormindo) {
         if (t == Tecla::U) return dizerFome();
         if (t == Tecla::S) return dizerSede();
         if (t == Tecla::E) return dizerEnergia();
         if (t == Tecla::Q) return hora();
         if (t == Tecla::V) return shift ? dizerBexiga() : dizerIntestino();
-        return acordar("Você acorda e se espreguiça dentro do saco de dormir. Para levantar, aperte R.");
+        if (t == Tecla::W) return dizerHigiene();
+        return acordar(sentadoEm >= 0 ? "Você acorda e se espreguiça na cama. Para levantar, aperte R." : "Você acorda e se espreguiça dentro do saco de dormir. Para levantar, aperte R.");
     }
     if (mochilaAberta) {
         switch (t) {
-            case Tecla::Cima: itemMochila = mochila.empty() ? 0 : (itemMochila - 1 + (int)mochila.size()) % (int)mochila.size(); falarItemMochila(); return;
-            case Tecla::Baixo: itemMochila = mochila.empty() ? 0 : (itemMochila + 1) % (int)mochila.size(); falarItemMochila(); return;
+            case Tecla::Cima: itemMochila = mochila.empty() ? 0 : (itemMochila - 1 + (int)mochila.size()) % (int)mochila.size(); audio::tocar("gota", 0.4f); falarItemMochila(); return;
+            case Tecla::Baixo: itemMochila = mochila.empty() ? 0 : (itemMochila + 1) % (int)mochila.size(); audio::tocar("gota", 0.4f); falarItemMochila(); return;
             case Tecla::Direita: colocarNaMao(true); return;
             case Tecla::Esquerda: colocarNaMao(false); return;
             case Tecla::I: case Tecla::Esc:
                 mochilaAberta = false; audio::tocar("mochila", 0.6f, 0.9f); fala::dizer("Mochila fechada."); return;
             default: break;
+        }
+        if (letra && !mochila.empty()) {  // letra: pula para o próximo item que começa com ela
+            char l = (char)std::tolower((unsigned char)letra);
+            int n = (int)mochila.size();
+            for (int k = 1; k <= n; k++) {
+                int j = (itemMochila + k) % n;
+                if (inicialSemAcento(nomeCoisa(mochila[j].coisa)) == l) { itemMochila = j; audio::tocar("gota", 0.4f); falarItemMochila(); evento("letra"); return; }
+            }
+            fala::dizer(std::string("Nada na mochila com a letra ") + l + ".");
+            return;
         }
     }
     bool andar = (t == Tecla::Cima || t == Tecla::Baixo || t == Tecla::Esquerda || t == Tecla::Direita) && !shift && !ctrl;
@@ -538,7 +588,7 @@ void Jogo::tecla(Tecla t, bool shift, bool ctrl) {
     switch (t) {
         case Tecla::Cima:
             if (shift) { virar(4); break; }
-            andandoFrente = true; correndo = ctrl; passo(1); esperaPasso = correndo ? 0.3 : 0.45; break;
+            andandoFrente = true; correndo = ctrl && segurando < 0; passo(1); esperaPasso = correndo ? 0.3 : 0.45; break;
         case Tecla::Baixo:
             if (shift) { virar(4); break; }
             andandoTras = true; correndo = false; passo(-1); esperaPasso = 0.6; break;
@@ -554,23 +604,44 @@ void Jogo::tecla(Tecla t, bool shift, bool ctrl) {
             break;
         case Tecla::Um: verMao(1); break;
         case Tecla::Dois: verMao(0); break;
-        case Tecla::Tres: verMaos(); break;
+        case Tecla::Tres: verMaos(); evento("maos"); break;
         case Tecla::T: combinar(); break;
-        case Tecla::Espaco: usar(maoSel == 0); break;
-        case Tecla::U: dizerFome(); break;
+        case Tecla::U: dizerFome(); evento("fome"); break;
         case Tecla::S: dizerSede(); break;
         case Tecla::E: dizerEnergia(); break;
         case Tecla::H: dizerSaude(); break;
-
+        case Tecla::W: dizerHigiene(); evento("higiene"); break;
         case Tecla::Q: if (ctrl) comecarExcretar(2); else if (shift) comecarExcretar(1); else hora(); break;
-        case Tecla::B: fala::dizer(maiuscula(mapa.nomeLugar(x, y)) + "."); break;
+        case Tecla::B:
+            if (shift) { olhar(); evento("olhar"); }
+            else { fala::dizer(maiuscula(mapa.nomeLugar(x, y)) + "."); evento("b"); }
+            break;
         case Tecla::V: if (shift) dizerBexiga(); else dizerIntestino(); break;
-        case Tecla::L: olhar(); break;
-        case Tecla::R:
+        case Tecla::Cedilha: trocarCategoria(shift ? -1 : 1); break;
+        case Tecla::K: trocarItem(-1); break;
+        case Tecla::L: trocarItem(1); break;
+        case Tecla::O: if (alt) irAteAlvo(); else rastrear(); break;
+        case Tecla::Espaco: {
+            if (ctrl) { arrastar(); break; }
+            if (alt) { chuveiro(); break; }
+            Coisa& m = mao(maoSel == 0);
+            int f = movelFrente();
+            if (m.tipo.empty() && f >= 0) interagir(f);
+            else usar(maoSel == 0);
+            break;
+        }
+        case Tecla::R: {
+            int f = movelFrente();
+            if (postura == Postura::EmPe && f >= 0 && !shift) {
+                const std::string& tp = moveis[f].tipo;
+                if (ctrl && tp == "cama") { sentarEm(f, Postura::Deitado); break; }
+                if (!ctrl && (tp == "sofa" || tp == "poltrona" || tp == "vaso" || tp == "cama")) { sentarEm(f, Postura::Sentado); break; }
+            }
             if (ctrl) mudarPostura(Postura::Deitado);
             else if (shift) mudarPostura(Postura::Agachado);
             else mudarPostura(postura == Postura::EmPe ? Postura::Sentado : Postura::EmPe);
             break;
+        }
         case Tecla::F2: fala::dizer(fala::ultima()); break;
         case Tecla::F1: ajuda(); break;
         case Tecla::Enter: if (shift) abrirPorta(); break;
@@ -578,6 +649,7 @@ void Jogo::tecla(Tecla t, bool shift, bool ctrl) {
             if (confirmarSair) { sair = true; fala::dizer("Jogo salvo. Até logo."); }
             else { confirmarSair = true; fala::dizer("Aperte Esc de novo para salvar e sair."); }
             break;
+        default: break;
     }
 }
 
@@ -591,10 +663,11 @@ void Jogo::soltar(Tecla t) {
 // ---------- tempo ----------
 void Jogo::atualizar(double seg) {
     agora += seg;
+    if (pausado()) { ambiente(0); return; }  // menu do Tab aberto: o tempo para
     double dm = seg * (dormindo ? MIN_POR_SEG_DORMINDO : MIN_POR_SEG), h = dm / 60.0;
     minutos += dm;
-    if (dormindo) { fome -= 1.1 * h; sede -= 2.0 * h; energia += 12.0 * h; }
-    else { fome -= 2.2 * h; sede -= 4.0 * h; energia -= 3.5 * h; }
+    if (dormindo) { fome -= 1.1 * h; sede -= 2.0 * h; energia += (sentadoEm >= 0 ? 15.0 : 12.0) * h; higiene -= 0.5 * h; }
+    else { fome -= 2.2 * h; sede -= 4.0 * h; energia -= 3.5 * h; higiene -= 1.5 * h; }
     intestino += 2.5 * h; bexiga += (dormindo ? 2.0 : 4.0) * h;
     if (excretando == 1) {
         bexiga -= 12 * seg;
@@ -607,18 +680,18 @@ void Jogo::atualizar(double seg) {
         if (intestino <= 0) { intestino = 0; pararExcretar(false); }
     }
     if (bexiga >= 100 && excretando != 1) {
-        bexiga = 0; audio::tocar("xixi", 0.6f);
+        bexiga = 0; higiene -= 30; audio::tocar("xixi", 0.6f);
         fala::dizer("Não deu para segurar: o xixi escorre pela perna e molha a calça inteira. Da próxima vez, agache e aperte Shift Q a tempo.");
     }
     if (intestino >= 100 && excretando != 2) {
-        intestino = 0; audio::tocar("peido"); audio::tocar("coco", 0.7f);
+        intestino = 0; higiene -= 45; audio::tocar("peido"); audio::tocar("coco", 0.7f);
         fala::dizer("Não deu para segurar: o cocô sai ali mesmo, na roupa. Que fedor. Da próxima vez, sente e aperte Control Q a tempo.");
     }
     if (fome <= 0) saude -= 5 * h;
     if (sede <= 0) saude -= 8 * h;
     if (fome > 30 && sede > 30 && energia > 20) saude += 1 * h;
     fome = std::clamp(fome, 0.0, 100.0); sede = std::clamp(sede, 0.0, 100.0);
-    intestino = std::clamp(intestino, 0.0, 100.0); bexiga = std::clamp(bexiga, 0.0, 100.0);
+    intestino = std::clamp(intestino, 0.0, 100.0); bexiga = std::clamp(bexiga, 0.0, 100.0); higiene = std::clamp(higiene, 0.0, 100.0);
     energia = std::clamp(energia, 0.0, 100.0); saude = std::clamp(saude, 0.0, 100.0);
 
     if (dormindo) {
@@ -649,6 +722,9 @@ void Jogo::atualizar(double seg) {
         }
     }
     ambiente(seg);
+    atualizarMoveis(seg);
+    atualizarGuia(seg);
+    atualizarTutorial(seg);
 }
 
 // Sons do lugar e da hora: córrego, vento, pássaros de dia, grilos à noite, galo de madrugada.
@@ -702,7 +778,7 @@ void Jogo::abertura(bool novoJogo) {
     if (!novoJogo) {
         char h[16]; std::snprintf(h, sizeof h, "%d e %02d", hora24(), (int)minutos % 60);
         fala::dizer("Simulador de Vida. Que bom ter você de volta. Dia " + std::to_string(diaDoJogo()) + ", " + h + ". Você está em: " +
-                    mapa.nomeLugar(x, y) + ", virado para o " + direcao(rumo) + ". F1 para ouvir as teclas.");
+                    mapa.nomeLugar(x, y) + ", de frente para o " + direcao(rumo) + ". F1 para ouvir as teclas.");
         return;
     }
     carroPai = audio::fonteMovel("carro", 253, 2, 0.6f, 0.8f, 6, true);
@@ -714,8 +790,20 @@ void Jogo::abertura(bool novoJogo) {
                 "e agora é sua pra cuidar. Tem casa, tem córrego, tem terra boa. Quer comer, vai ter que plantar. Quer leite, vai ter que cuidar de bicho. "
                 "Na mochila tem o que dá pra começar. O resto é com você. Boa sorte, viu?", false);
     fala::dizer("Ele te dá um tapinha no ombro, volta para a caminhonete e vai embora. O motor vai sumindo na estrada, e fica só o vento no capim. "
-                "Você está no gramado da porteira principal, virado para o norte. A porta da casa sede fica bem em frente, "
-                "a 100 passos, no meio da parede da varanda. Aperte I para abrir a mochila.", false);
+                "Você está no gramado da porteira principal, de frente para o norte. A porta da casa sede fica bem em frente, "
+                "a 100 passos, no meio da parede da varanda. Aperte I para abrir a mochila. Se é a primeira vez, aperte Tab e escolha Tutorial: ele ensina o básico, passo a passo.", false);
+}
+
+// ---------- configurações (volume) ----------
+void Jogo::carregarConfig(const std::string& arquivo) {
+    arquivoConfig = arquivo;
+    std::ifstream f(arquivo);
+    std::string k, cat; float v;
+    while (f >> k >> cat >> v) if (k == "volume") audio::definirVolume(cat, v);
+}
+void Jogo::salvarConfig(const std::string& arquivo) const {
+    std::ofstream f(arquivo);
+    for (const char* c : {"ambiente", "passos", "efeitos", "interface", "musica"}) f << "volume " << c << ' ' << audio::volume(c) << '\n';
 }
 
 // ---------- salvar ----------
@@ -725,7 +813,12 @@ void Jogo::salvar(const std::string& arquivo) const {
     f << "versao 2\n" << "pos " << x << ' ' << y << ' ' << rumo << '\n'
       << "corpo " << fome << ' ' << sede << ' ' << energia << ' ' << saude << '\n'
       << "relogio " << minutos << '\n'
-      << "corpo2 " << (int)postura << ' ' << intestino << ' ' << bexiga << '\n';
+      << "corpo2 " << (int)postura << ' ' << intestino << ' ' << bexiga << ' ' << higiene << '\n';
+    for (size_t i = 0; i < moveis.size(); i++) {
+        f << "movel " << i << ' ' << moveis[i].x << ' ' << moveis[i].y << '\n';
+        for (size_t p = 0; p < moveis[i].partes.size(); p++)
+            for (const Pilha& q : moveis[i].partes[p]) f << "dentro " << i << ' ' << p << ' ' << q.coisa.tipo << ' ' << q.coisa.carga << ' ' << q.qtd << '\n';
+    }
     for (auto [px, py] : mapa.passagens()) f << "porta " << px << ' ' << py << ' ' << (mapa.em(px, py).aberta ? 1 : 0) << '\n';
     for (const Pilha& p : mochila) f << "item " << p.coisa.tipo << ' ' << p.coisa.carga << ' ' << p.qtd << '\n';
     f << "maoD " << (maoDireita.tipo.empty() ? "-" : maoDireita.tipo) << ' ' << maoDireita.carga << '\n';
@@ -738,6 +831,7 @@ bool Jogo::carregar(const std::string& arquivo) {
     std::vector<Pilha> m;
     std::string linha;
     int versao = 1;
+    bool movelLido = false;
     while (std::getline(f, linha)) {
         std::istringstream s(linha);
         std::string k; s >> k;
@@ -745,7 +839,18 @@ bool Jogo::carregar(const std::string& arquivo) {
         else if (k == "pos") s >> x >> y >> rumo;
         else if (k == "corpo") s >> fome >> sede >> energia >> saude;
         else if (k == "relogio") s >> minutos;
-        else if (k == "corpo2") { int p = 0; s >> p >> intestino >> bexiga; postura = (Postura)std::clamp(p, 0, 3); }
+        else if (k == "corpo2") { int p = 0; s >> p >> intestino >> bexiga; if (!(s >> higiene)) higiene = 90; postura = (Postura)std::clamp(p, 0, 3); }
+        else if (k == "movel") {
+            size_t i; int mx, my; s >> i >> mx >> my;
+            if (i < moveis.size() && mapa.valido(mx, my)) {
+                if (!movelLido) { for (Movel& mv : moveis) for (auto& pt : mv.partes) pt.clear(); movelLido = true; }
+                moveis[i].x = mx; moveis[i].y = my;
+            }
+        }
+        else if (k == "dentro") {
+            size_t i, p; Pilha q; s >> i >> p >> q.coisa.tipo >> q.coisa.carga >> q.qtd;
+            if (i < moveis.size() && p < moveis[i].partes.size() && q.qtd > 0) moveis[i].partes[p].push_back(q);
+        }
         else if (k == "porta") { int px, py, a; s >> px >> py >> a; if (mapa.ehPassagem(px, py)) mapa.em(px, py).aberta = a != 0; }
         else if (k == "item") { Pilha p; s >> p.coisa.tipo >> p.coisa.carga >> p.qtd; if (p.qtd > 0) m.push_back(p); }
         else if (k == "maoD" || k == "maoE") {
@@ -757,6 +862,9 @@ bool Jogo::carregar(const std::string& arquivo) {
     // jogo salvo no mapa antigo, de 500 por 500: volta para a porteira, com a mochila e o corpo como estavam
     if (versao < 2 || !mapa.valido(x, y) || !mapa.passa(x, y)) { x = 500; y = 9; rumo = 0; }
     rumo = (rumo % 8 + 8) % 8;
+    ocupar();
+    if (!mapa.passa(x, y) && mapa.em(x, y).movel >= 0) { x = 500; y = 9; }
+    if (postura == Postura::Deitado || postura == Postura::Sentado) sentadoEm = -1;
     lugarAtual = mapa.nomeLugar(x, y);
     return true;
 }

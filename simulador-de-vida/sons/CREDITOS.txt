@@ -62,5 +62,15 @@ O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tuto
 "Kids chair against floor_deep drag.wav", de tlcolbe. freesound.org/s/406700. CC0.
 "Kids chair against floor_faster deep drag.wav", de tlcolbe. freesound.org/s/406699. CC0.
 "25. cama rechinando Bed creaking.wav", de cabusta9. freesound.org/s/443796. CC0.
+"Machete_10", de Jagadamba. freesound.org/s/275123. CC BY 4.0.
+"Machete_07", de Jagadamba. freesound.org/s/275118. CC BY 4.0.
+"Machete_05", de Jagadamba. freesound.org/s/275116. CC BY 4.0.
+"Machete_06", de Jagadamba. freesound.org/s/275115. CC BY 4.0.
+"Shovel_dirt.wav", de dr19. freesound.org/s/353907. CC0.
+"Watering with a Watering Can.mp3", de Bricklover. freesound.org/s/532890. CC0.
+"Plant_Harvest_03", de Valenspire. freesound.org/s/699492. CC0.
+"Pouring coffee", de Maajora. freesound.org/s/432775. CC0.
+"Sipping coffee", de aldenroth2. freesound.org/s/272037. CC0.
+"seeds (cristal jar)4.wav", de Godowan. freesound.org/s/235278. CC0.
 "sitting down", de soundmast123. freesound.org/s/556591. CC BY 3.0.
 "Metal_Rattling_Small.wav", de GiocoSound. freesound.org/s/421154. CC0.

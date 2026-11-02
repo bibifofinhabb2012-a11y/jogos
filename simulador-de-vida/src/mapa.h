@@ -7,7 +7,7 @@
 
 constexpr int LADO = 1000;
 
-enum class Chao : uint8_t { Grama, Pasto, Terra, Cascalho, Calcada, Taco, Ceramica, Madeira, Agua, TerraArada, Folhas };
+enum class Chao : uint8_t { Grama, Pasto, Terra, Cascalho, Calcada, Taco, Ceramica, Madeira, Agua, TerraArada, Folhas, Mato, Cimento };
 enum class Obstaculo : uint8_t { Nada, Cerca, CercaMadeira, Tela, Parede, Arvore, Corrego, Porteira, Porta, Vidro, PortaBox };
 
 struct Celula {
@@ -15,6 +15,7 @@ struct Celula {
     Obstaculo obs = Obstaculo::Nada;
     bool aberta = false;  // portas e porteiras: dá para passar só abertas
     int16_t movel = -1;   // móvel em cima deste quadrado (índice na lista de móveis do jogo)
+    uint8_t planta = 0;   // 0 nada; 1 milho, 2 feijão, 3 arroz (o resto do estado fica no jogo)
 };
 
 struct Lugar {

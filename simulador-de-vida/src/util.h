@@ -28,6 +28,12 @@ inline std::string plural(const Coisa& c, int qtd, const std::string& singular) 
     if (t == "camisa") return "camisas";
     if (t == "calca") return "calças";
     if (t == "chapeu") return "chapéus";
+    if (t == "semente-milho") return "sementes de milho";
+    if (t == "semente-feijao") return "sementes de feijão de corda";
+    if (t == "semente-arroz") return "sementes de arroz";
+    if (t == "milho") return "espigas de milho";
+    if (t == "feijao") return "punhados de feijão de corda";
+    if (t == "arroz") return "feixes de arroz";
     if (t == "tampa") return "tampas de garrafa";
     if (t == "garrafa" || t == "garrafa-aberta") {
         std::string estado = t == "garrafa" ? "tampadas" : "abertas";

@@ -67,6 +67,16 @@ Mapa::Mapa() : c(LADO * LADO) {
     abrir(494, 269, Obstaculo::Porta, Chao::Taco);           // corredor -> quarto
     abrir(506, 180, Obstaculo::Porta, Chao::Ceramica);       // corredor -> banheiro
     abrir(506, 254, Obstaculo::Porta, Chao::Taco);           // corredor -> segundo quarto
+    // casinha de seu Tião e dona Nezinha, a oeste da sede, porta para o sul
+    retangulo(355, 190, 385, 210, Chao::Cimento);
+    contorno(355, 190, 385, 210, Obstaculo::Parede);
+    abrir(370, 190, Obstaculo::Porta, Chao::Cimento);
+    // roça: depois da ponte, a leste da estrada, perto do córrego; tomada de matagal
+    for (int ry = 590; ry <= 640; ry++)
+        for (int rx = 510; rx <= 570; rx++) {
+            int yc = 620 + (int)std::lround(20 * std::sin(rx / 70.0));
+            if (ry < yc - 3) { em(rx, ry).chao = Chao::Mato; em(rx, ry).obs = Obstaculo::Nada; }
+        }
     // curral, galinheiro e paiol, no terreiro
     retangulo(680, 150, 760, 230, Chao::Terra);
     contorno(680, 150, 760, 230, Obstaculo::CercaMadeira);
@@ -87,6 +97,7 @@ Mapa::Mapa() : c(LADO * LADO) {
         {"box do chuveiro da suíte", 403, 249, 403, 249, true},
         {"banheiro da suíte", 401, 231, 425, 250, true},
         {"sala", 401, 110, 598, 159, true},
+        {"casinha de seu Tião e dona Nezinha", 356, 191, 384, 209, true},
         {"corredor", 495, 161, 505, 307, true},
         {"cozinha", 401, 161, 493, 229, true},
         {"quarto", 401, 231, 493, 307, true},
@@ -97,9 +108,11 @@ Mapa::Mapa() : c(LADO * LADO) {
         {"galinheiro", 621, 341, 633, 349, true},
         {"paiol", 331, 331, 349, 349, true},
         {"curral", 681, 151, 759, 229, false},
+        {"roça", 510, 590, 570, 640, false},
         {"horta", 360, 30, 420, 75, false},
         {"pomar", 580, 30, 650, 75, false},
         {"ponte do córrego", 498, 560, 502, 680, false},
+        {"casa da sede", 400, 109, 599, 308, true},
         {"gramado da porteira principal", 460, 6, 540, 40, false},
         {"terreiro da sede", 340, 80, 660, 380, false},
         {"estrada da fazenda", 498, 41, 502, 985, false},
@@ -128,7 +141,7 @@ void Mapa::abrir(int x, int y, Obstaculo o, Chao ch, bool aberta) { em(x, y).obs
 bool Mapa::passa(int x, int y) const {
     if (!valido(x, y)) return false;
     const Celula& k = em(x, y);
-    if (k.movel >= 0) return false;
+    if (k.movel >= 0 || k.planta) return false;
     return k.obs == Obstaculo::Nada || (ehPassagem(x, y) && k.aberta);
 }
 
@@ -153,7 +166,7 @@ std::string Mapa::nomeLugar(int x, int y) const {
     const Lugar* l = lugar(x, y);
     std::string n = l ? l->nome : "pasto";
     int ax, ay;
-    if ((n == "pasto" || n == "mata" || n == "estrada da fazenda") && aguaMaisPerto(x, y, 3, ax, ay)) n += ", na beira do córrego";
+    if ((n == "pasto" || n == "mata" || n == "estrada da fazenda" || n == "roça") && aguaMaisPerto(x, y, 3, ax, ay)) n += ", na beira do córrego";
     return n;
 }
 
@@ -182,8 +195,10 @@ const char* Mapa::nome(Chao ch) {
         case Chao::Ceramica: return "piso de cerâmica";
         case Chao::Madeira: return "tábuas da ponte";
         case Chao::Agua: return "água";
-        case Chao::TerraArada: return "terra fofa da horta";
+        case Chao::TerraArada: return "terra fofa, limpa";
         case Chao::Folhas: return "folhas secas da mata";
+        case Chao::Mato: return "matagal fechado";
+        case Chao::Cimento: return "cimento queimado";
     }
     return "chão";
 }
@@ -199,6 +214,8 @@ const char* Mapa::somPasso(Chao ch) {
         case Chao::Ceramica: return "passos-ceramica";
         case Chao::Agua: return "passos-agua";
         case Chao::Folhas: return "passos-folhas";
+        case Chao::Mato: return "passos-mato";
+        case Chao::Cimento: return "passos-calcada";
     }
     return "passos-terra";
 }

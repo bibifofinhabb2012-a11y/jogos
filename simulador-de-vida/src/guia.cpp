@@ -9,11 +9,12 @@
 #include "jogo.h"
 #include "util.h"
 
-static const char* CATEGORIAS[3] = {"Móveis", "Portas e porteiras", "Lugares"};
+static const char* CATEGORIAS[5] = {"Móveis", "Pessoas", "Portas e porteiras", "Lugares", "Plantação"};
+constexpr int NCAT = 5;
 
 // "a sala", "o corredor"
 static std::string com(const std::string& l) {
-    static const char* fem[] = {"sala", "cozinha", "varanda da casa", "calçada da casa", "horta", "mata", "estrada da fazenda", "ponte do córrego"};
+    static const char* fem[] = {"sala", "cozinha", "casinha de seu Tião e dona Nezinha", "casa da sede", "roça", "varanda da casa", "calçada da casa", "horta", "mata", "estrada da fazenda", "ponte do córrego"};
     for (const char* f : fem) if (l == f) return "a " + l;
     return "o " + l;
 }
@@ -23,14 +24,22 @@ static int distancia(int ax, int ay, int bx, int by) { return std::max(std::abs(
 
 void Jogo::montarAlvos() {
     alvos.clear();
-    if (categoria == 0) {
+    if (categoria == 1) {
+        for (size_t i = 0; i < moveis.size(); i++)
+            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha")
+                alvos.push_back({maiuscula(nomeMovel((int)i)) + ", " + (moveis[i].tipo == "tiao" ? "o caseiro" : "a esposa dele"), moveis[i].x, moveis[i].y, true});
+    } else if (categoria == 4) {
+        for (const auto& [c, p] : plantas)
+            alvos.push_back({maiuscula(nomePlanta(p.tipo)) + ", " + estadoPlanta(p), c % LADO, c / LADO, true});
+    } else if (categoria == 0) {
         for (size_t i = 0; i < moveis.size(); i++) {
+            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha") continue;
             std::string n = nomeMovel((int)i);
             std::string l = mapa.nomeLugar(moveis[i].x, moveis[i].y);
             alvos.push_back({maiuscula(n) + ", " + (l == "calçada da casa" ? "na casa" : l == "box do chuveiro" ? "no box" : "no " + l), moveis[i].x, moveis[i].y, true});
             if (l == "sala" || l == "cozinha" || l == "varanda da casa") alvos.back().nome = maiuscula(n) + ", na " + l;
         }
-    } else if (categoria == 1) {
+    } else if (categoria == 2) {
         for (auto [px, py] : mapa.passagens()) {
             Obstaculo o = mapa.em(px, py).obs;
             if (mapa.valido(px - 1, py) && mapa.em(px - 1, py).obs == o) continue;  // porteira larga: conta uma vez
@@ -60,7 +69,14 @@ void Jogo::montarAlvos() {
                     for (int dx = -r; dx <= r && bx < 0; dx++)
                         if (mapa.passa(cx + dx, cy + dy) && mapa.nomeLugar(cx + dx, cy + dy).rfind(l.nome, 0) == 0) { bx = cx + dx; by = cy + dy; }
             bool repetido = std::any_of(alvos.begin(), alvos.end(), [&](const Alvo& a) { return a.nome == maiuscula(l.nome); });
-            if (bx >= 0 && !repetido) alvos.push_back({maiuscula(l.nome), bx, by, false});
+            if (l.nome == "casa da sede") {  // a casa inteira: o destino é a porta da frente, por dentro
+                bx = 500; by = 110;
+            }
+            if (bx < 0) {  // lugar sem quadrado livre perto do meio: o primeiro livre dentro dele
+                for (int yy = l.y0; yy <= l.y1 && bx < 0; yy++)
+                    for (int xx = l.x0; xx <= l.x1 && bx < 0; xx++) if (mapa.passa(xx, yy)) { bx = xx; by = yy; }
+            }
+            if (bx >= 0 && !repetido) alvos.push_back({maiuscula(l.nome), bx, by, false, l.x0, l.y0, l.x1, l.y1});
         }
     }
     std::sort(alvos.begin(), alvos.end(), [this](const Alvo& a, const Alvo& b) { return distancia(x, y, a.x, a.y) < distancia(x, y, b.x, b.y); });
@@ -76,8 +92,12 @@ std::string Jogo::descreverAlvo(const Alvo& a) const {
 }
 
 void Jogo::trocarCategoria(int lado) {
-    categoria = categoria < 0 ? (lado > 0 ? 0 : 2) : (categoria + lado + 3) % 3;
-    montarAlvos();
+    // pula as categorias vazias (Plantação, antes de plantar)
+    for (int tent = 0; tent < NCAT; tent++) {
+        categoria = categoria < 0 ? (lado > 0 ? 0 : NCAT - 1) : (categoria + lado + NCAT) % NCAT;
+        montarAlvos();
+        if (!alvos.empty()) break;
+    }
     audio::tocar("gota", 0.6f, 0.8f);
     if (alvos.empty()) { fala::dizer(std::string(CATEGORIAS[categoria]) + ". Nada aqui."); return; }
     fala::dizer(std::string(CATEGORIAS[categoria]) + ", " + std::to_string(alvos.size()) + " itens. " + descreverAlvo(alvos[0]));
@@ -95,6 +115,7 @@ void Jogo::trocarItem(int lado) {
 
 bool Jogo::chegou(const Alvo& a) const {
     if (a.chegarAoLado) return distancia(x, y, a.x, a.y) <= 1;
+    if (a.x0 >= 0) return x >= a.x0 && x <= a.x1 && y >= a.y0 && y <= a.y1;  // lugar grande: basta entrar
     std::string n = a.nome;
     if (!n.empty() && n[0] >= 'A' && n[0] <= 'Z') n[0] = (char)(n[0] + 32);  // o lugar foi guardado com maiúscula
     std::string aqui = mapa.nomeLugar(x, y);
@@ -122,7 +143,10 @@ void Jogo::irAteAlvo() {
         int c = fila.front(); fila.pop();
         int cx = c % LADO, cy = c / LADO;
         Alvo a = rastreado;
-        if (a.chegarAoLado ? distancia(cx, cy, a.x, a.y) <= 1 : (cx == a.x && cy == a.y)) { fim = c; break; }
+        bool la = a.chegarAoLado ? distancia(cx, cy, a.x, a.y) <= 1
+                : a.x0 >= 0 ? (cx >= a.x0 && cx <= a.x1 && cy >= a.y0 && cy <= a.y1 && mapa.passa(cx, cy))
+                : (cx == a.x && cy == a.y);
+        if (la) { fim = c; break; }
         for (int d = 0; d < 8; d++) {
             int nx = cx + DX[d], ny = cy + DY[d];
             if (!mapa.valido(nx, ny)) continue;

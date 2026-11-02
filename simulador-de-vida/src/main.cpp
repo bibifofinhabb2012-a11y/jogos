@@ -65,6 +65,8 @@ static int rodarRoteiro(const char* arquivo) {
                 for (double t = 0; t < seg; t += 0.05) jogo.atualizar(0.05);
                 jogo.soltar(tc);
             } else jogo.soltar(tc);
+        } else if (cmd == "ir") {
+            int ix, iy, ir; s >> ix >> iy >> ir; jogo.testeIr(ix, iy, ir);
         } else if (cmd == "salvar" || cmd == "carregar") {
             std::string arq; s >> arq;
             if (cmd == "salvar") jogo.salvar(arq); else { jogo.carregar(arq); jogo.abertura(false); }

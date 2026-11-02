@@ -145,6 +145,14 @@ laco("sv-chuveiro", 802544, "chuveiro", -20); u(802544)
 trecho("sv-box", 828148, "box", alvo=-20); u(828148)
 for i, sid in enumerate([406703, 406700, 406699], 1): trecho("sv-arrastar", sid, f"arrastar-{i}", alvo=-20); u(sid)
 trecho("sv-cama", 443796, "cama", alvo=-20); u(443796)
+# roça e café
+for i, sid in enumerate([275123, 275118, 275116, 275115], 1): trecho("sv-machado", sid, f"machado-{i}", alvo=-18); u(sid)
+trecho("sv-cavar", 353907, "cavar", 0, 1.8, -20); u(353907)
+trecho("sv-regador", 532890, "regador", 0, 2.5, -20); u(532890)
+trecho("sv-colher", 699492, "colher", alvo=-18); u(699492)
+trecho("sv-cafe", 432775, "cafe", 0, 3.0, -20); u(432775)
+trecho("sv-gole", 272037, "gole", alvo=-18); u(272037)
+trecho("sv-sementes", 235278, "sementes", alvo=-20); u(235278)
 trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
 
 # sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial

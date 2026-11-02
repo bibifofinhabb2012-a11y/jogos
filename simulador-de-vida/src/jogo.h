@@ -43,7 +43,15 @@ struct Menu {
 };
 
 // Algo que dá para escolher com K e L e rastrear com O.
-struct Alvo { std::string nome; int x, y; bool chegarAoLado; };
+// Lugares grandes têm retângulo (x0..x1, y0..y1): chegar é entrar nele.
+struct Alvo { std::string nome; int x, y; bool chegarAoLado; int x0 = -1, y0 = 0, x1 = 0, y1 = 0; };
+
+// Uma planta na roça. Cresce só enquanto a terra está molhada (um dia do jogo depois de regar).
+struct Planta {
+    int tipo = 1;            // 1 milho, 2 feijão de corda, 3 arroz
+    double horas = 0;        // horas de crescimento com água
+    double molhadaAte = 0;   // minuto do jogo até quando a rega vale
+};
 
 class Jogo {
 public:
@@ -60,6 +68,7 @@ public:
     void carregarConfig(const std::string& arquivo);
     void salvarConfig(const std::string& arquivo) const;
     std::string arquivoConfig;
+    void testeIr(int nx, int ny, int r) { x = nx; y = ny; rumo = r; lugarAtual = mapa.nomeLugar(x, y); }  // só para roteiros de teste
 
 private:
     Mapa mapa;
@@ -111,6 +120,13 @@ private:
     int passoTutorial = -1;
     std::vector<std::string> eventos;   // o que a pessoa acabou de fazer, para o tutorial conferir
     double esperaTutorial = 0;
+    // roça
+    std::map<int, Planta> plantas;     // chave: y * LADO + x
+    std::vector<int> limpos;           // quadrados de matagal já limpos (para salvar)
+    // seu Tião e dona Nezinha
+    bool cenaTiao = false;
+    int diaCafe = 0;                   // último dia em que dona Nezinha encheu a garrafa
+    std::vector<std::pair<double, std::function<void()>>> agenda;  // coisas marcadas para daqui a pouco (segundos reais)
     int contadorPassos = 0;
 
     // mochila e mãos
@@ -178,6 +194,17 @@ private:
     void irAteAlvo();
     void atualizarGuia(double dt);
     bool chegou(const Alvo& a) const;
+    // roça e gente (roca.cpp)
+    int plantaFrente() const;
+    std::string nomePlanta(int tipo, bool plural = false) const;
+    std::string estadoPlanta(const Planta& p) const;
+    bool usarNaRoca(Coisa& c);         // machado, semente, regador: true se fez algo
+    void colher(int cel, bool comMachado);
+    void atualizarRoca(double dm);
+    void conversarCom(int i);
+    void cenaChegada();
+    void marcar(double segundos, std::function<void()> f);
+    int idx(const std::string& tipo) const;
     // tutorial (tutorial.cpp)
     void evento(const std::string& e);
     void comecarTutorial();

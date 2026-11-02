@@ -43,7 +43,7 @@ void Jogo::atualizarTutorial(double dt) {
         {"Aperte U para saber como está a fome.", [&] { return tem("fome"); }},
         {"Sente no chão: aperte R.", [&] { return postura == Postura::Sentado; }},
         {"Levante: R de novo.", [&] { return postura == Postura::EmPe; }},
-        {"Agora vamos achar a casa. Aperte Ç até ouvir Portas e porteiras.", [&] { return categoria == 1; }},
+        {"Agora vamos achar a casa. Aperte Ç até ouvir Portas e porteiras.", [&] { return categoria == 2; }},
         {"Com L para a frente e K para trás, escolha a porta da frente da casa.", [&] { return !alvos.empty() && alvos[itemAlvo].x == 500 && alvos[itemAlvo].y == 109; }},
         {"Aperte O para rastrear. Um bip vai soar de onde a porta está, mais rápido quanto mais perto. Ande na direção do bip. Se quiser, Alt O leva você até lá.", [&] { return tem("chegou"); }},
         {"Você chegou na porta. Abra com Shift Enter.", [&] { return mapa.em(500, 109).aberta; }},

@@ -1,0 +1,23 @@
+SIMULADOR DE VIDA
+
+Para jogar: abra o arquivo simulador-de-vida.exe. Use fone de ouvido: o som é 3D e diz de onde
+vem cada coisa, na frente, atrás, à esquerda ou à direita. O jogo fala pelo leitor de tela que
+estiver aberto (NVDA, JAWS e outros). Sem leitor de tela, usa a voz do Windows.
+
+TECLAS
+Seta para cima: andar para a frente. Segure para continuar andando. Com Shift, correr.
+Seta para baixo: andar de costas.
+Setas para os lados: virar 45 graus.
+Espaço: onde você está e o que tem à frente.
+B: bússola e posição. Q: dia e hora.
+I: abre e fecha a mochila. Com ela aberta, setas para cima e para baixo escolhem o item,
+seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda.
+1: o que tem na mão direita. Apertado duas vezes, esvazia a mão direita.
+2: o mesmo para a mão esquerda.
+T: combina o que está nas duas mãos. Com as duas vazias, bate palmas.
+Enter: usa o que está na mão: comer, beber, dormir, contar o dinheiro. Shift mais Enter: usa a mão esquerda.
+U: fome. S: sede. E: energia. H: saúde.
+R: repete a última fala. F1: ajuda. Esc duas vezes: salva e sai.
+
+O jogo salva sozinho a cada minuto e ao sair.
+Os créditos dos sons estão em sons/CREDITOS.txt.

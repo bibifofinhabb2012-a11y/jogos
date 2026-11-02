@@ -1,0 +1,32 @@
+name: Simulador de Vida para Windows
+
+on:
+  push:
+    paths:
+      - 'simulador-de-vida/**'
+      - '.github/workflows/simulador-windows.yml'
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar
+        working-directory: simulador-de-vida
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+          cmake --build build --config Release --parallel
+      - name: Montar a pasta do jogo
+        shell: pwsh
+        run: |
+          $saida = "simulador-de-vida/build/Release"
+          New-Item -ItemType Directory -Force -Path "pacote/Simulador de Vida" | Out-Null
+          Copy-Item "$saida/*" "pacote/Simulador de Vida" -Recurse
+          Copy-Item "simulador-de-vida/LEIA-ME.txt" "pacote/Simulador de Vida"
+          Get-ChildItem "pacote/Simulador de Vida" -Recurse -Include *.pdb,*.lib,*.exp | Remove-Item
+          Get-ChildItem "pacote/Simulador de Vida" | Select-Object Name
+      - uses: actions/upload-artifact@v4
+        with:
+          name: simulador-de-vida-windows
+          path: pacote

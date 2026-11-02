@@ -15,7 +15,7 @@ jobs:
       - name: Compilar
         working-directory: simulador-de-vida
         run: |
-          cmake -S . -B build -A x64
+          cmake -S . -B build -A x64 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           cmake --build build --config Release --parallel
       - name: Montar a pasta do jogo
         shell: pwsh

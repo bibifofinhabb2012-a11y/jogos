@@ -3,6 +3,8 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- conversar com o bebê: o jogo mede o tom da voz, não grava nem envia o áudio -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- só para carregar as fontes; o jogo funciona sem internet -->
     <uses-permission android:name="android.permission.INTERNET" />

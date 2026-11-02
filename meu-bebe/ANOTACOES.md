@@ -26,7 +26,7 @@ Tudo o que uma sessão nova precisa para continuar o trabalho sem a conversa ori
 ## Como publicar uma versão nova do app
 
 1. Edite `web/meu-bebe.html` e copie para `app/src/main/assets/index.html`, trocando a meta viewport.
-2. Suba `versionCode` e `versionName` em `meu-bebe/app/build.gradle` (última: versionCode 13, versão 2.2).
+2. Suba `versionCode` e `versionName` em `meu-bebe/app/build.gradle` (última: versionCode 14, versão 2.3).
 3. Commit e push na `main`. O fluxo `.github/workflows/meu-bebe-apk.yml` compila sozinho em uns 2 minutos.
 4. O APK fica na execução do Actions, no item `meu-bebe-apk`. Mande o link da execução para ela.
 5. Lembre a ela: antes de desinstalar a versão antiga, copiar o código do bebê (Opções). Cada compilação usa uma chave de depuração nova, então o Android não instala por cima; o código do bebê resolve. A solução definitiva (chave fixa guardada como segredo do GitHub, que só ela pode criar) ficou para depois.
@@ -51,6 +51,8 @@ Tudo o que uma sessão nova precisa para continuar o trabalho sem a conversa ori
 - Banho e troca de fralda interativos: tela cheia, grade de células com sujeira, vibração e som posicional onde ainda falta limpar.
 
 ## O que o jogo já tem
+
+Versão 2.3: babá Dona Rosa (`babaCuida`, roda em `minuto()` enquanto `S.babaAte > S.min`; 10 moedas por hora real, convertida em minutos do jogo pela velocidade; com ela, `conferirMoedas` não paga e `avaliarDia` não dá bônus nem desconto; faltas de suprimento em `S.babaFaltas`, avisadas no jogo e, com o app fechado, como notificação agendada por `planejarAvisos`, que também avisa o fim do turno). Conversa pelo microfone só pelo tom: `Voz.java` grava em 16 kHz e manda a cada 64 ms volume, altura (autocorrelação), clareza e cruzamentos de zero para `window.vozQuadro`; `analisarVoz()` compara com `S.vozBase` (voz normal gravada na primeira vez) e classifica em grito, voz dura, áspera, fala de bebê, sussurro, baixinho ou normal. O áudio não é guardado. Testado só com vozes simuladas: os limites (8 dB para grito, 2,5 semitons para fala de bebê) podem precisar de ajuste com o ouvido dela.
 
 Versão 2.2: doenças graves (hipotermia no frio, desidratação no calor, diarreia de guloseima) que pioram rápido e levam ao pronto-socorro; soro de reidratação oral; Doceria com guloseimas e consequências (agitação de açúcar, sede, gases, engasgo com pirulito, recusa de papinha, diarreia); roupas novas e a parte `maos` (luvinhas); brinquedos novos com preferido e rejeitado sorteados por bebê (`S.favorito`, `S.desgosto`); menu Conversar (chamar pelo nome, imitar, nariz, ensinar palavras, que viram fala a partir dos 9 meses); balbucio contínuo quando acordado e contente (`atualizarBalbucio`, desliga em Opções); choro de bebê maior a partir dos 4 meses (`choro-maior-forte|irritado|manha-N.mp3`); riso, arroto, goles, fralda e respiração trocados por sons do Freesound que ela escolheu. Corrigido: havia duas funções `estadoTexto`, a do banho virou `estadoParteTexto`.
 

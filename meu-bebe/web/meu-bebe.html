@@ -341,6 +341,10 @@ details.ajuda ul { margin: 0; padding-left: 1.2em; }
             <p>Cada bebê tem um brinquedo preferido e um de que não liga muito, sorteados quando ele nasce. Com o preferido, a alegria é muito maior. Descubra brincando: o jogo avisa quando acertar. Quando o bebê pede para brincar, ele olha para o preferido, ou aponta para ele numa revista se você ainda não comprou. Na loja tem chocalho, bola, livrinho de pano, blocos, pianinho, boneco de pano e carrinho, entre outros.</p>
             <h3>Conversar</h3>
             <p>"Conversar com o bebê", no menu principal, tem bater papo, chamar pelo nome, imitar os sons dele, perguntar onde está o nariz e ensinar palavras. As respostas mudam com a idade. A partir dos 9 meses, palavra ensinada várias vezes vira palavra falada, e a primeira pode chegar antes de 1 ano.</p>
+            <h3>Babá</h3>
+            <p>No menu principal, "Chamar a babá" traz Dona Rosa, que cuida de tudo enquanto você não pode: comida, fralda, banho, sono, roupa conforme o tempo, remédio, vacina e brincadeira. Cada hora de verdade custa 10 moedas: 4 horas, 40 moedas. Com ela em casa, cuidado não rende moeda e o dia não vale bônus nem desconto. Ela usa o que tem em casa. Quando falta alguma coisa, ela avisa no jogo e, com o app fechado, por notificação no celular: é só comprar. Dá para estender o turno, perguntar o que ela já fez e dispensar antes da hora, com devolução das horas inteiras que sobraram.</p>
+            <h3>Falar pelo microfone</h3>
+            <p>No app do celular, em Conversar, "Falar com o bebê pelo microfone" ouve a sua voz. O jogo não entende as palavras, só o tom. Na primeira vez, ele pede uma frase falada normalmente, para conhecer a sua voz. Depois, fale depois do bip e espere o segundo bip. Fala de bebê, mansa e cantada, mais aguda que o normal, faz sorrir. Voz calma acalma, e sussurro pode até fazer dormir. Voz alta e dura entristece. Grito assusta e faz chorar. No fim, o jogo diz que tom ouviu.</p>
             <h3>Roupas e clima</h3>
             <p>Cada dia tem um clima, frio, fresco, agradável ou quente, e a temperatura cai à noite. Roupa de menos dá frio e abre caminho para o resfriado; roupa demais dá calor e piora a febre. Pijama ajuda a dormir melhor à noite. No Inventário, "O que está vestindo" descreve a roupa, diz o tempo lá fora e conta como está a nuca do bebê. No Guarda-roupa, escolher uma peça veste; escolher de novo uma peça que está vestida tira. Também dá para deixar só de fralda. Com frio ou calor demais, o bebê chora. Depois do banho, ele sai sem roupa e sem fralda. Sem fralda, xixi e cocô vão para a cama: o lençol fica sujo e molhado até você trocá-lo, no menu Fralda e banho.</p>
             <h3>Dicas</h3>
@@ -447,7 +451,9 @@ function novoEstado(nome, sexo, vel) {
     diario: [],
     // frio acumulado, sede acumulada, guloseimas, açúcar no sangue, brinquedo preferido, palavras ensinadas
     frio: 0, desidrata: 0, avisoSede: -9999, porcarias: [], agitadoAte: 0, diarreiaEm: null, ultimaBrincadeira: -9999,
-    favorito: rnd(PREFERIVEIS), desgosto: null, favVisto: false, desgostoVisto: false, ensino: {}, palavras: [], tagarela: true
+    favorito: rnd(PREFERIVEIS), desgosto: null, favVisto: false, desgostoVisto: false, ensino: {}, palavras: [], tagarela: true,
+    // babá: até que minuto do jogo fica, o que fez, o que faltou; voz: como a pessoa fala normalmente
+    babaAte: 0, babaLigada: false, babaFeitos: {}, babaFaltas: [], babaUlt: {}, vozBase: null
   };
 }
 
@@ -491,7 +497,7 @@ function tom(freqs, dur = 0.16, tipo = "sine", vol = 0.08) {
 }
 let tocando = null;
 function somBebe(nome, fator = 1) {
-  if (!S || !S.sons || !SONS[nome] || silencio) return;
+  if (!S || !S.sons || !SONS[nome] || silencio || ouvindoVoz) return;
   try {
     // choros e risos trocam um pelo outro; pum, arroto, mamar e fralda tocam por cima
     const voz = nome.startsWith("choro") || ["riso", "chamado", "balbucio", "manha"].includes(nome);
@@ -984,6 +990,7 @@ function minuto() {
   }
   // nota do dia: média das necessidades, chamados e pronto-socorro
   S.diaStats.soma += (S.fome + S.fralda + S.energia + S.higiene + S.humor + S.saude) / 6; S.diaStats.n++;
+  if (babaAtiva()) S.diaStats.baba = true;
   if (h === 0) { avaliarDia(); S.clima = rnd(["frio", "fresco", "fresco", "ameno", "ameno", "quente", "quente"]); }
   if (h === 7 * 60) {
     const c = CLIMAS[S.clima];
@@ -1016,6 +1023,8 @@ function minuto() {
     som.ruim();
   }
 
+  if (babaAtiva()) babaCuida();
+  babaChecarFim();
   resmungar();
   avaliarChoro();
   checarChamado();
@@ -1063,10 +1072,12 @@ function verificarMarco() {
   if (S.dormindo || S.chorando || S.min - S.ultimoMarco < rs(300) || Math.random() >= 0.02) return;
   const mk = MARCOS.find(k => k.m <= idade() && !temMarco(k.id));
   if (!mk) return;
-  S.marcos.push({ id: mk.id, quando: `Dia ${dia()}, ${hhmm()}` }); S.ultimoMarco = S.min; S.moedas += 20; marca("marco");
-  falar(mk.txt() + ` Marco de crescimento: ${nomeMarco(mk)}. Mais 20 moedas.`);
+  const comBaba = babaAtiva();
+  S.marcos.push({ id: mk.id, quando: `Dia ${dia()}, ${hhmm()}` }); S.ultimoMarco = S.min; if (!comBaba) S.moedas += 20; marca("marco");
+  if (comBaba) babaDiario(`viu ${S.nome} conquistar um marco: ${nomeMarco(mk)}.`);
+  falar((comBaba ? `${BABA} chama você para ver: ` : "") + mk.txt() + ` Marco de crescimento: ${nomeMarco(mk)}.${comBaba ? "" : " Mais 20 moedas."}`);
   if (mk.som) somBebe(mk.som);
-  somBebe("moeda");
+  if (!comBaba) somBebe("moeda");
 }
 function lerMarcos() {
   const feitos = S.marcos.map(x => { const mk = MARCOS.find(k => k.id === x.id); return mk ? `${x.quando}: ${nomeMarco(mk)}` : null; }).filter(Boolean);
@@ -1127,7 +1138,7 @@ function textoCoco() {
 // Respiração baixinha e contínua enquanto o bebê dorme
 let respiracao = null;
 function atualizarRespiracao() {
-  const deve = S && S.sons && S.dormindo && !document.hidden && !silencio && $("banho").hidden && $("troca").hidden;
+  const deve = S && S.sons && S.dormindo && !ouvindoVoz && !document.hidden && !silencio && $("banho").hidden && $("troca").hidden;
   if (!deve) { if (respiracao) { respiracao.pause(); respiracao = null; } return; }
   if (respiracao) return;
   try {
@@ -1663,6 +1674,320 @@ function brincarCom(id) {
   brincadeira("brincar", b.brincar(), id);
 }
 
+/* ---------- Babá ---------- */
+// Dona Rosa cuida de tudo enquanto você não pode. Cada hora de verdade custa 10 moedas.
+// Com ela em casa, cuidado não rende moeda. Ela só avisa quando falta alguma coisa.
+const BABA = "Dona Rosa";
+const babaAtiva = () => S.babaAte > S.min;
+const PRECO_HORA = 10;
+function tempoReal(minJogo) {
+  const seg = Math.max(0, minJogo / S.vel), h = Math.floor(seg / 3600), m = Math.round((seg % 3600) / 60);
+  return h ? `${h} ${h === 1 ? "hora" : "horas"}${m ? ` e ${m} minutos` : ""}` : `${Math.max(1, m)} minutos`;
+}
+function babaDiario(txt) {
+  S.diario.unshift({ h: "Dia " + dia() + ", " + hhmm(), t: `${BABA} ${txt}`, u: false });
+  if (S.diario.length > 60) S.diario.length = 60;
+  if (!silencio) desenharDiario();
+}
+function babaFeito(t, txt) {
+  S.babaFeitos[t] = (S.babaFeitos[t] || 0) + 1; S.babaUlt[t] = S.min; marca("baba:" + t);
+  if (txt) babaDiario(txt);
+}
+const babaPode = (t, intervalo) => S.min - (S.babaUlt[t] ?? -99999) >= intervalo;
+// Falta de suprimento: avisa uma vez, no jogo e, com o app fechado, por notificação.
+function babaFalta(chave, txt) {
+  if (S.babaFaltas.some(f => f.k === chave)) return;
+  S.babaFaltas.push({ k: chave, t: txt, min: S.min }); marca("babaFalta");
+  babaDiario(`avisa: ${txt}`);
+  if (!silencio) { alertar(`${BABA} avisa: ${txt}`); vibrar([200, 100, 200]); }
+}
+function babaUsa(k) {
+  if (!tem(k)) { babaFalta(k, `${ITENS[k].acabou.toLowerCase()}. Compre ${NOMES_LOJA[ITENS[k].loja]}, no menu Loja.`); return false; }
+  S.inv[k]--;
+  if (S.inv[k] === 0) babaFalta(k, `${ITENS[k].acabou.toLowerCase()}. Usei o último agora. Compre ${NOMES_LOJA[ITENS[k].loja]}, no menu Loja.`);
+  return true;
+}
+// Escolhe, entre as roupas do guarda-roupa, a combinação que deixa o bebê confortável.
+function vestirIdeal() {
+  const alvo = calorIdeal(tempAmbiente()) - (S.dormindo ? 1.5 : 0) + (S.camaSuja ? 1 : 0);
+  const partes = ["corpo", "agasalho", "cabeca", "maos", "pes"];
+  const op = partes.map(p => [null, ...S.roupas.filter(id => ROUPAS[id] && ROUPAS[id].parte === p)]);
+  let melhor = [], dm = Infinity;
+  const rec = (i, soma, esc) => {
+    if (i === partes.length) {
+      const d = Math.abs(soma - alvo) + (esc[0] ? 0 : 0.6) + (noite() && esc[0] && ROUPAS[esc[0]].pijama ? -0.3 : 0) + esc.filter(Boolean).length * 0.01;
+      if (d < dm) { dm = d; melhor = esc.slice(); }
+      return;
+    }
+    for (const id of op[i]) { esc.push(id); rec(i + 1, soma + (id ? ROUPAS[id].calor : 0), esc); esc.pop(); }
+  };
+  rec(0, 0, []);
+  const antes = JSON.stringify(S.veste);
+  S.veste = {}; partes.forEach((p, i) => { if (melhor[i]) S.veste[p] = melhor[i]; });
+  return JSON.stringify(S.veste) !== antes;
+}
+function babaRemedio(k, alvoTxt) {
+  if (!babaUsa(k)) return false;
+  tratar(false); babaFeito("remedio", `deu ${REMEDIOS[k].nome} para ${alvoTxt}.`);
+  return true;
+}
+function babaCuida() {
+  const d = S.doenca, acordado = !S.dormindo;
+  // arte de quem engatinha
+  if (S.perigo) { S.perigo = null; babaFeito("perigo", `tirou ${S.nome} de perto de uma arte, a tempo.`); }
+  if (S.camaSuja) { S.camaSuja = false; babaFeito("lencol", "trocou o lençol."); }
+  // fralda
+  if ((S.semFralda || S.fralda < 55) && babaPode("fralda", 5) && babaUsa("fralda")) {
+    if (tem("lenco")) S.inv.lenco--; else babaFalta("lenco", `${ITENS.lenco.acabou.toLowerCase()}. Compre na Farmácia, no menu Loja.`);
+    const coco = S.fralda < 45;
+    S.semFralda = false; S.fralda = 100; S.higiene = clamp(S.higiene + 6); S.sujoTempo = 0;
+    babaFeito("fralda", coco ? "trocou uma fralda de cocô." : "trocou a fralda.");
+    if (d && d.tipo === "assadura" && !d.tratadoEm) babaRemedio("pomada", "a assadura");
+  }
+  if (S.arrotoPendente && S.min - S.arrotoDesde >= 3) { S.arrotoPendente = false; babaFeito("arroto", `pôs ${S.nome} para arrotar.`); }
+  // comida e bebida
+  if (acordado && S.fome < 45 && babaPode("comida", 30)) {
+    const h = hora(), refeicao = idade() >= 6 && ((h >= 11 && h < 13) || (h >= 18 && h < 20)) && !comeu("abobora", 240) && !comeu("mandioquinha", 240) && !comeu("beterraba", 240);
+    if (refeicao && tem("papinha")) {
+      S.inv.papinha--; const sabor = rnd(["abobora", "mandioquinha", "beterraba"]);
+      S.comidas.push({ s: sabor, min: S.min }); if (S.comidas.length > 12) S.comidas.shift();
+      encher(40); S.desidrata = Math.max(0, S.desidrata - 10); S.humor += 4;
+      babaFeito("papinha", "deu papinha no almoço, com babador e paciência.");
+    } else if (babaUsa("leite")) {
+      encher(50); S.arrotoPendente = true; S.arrotoDesde = S.min; S.ultimaMamada = S.min; S.desidrata = Math.max(0, S.desidrata - 70); S.humor += 4;
+      babaFeito("mamadeira", "deu a mamadeira.");
+    } else if (idade() >= 6 && tem("fruta")) {
+      S.inv.fruta--; S.comidas.push({ s: "banana", min: S.min }); encher(25); babaFeito("fruta", "deu banana amassada, porque o leite acabou.");
+    }
+  }
+  if (acordado && S.desidrata >= 60 && babaPode("agua", 45)) {
+    if (idade() >= 6) { S.desidrata = Math.max(0, S.desidrata - 50); babaFeito("agua", "deu água no copinho."); }
+    else if (S.fome < 85 && babaUsa("leite")) { encher(30); S.desidrata = Math.max(0, S.desidrata - 50); S.ultimaMamada = S.min; babaFeito("mamadeira", "deu um pouco mais de leite, por causa do calor."); }
+  }
+  // roupa conforme o tempo
+  if (Math.abs(conforto()) >= 1.2 && babaPode("roupa", S.chorando && ["frio", "calor"].includes(S.motivoAtual) ? 2 : 30)) {
+    if (vestirIdeal()) babaFeito("roupa", `trocou a roupa por causa do tempo: agora ${S.nome} está com ${descricaoRoupa()}.`); else S.babaUlt.roupa = S.min;
+    if (conforto() <= -2) babaFalta("roupa-quente", `não tem roupa quente que chegue para esse frio. Compre um agasalho, touca ou luvinha na loja de Roupas.`);
+    if (conforto() >= 2.5) babaFalta("roupa-leve", `não tem roupa fresca para esse calor. Compre um body regata ou um macaquinho na loja de Roupas.`);
+  }
+  // golfada e sujeira
+  if (S.sujoGolfo === 1) { S.sujoGolfo = 0; babaFeito("paninho", "limpou uma golfadinha com o paninho."); }
+  if (acordado && (S.sujoGolfo >= 2 || S.higiene < 40) && !(d && DOENCAS[d.tipo].grave) && babaPode("banho", 240)) {
+    if (babaUsa("sabonete")) S.higiene = 100; else S.higiene = Math.max(S.higiene, 75);
+    S.sujoGolfo = 0; S.humor += 5; babaFeito("banho", "deu banho morno e vestiu de novo.");
+  }
+  if ((S.gases || S.prisao) && acordado && babaPode("soltar", 20)) {
+    if (S.prisao) { S.prisao = false; S.ultimoCoco = S.min; S.cocoDesc = descricaoCoco(); S.fralda = Math.min(S.fralda, 10); babaFeito("soltar", "fez a bicicletinha até o intestino soltar."); }
+    else { S.gases = false; babaFeito("soltar", "fez massagem e bicicletinha até sair o pum preso."); }
+  }
+  // doenças
+  if (d && babaPode("doenca", 15)) {
+    S.babaUlt.doenca = S.min;
+    if (d.tipo === "febre" && S.temp >= 37.8 && S.min - S.ultimoAntitermico >= 360) { if (babaRemedio("antitermico", "a febre")) S.ultimoAntitermico = S.min; }
+    else if (d.tipo === "febre" && !d.tratadoEm) { tratar(false); S.desidrata = Math.max(0, S.desidrata - 20); babaFeito("remedio", "viu a febrinha, deixou de roupa leve, deu líquido e ficou de olho no termômetro."); }
+    else if (d.tipo === "colica" && !d.tratadoEm) { tratar(true); babaFeito("remedio", "fez massagem na barriga para a cólica."); }
+    else if (d.tipo === "dentes" && !d.tratadoEm) { if (temBrinquedo("mordedor")) { tratar(false); babaFeito("remedio", "deu o mordedor gelado para a gengiva."); } else babaRemedio("gel", "os dentes"); }
+    else if (d.tipo === "resfriado" && !d.tratadoEm) babaRemedio("soro", "o nariz entupido");
+    else if ((d.tipo === "desidratacao" || d.tipo === "diarreia") && (!d.tratadoEm || S.desidrata > 40)) { if (babaUsa("soroOral")) { S.desidrata = Math.max(0, S.desidrata - 100); tratar(false); babaFeito("remedio", `deu soro de reidratação oral, por causa da ${DOENCAS[d.tipo].nome}.`); } }
+    else if (d.tipo === "hipotermia") { vestirIdeal(); S.temp += 0.3; babaFeito("remedio", `agasalhou e esquentou ${S.nome} no colo, pele com pele.`); }
+  }
+  // sono
+  if (acordado && !agitado() && (S.energia < 35 || (noite() && S.energia < 75)) && !motivos().some(m => !["sono", "carinho"].includes(m.t)) && babaPode("sono", 20)) {
+    S.dormindo = true; babaFeito("sono", `ninou ${S.nome} até dormir.`);
+  }
+  // colo, brincadeira e o que o bebê pedir
+  if (!S.dormindo && (S.desejo || S.humor < 60) && babaPode("brincar", 20)) {
+    if (S.desejo) { S.desejo = null; S.proximoDesejo = S.min + rs(180 + Math.random() * 120); }
+    const fav = temBrinquedo(S.favorito) && BRINQUEDOS[S.favorito].brincar;
+    S.humor += fav ? 22 : 15; S.energia -= 4; S.ultimaBrincadeira = S.min;
+    babaFeito("brincar", fav ? `brincou com ${BRINQUEDOS[S.favorito].curto}, o preferido.` : rnd(["deu colo e cantou.", "brincou de esconde-esconde.", "conversou e fez gracinha."]));
+  }
+  // vacina, se o posto estiver aberto
+  const v = vacinaPendente(), hm = minutoDoDia();
+  if (v && hm >= 9 * 60 && hm < 16 * 60 && !(d && d.tipo === "febre") && babaPode("vacina", 60)) {
+    S.vacinas.push(v.m); S.humor -= 5;
+    if (Math.random() < 0.4) S.febreVacinaEm = S.min + 180 + Math.floor(Math.random() * 120);
+    babaFeito("vacina", `levou ao posto e vacinou: ${v.n}.`);
+  }
+  S.humor = clamp(S.humor);
+}
+function babaChecarFim() {
+  if (!S.babaLigada || babaAtiva()) return;
+  S.babaLigada = false; S.pontosPagos = S.pontos; marca("babaFim");
+  babaDiario(`terminou o turno e foi embora.`);
+  if (!silencio) { falar(`${BABA} terminou o turno. ${babaResumo()} Agora ${S.nome} está com você de novo. ${comoEstaTexto()}`); som.pedido(); }
+}
+const BABA_NOMES = { mamadeira: ["mamadeira", "mamadeiras"], papinha: ["papinha", "papinhas"], fruta: ["fruta", "frutas"], agua: ["copinho de água", "copinhos de água"], fralda: ["fralda trocada", "fraldas trocadas"], arroto: ["arroto", "arrotos"], banho: ["banho", "banhos"], sono: ["soneca", "sonecas"], brincar: ["brincadeira", "brincadeiras"], remedio: ["cuidado de saúde", "cuidados de saúde"], roupa: ["troca de roupa", "trocas de roupa"], lencol: ["lençol trocado", "lençóis trocados"], soltar: ["bicicletinha", "bicicletinhas"], vacina: ["vacina", "vacinas"], perigo: ["arte evitada", "artes evitadas"], paninho: ["golfadinha limpa", "golfadinhas limpas"] };
+function babaResumo(f = S.babaFeitos) {
+  const l = Object.keys(BABA_NOMES).filter(k => f[k]).map(k => `${f[k]} ${f[k] === 1 ? BABA_NOMES[k][0] : BABA_NOMES[k][1]}`);
+  const faltas = S.babaFaltas.length ? ` Ela avisou que falta: ${S.babaFaltas.map(x => x.t.split(".")[0]).join("; ")}.` : "";
+  return (l.length ? `No turno, ${BABA} fez: ${l.join(", ")}.` : `${BABA} não precisou fazer nada de especial.`) + faltas;
+}
+function contratarBaba(horas) {
+  const preco = horas * PRECO_HORA;
+  if (!pagar(preco)) return;
+  const nova = !babaAtiva();
+  S.babaAte = Math.max(S.babaAte, S.min) + Math.round(horas * 3600 * S.vel);
+  if (nova) { S.babaFeitos = {}; S.babaFaltas = []; S.babaUlt = {}; }
+  S.babaLigada = true; S.pontosPagos = S.pontos;
+  falar(nova
+    ? `${BABA} chega, pendura a bolsa no cabide, lava as mãos e pega ${S.nome} no colo como quem já conhece. Ela fica ${tempoReal(S.babaAte - S.min)} e cuida de tudo: comida, fralda, banho, sono, roupa, remédio e brincadeira. Enquanto ela estiver aqui, cuidado não rende moeda. Se faltar alguma coisa, ela avisa. Restam ${S.moedas} moedas.`
+    : `Turno estendido. ${BABA} fica mais ${horas} ${horas === 1 ? "hora" : "horas"}, ao todo mais ${tempoReal(S.babaAte - S.min)}. Restam ${S.moedas} moedas.`);
+  if (nova) babaDiario("chegou para cuidar.");
+  babaCuida(); depois();
+}
+function dispensarBaba() {
+  if (!babaAtiva()) { falar(`${BABA} não está aqui agora.`); return; }
+  const horasInteiras = Math.floor((S.babaAte - S.min) / (3600 * S.vel));
+  const devolve = horasInteiras * PRECO_HORA;
+  S.moedas += devolve; S.babaAte = S.min; S.babaLigada = false; S.pontosPagos = S.pontos;
+  babaDiario("foi dispensada.");
+  falar(`Você dispensa ${BABA}. ${babaResumo()} ${devolve ? `Ela devolve ${devolve} moedas das horas que não trabalhou.` : "A hora começada não tem devolução."} Agora são ${S.moedas} moedas.`);
+  depois();
+}
+
+/* ---------- Voz pelo microfone ---------- */
+// O app grava e manda, a cada 64 ms, o volume (dB), a altura da voz (Hz, 0 se não for voz),
+// a clareza (quanto o som é periódico: voz limpa perto de 1, áspera mais baixa) e os cruzamentos de zero.
+// O jogo não entende palavras: só o tom. Compara com a voz normal da pessoa, gravada na primeira vez.
+var ouvindoVoz = false;
+let vozQ = [], vozTimers = [], vozCalibrando = false;
+const vozDisponivel = () => !!(window.Android && window.Android.ouvir);
+const mediana = a => { const b = [...a].sort((x, y) => x - y); return b.length ? b[Math.floor(b.length / 2)] : 0; };
+const percentil = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? b[Math.min(b.length - 1, Math.floor(b.length * p))] : 0; };
+function falarPeloMicrofone(calibrar) {
+  if (!vozDisponivel()) { falar("Conversar pelo microfone funciona só no app do celular."); return; }
+  if (ouvindoVoz) return;
+  vozCalibrando = !!calibrar || !S.vozBase;
+  const ok = window.Android.temMicrofone && window.Android.temMicrofone();
+  if (!ok) {
+    window.vozPermissao = sim => {
+      window.vozPermissao = null;
+      if (sim) comecarAOuvir();
+      else falar("Sem permissão para usar o microfone, não dá para ouvir você. Dá para liberar nas configurações do Android: Aplicativos, Meu Bebê, Permissões, Microfone.");
+    };
+    window.Android.pedirMicrofone();
+    return;
+  }
+  comecarAOuvir();
+}
+function comecarAOuvir() {
+  ouvindoVoz = true; vozQ = [];
+  if (tocando) tocando.pause();
+  pararMusica();
+  if (respiracao) { respiracao.pause(); respiracao = null; }
+  const aviso = vozCalibrando
+    ? `Primeiro, o jogo vai conhecer a sua voz normal. Depois do bip, fale uma frase qualquer, do jeito que você fala com um adulto, e espere o segundo bip.`
+    : `Fale com ${S.nome} depois do bip.`;
+  falar(aviso);
+  // espera o leitor de tela terminar de ler, para o microfone não ouvir a voz dele
+  const espera = Math.min(9000, 900 + aviso.length * 60);
+  vozTimers.push(setTimeout(() => {
+    tom([660, 880], 0.12, "sine", 0.1);
+    vozTimers.push(setTimeout(() => { try { window.Android.ouvir(); } catch (e) { pararDeOuvir(true); } }, 450));
+    vozTimers.push(setTimeout(() => pararDeOuvir(), 11000));
+  }, espera));
+}
+window.vozQuadro = (db, hz, clareza, zcr) => {
+  if (!ouvindoVoz) return;
+  vozQ.push({ db, hz, c: clareza, z: zcr });
+  const q = vozQ;
+  if (q.length < 8) return;
+  const piso = Math.max(-75, percentil(q.slice(0, 6).map(f => f.db), 0.3));
+  const fala = f => f.db > piso + 9 && f.db > -60;
+  const iniciou = q.slice(6).filter(fala).length >= 4;
+  let calado = 0; for (let i = q.length - 1; i >= 6 && !fala(q[i]); i--) calado++;
+  if ((iniciou && calado >= 17) || (!iniciou && q.length > 100)) pararDeOuvir();
+};
+window.vozFim = () => { if (ouvindoVoz) pararDeOuvir(); };
+function pararDeOuvir(cancelado) {
+  if (!ouvindoVoz) return;
+  ouvindoVoz = false;
+  vozTimers.forEach(clearTimeout); vozTimers = [];
+  try { window.Android.pararDeOuvir(); } catch (e) {}
+  if (cancelado) return;
+  tom([880, 660], 0.12, "sine", 0.1);
+  setTimeout(() => { analisarVoz(); tocarMusica(); }, 350);
+}
+function analisarVoz() {
+  const q = vozQ;
+  if (q.length < 10) { falar("O microfone não respondeu. Tente de novo."); return; }
+  const piso = Math.max(-75, percentil(q.slice(0, 6).map(f => f.db), 0.3));
+  const fala = q.slice(6).filter(f => f.db > piso + 9 && f.db > -60);
+  if (fala.length < 4) { falar("Não ouvi nada. Fale mais perto do celular, logo depois do bip."); return; }
+  const L = mediana(fala.map(f => f.db)), Lmax = percentil(fala.map(f => f.db), 0.9);
+  const voz = fala.filter(f => f.hz > 0);
+  const vf = voz.length / fala.length;
+  const st = voz.map(f => 12 * Math.log2(f.hz / 100));
+  const stMed = st.length ? mediana(st) : 0, faixa = st.length >= 4 ? percentil(st, 0.9) - percentil(st, 0.1) : 0;
+  const clar = voz.length ? voz.reduce((a, f) => a + f.c, 0) / voz.length : 0;
+  if (vozCalibrando) {
+    vozCalibrando = false;
+    if (voz.length < 4) { falar("Não deu para ouvir bem a sua voz. Tente de novo, falando uma frase mais longa."); return; }
+    S.vozBase = { L, st: stMed, faixa, clar }; salvar();
+    falar(`Pronto, o jogo conheceu a sua voz normal. Agora, em Conversar, use "Falar com ${S.nome} pelo microfone". Fale manso, como se fala com bebê, e ${ele()} sorri. Grite ou fale duro, e ${ele()} chora.`);
+    som.bom(); return;
+  }
+  const B = S.vozBase, dL = L - B.L, dSt = stMed - B.st;
+  let tipo;
+  if (vf < 0.3 && dL < -3) tipo = "sussurro";
+  else if (dL >= 8 || Lmax - B.L >= 13) tipo = "grito";
+  else if (dL >= 3.5 && faixa <= B.faixa + 1 && dSt < 2.5) tipo = "bronca";
+  else if (clar < Math.min(0.6, B.clar - 0.12) && dL >= 1.5) tipo = "aspero";
+  else if ((dSt >= 2.5 || faixa >= B.faixa + 3) && dL < 6) tipo = "manso";
+  else if (dL <= -4) tipo = "baixinho";
+  else tipo = "normal";
+  reagirVoz(tipo);
+}
+const NOMES_TOM = { grito: "grito", bronca: "voz alta e dura", aspero: "voz áspera", manso: "fala de bebê, mansa e cantada", sussurro: "sussurro", baixinho: "voz baixa e calma", normal: "voz normal" };
+function reagirVoz(tipo) {
+  const Ele = g("Ele", "Ela"), i = idade(), dormia = S.dormindo;
+  let t;
+  if (tipo === "grito") {
+    S.humor -= 25; S.pontos -= 2; S.dormindo = false;
+    t = `${dormia ? `${S.nome} acorda de supetão.` : ""} O seu grito enche o quarto. ${S.nome} leva um susto: o corpo inteiro estremece, os bracinhos se abrem no ar, os olhos se arregalam... e vem o choro, alto, com o queixo tremendo. Bebê não entende bronca. Só sente medo.`;
+    som.ruim(); setTimeout(() => somChoro("carinho"), 400);
+  } else if (tipo === "bronca") {
+    S.humor -= 12; S.pontos -= 1;
+    if (dormia) { S.dormindo = false; t = `${S.nome} acorda com a voz dura e choraminga, assustad${o()}.`; }
+    else t = `Pelo tom duro, ${S.nome} percebe que alguma coisa está errada. O sorriso some, o lábio de baixo vai para frente e treme.${S.humor < 45 ? " E o choro vem." : ""}`;
+    setTimeout(() => S.humor < 45 ? somChoro("carinho", 0.8) : somBebe("manha"), 300);
+  } else if (tipo === "aspero") {
+    S.humor -= 6;
+    t = dormia ? `${S.nome} se remexe no sono, incomodad${o()}, e franze a testa.` : `${S.nome} franze a testinha com a voz áspera, desvia o olhar e fica quiet${o()}, desconfiad${o()}.`;
+    somBebe("manha", 0.7);
+  } else if (tipo === "manso") {
+    if (dormia) { S.humor += 3; t = `Dormindo, ${S.nome} ouve sua voz mansa, sorri de olhos fechados e suspira.`; }
+    else {
+      S.humor += 14; S.ultimaBrincadeira = S.min;
+      if (S.min - (S.vozPonto || -9999) >= 30) { S.pontos += 1; S.vozPonto = S.min; }
+      const extra = atenderDesejo("conversa");
+      t = (i < 3 ? `${S.nome} para de mexer os braços, olha sua boca com atenção total e abre um sorriso de gengiva, todo para você.`
+        : S.palavras.length ? `${S.nome} gargalha e responde: "${rnd(S.palavras)}!", e depois um monte de sílabas, batendo as mãos.`
+        : i >= 7 ? `${S.nome} abre um sorriso enorme e responde: "ba-ba-ba! ma-ma!", batendo as mãos, como quem conversa de verdade.`
+        : `${S.nome} solta uma gargalhada, bate as perninhas e responde com um "agu" cantado, imitando a sua música.`) + (S.chorando ? " O choro vai se desmanchando." : "") + extra;
+      setTimeout(() => somBebe(i >= 3 ? "riso" : "balbucio"), 200);
+    }
+  } else if (tipo === "sussurro") {
+    if (dormia) { S.humor += 2; t = `${S.nome} suspira com o sussurro e continua dormindo, a respiração lenta.`; }
+    else if (S.chorando) { S.humor += 8; t = `Você sussurra perto da orelha. O choro de ${S.nome} diminui, como quem para para ouvir um segredo.`; }
+    else {
+      S.humor += 6;
+      if (S.energia < 45 && !motivos().some(m => m.t !== "sono")) { S.dormindo = true; t = `Você sussurra devagar, e ${S.nome} vai fechando os olhos. Dormiu, embalad${o()} pela sua voz.`; }
+      else t = `${S.nome} fica bem quietinh${o()}, prestando atenção no sussurro, com os olhos arregalados.`;
+    }
+  } else if (tipo === "baixinho") {
+    S.humor += 8;
+    t = dormia ? `${S.nome} continua dormindo, tranquil${o()}.` : `Com a sua voz calma, ${S.nome} relaxa os ombros e fica olhando para você, sossegad${o()}.`;
+  } else {
+    S.humor += 6;
+    t = dormia ? `${S.nome} se mexe com a sua voz, faz biquinho e volta a dormir.` : `${S.nome} vira o rosto para a sua voz, presta atenção e responde com um "aaa" curtinho.`;
+    if (!dormia) setTimeout(() => somBebe("balbucio"), 200);
+  }
+  falar(t + ` Tom que o jogo ouviu: ${NOMES_TOM[tipo]}.`);
+  depois();
+}
+
 /* ---------- Conversa ---------- */
 const PALAVRAS = ["Mamã", "Papá", "Água", "Au-au", "Tchau", "Bola", "Nenê", "Dá"];
 function conversa(tipo) {
@@ -1710,7 +2035,7 @@ function ensinar(w) {
 // Balbucio contínuo: acordado e contente, o bebê fala sozinho; brincando, fala sem parar.
 let balbucioProx = 0;
 function atualizarBalbucio() {
-  if (!S || !S.sons || !S.tagarela || silencio || document.hidden || S.pausado || S.dormindo || S.chorando || $("jogo").hidden || !$("banho").hidden || !$("troca").hidden) return;
+  if (!S || !S.sons || !S.tagarela || silencio || ouvindoVoz || document.hidden || S.pausado || S.dormindo || S.chorando || $("jogo").hidden || !$("banho").hidden || !$("troca").hidden) return;
   if (S.humor < 40 || (S.doenca && !S.doenca.tratadoEm)) return;
   const agora = performance.now();
   if (agora < balbucioProx) return;
@@ -1763,6 +2088,7 @@ function comoEstaTexto() {
   }
   if (S.doenca && S.doenca.tratadoEm) p.push(`Ainda se recupera, mas o tratamento está fazendo efeito.`);
   if (S.desejo) p.push(`E parece estar esperando alguma coisa de você.`);
+  if (babaAtiva()) p.push(`${BABA} está cuidando, por mais ${tempoReal(S.babaAte - S.min)}.`);
   const v = vacinaPendente(); if (v) p.push(`A vacina dos ${v.m} meses está pendente.`);
   p.push(fraseRoupa());
   const cf = conforto();
@@ -1910,11 +2236,16 @@ function gastar(k) {
   return true;
 }
 function conferirMoedas() {
+  if (babaAtiva()) { S.pontosPagos = S.pontos; return; }
   if (S.pontos > S.pontosPagos) { S.moedas += 10; somBebe("moeda"); avisos.push(`Mais 10 moedas: agora são ${S.moedas}.`); }
   S.pontosPagos = S.pontos;
 }
 function avaliarDia() {
   const st = S.diaStats, media = st.n ? st.soma / st.n : 100;
+  if (st.baba) {
+    falar(`Fim do dia. Hoje ${BABA} cuidou de ${S.nome} por um tempo, então o dia não vale bônus nem desconto. Moedas: ${S.moedas}.`);
+    S.diaStats = { soma: 0, n: 0, chamados: 0, hospital: 0 }; return;
+  }
   const bom = media >= 55 && !st.chamados && !st.hospital;
   if (bom) { S.moedas += 50; marca("diaBom"); } else { S.moedas = Math.max(0, S.moedas - 20); marca("diaRuim"); }
   falar(bom
@@ -1933,11 +2264,13 @@ function comprar(k) {
   const it = ITENS[k];
   if (!pagar(it.preco)) return;
   S.inv[k] = (S.inv[k] || 0) + it.pacote;
+  S.babaFaltas = S.babaFaltas.filter(f => f.k !== k);
   falar(`Comprado: ${it.desc.toLowerCase()}. Agora você tem ${qtd(k)}. Restam ${S.moedas} moedas.`); salvar();
 }
 function comprarRoupa(id) {
   if (!pagar(ROUPAS[id].preco)) return;
   S.roupas.push(id);
+  S.babaFaltas = S.babaFaltas.filter(f => !f.k.startsWith("roupa"));
   falar(`Comprado: ${ROUPAS[id].nome}. Já está no guarda-roupa, dentro do Inventário. Restam ${S.moedas} moedas.`); salvar();
 }
 function comprarBrinquedo(id) {
@@ -2028,10 +2361,24 @@ const MENUS = {
     ...(S.perigo ? [{ r: `Ir ver o que ${S.nome} está aprontando`, f: A.verPerigo }] : []),
     { r: S.prisao ? "Ajudar a soltar o cocô preso" : S.gases ? "Ajudar a soltar os gases" : "Ajudar a soltar: bicicletinha nas perninhas", f: A.soltar },
     { r: "Inventário: guarda-roupa, remédios e mais", sub: "inventario" },
+    { r: babaAtiva() ? `Babá: ${BABA} cuidando, por mais ${tempoReal(S.babaAte - S.min)}` : "Chamar a babá", sub: "baba" },
     { r: `Loja, ${S.moedas} moedas`, sub: "loja" },
     { r: vacinaPendente() ? "Saúde, com vacina pendente" : "Saúde e remédios", sub: "saude" },
     { r: "Estado detalhado", f: () => falar(estadoTexto()) },
     { r: "Opções do jogo", sub: "opcoes" }
+  ]},
+  baba: { t: () => `Babá, ${S.moedas} moedas`, itens: () => babaAtiva() ? [
+    { r: `Quanto tempo falta: ${tempoReal(S.babaAte - S.min)}`, f: () => falar(`${BABA} fica mais ${tempoReal(S.babaAte - S.min)}.`), fica: true },
+    { r: `O que ${BABA} já fez`, f: () => falar(babaResumo()), fica: true },
+    { r: `Estender 1 hora: ${PRECO_HORA} moedas`, f: () => contratarBaba(1), fica: true },
+    { r: `Estender 4 horas: ${4 * PRECO_HORA} moedas`, f: () => contratarBaba(4), fica: true },
+    { r: `Dispensar ${BABA} agora`, f: dispensarBaba, fica: true }
+  ] : [
+    { r: `Como funciona a babá`, f: () => falar(`${BABA} cuida de ${S.nome} enquanto você não pode: dá comida, troca fralda, dá banho, faz dormir, troca a roupa conforme o tempo, dá remédio, leva para vacinar e brinca. Cada hora de verdade custa ${PRECO_HORA} moedas. Enquanto ela estiver aqui, cuidado não rende moeda e o dia não vale bônus. Ela usa o que tem em casa: se faltar alguma coisa, avisa no jogo e por notificação no celular, e você só precisa comprar.`), fica: true },
+    { r: `Chamar por 1 hora: ${PRECO_HORA} moedas`, f: () => contratarBaba(1), fica: true },
+    { r: `Chamar por 2 horas: ${2 * PRECO_HORA} moedas`, f: () => contratarBaba(2), fica: true },
+    { r: `Chamar por 4 horas: ${4 * PRECO_HORA} moedas`, f: () => contratarBaba(4), fica: true },
+    { r: `Chamar por 8 horas: ${8 * PRECO_HORA} moedas`, f: () => contratarBaba(8), fica: true }
   ]},
   inventario: { t: () => "Inventário", itens: () => [
     { r: "O que está vestindo, e o tempo lá fora", f: verRoupa },
@@ -2112,6 +2459,10 @@ const MENUS = {
     { r: "Massagem na barriga", f: A.massagem }
   ]},
   conversar: { t: () => `Conversar com ${S.nome}`, itens: () => [
+    ...(vozDisponivel() ? [
+      { r: `Falar com ${S.nome} pelo microfone`, f: () => falarPeloMicrofone(false), fica: true },
+      { r: S.vozBase ? "Ensinar de novo ao jogo a minha voz normal" : "Ensinar ao jogo a minha voz normal", f: () => falarPeloMicrofone(true), fica: true }
+    ] : []),
     { r: "Bater papo: contar como foi o seu dia", f: A.conversar },
     { r: `Chamar pelo nome`, f: () => conversa("nome") },
     { r: `Imitar os sons de ${S.nome}`, f: () => conversa("imitar") },
@@ -2240,7 +2591,9 @@ function alternarPausa() {
   desenhar(); salvar();
 }
 function trocarVelocidade() {
+  const antes = S.vel;
   S.vel = VEL[(VEL.indexOf(S.vel) + 1) % VEL.length];
+  if (babaAtiva()) S.babaAte = S.min + Math.round((S.babaAte - S.min) * S.vel / antes);
   falar(`Ritmo do tempo: ${VEL_TXT(S.vel)}.`); salvar();
 }
 function trocarVolume() {
@@ -2267,7 +2620,7 @@ function ativarAudio() { tocarMusica(); if (audioAtivo) return; audioAtivo = tru
 let cacheEstado = "";
 function desenhar() {
   if (!S) return;
-  $("relogio").innerHTML = `<strong>Dia ${dia()}</strong> · ${hhmm()} ${noite() ? "(noite)" : "(dia)"} · ${idade()} ${idade() === 1 ? "mês" : "meses"} · ${S.moedas} moedas · ${S.pontos} pontos de cuidado${S.pausado ? " · <strong>pausado</strong>" : ""}`;
+  $("relogio").innerHTML = `<strong>Dia ${dia()}</strong> · ${hhmm()} ${noite() ? "(noite)" : "(dia)"} · ${idade()} ${idade() === 1 ? "mês" : "meses"} · ${S.moedas} moedas · ${S.pontos} pontos de cuidado${babaAtiva() ? ` · babá por mais ${tempoReal(S.babaAte - S.min)}` : ""}${S.pausado ? " · <strong>pausado</strong>" : ""}`;
   const sit = situacao();
   $("situacao-visual").textContent = sit + (S.doenca && !S.doenca.tratadoEm ? ", " + g("doentinho", "doentinha") : "");
   const chave = Object.keys(NIVEIS).map(k => Math.round(S[k])).join(",") + sit + (S.doenca ? S.doenca.tipo + S.doenca.tratadoEm : "") + S.sexo;
@@ -2367,6 +2720,9 @@ function textoAusencia(a) {
   if (r.tombo) p.push(`levou ${r.tombo === 1 ? "um tombo" : r.tombo + " tombos"} engatinhando sem ninguém olhando`);
   if (r.acidente) p.push(`fez xixi ou cocô na cama ${vezes(r.acidente)}, sem fralda`);
   if (r.chamou) p.push(`chamou você ${vezes(r.chamou)}`);
+  const bf = {}; Object.keys(r).filter(k => k.startsWith("baba:")).forEach(k => bf[k.slice(5)] = r[k]);
+  if (Object.keys(bf).length) p.push(`ficou com ${BABA}, que cuidou de tudo. ${babaResumo(bf).replace(/^No turno, /, "")}`.replace(/\.$/, ""));
+  if (r.babaFim) p.push(`viu ${BABA} terminar o turno e ir embora`);
   if (r.hospital) p.push(`foi levad${o()} ao pronto-socorro ${vezes(r.hospital)}`);
   if (r.diaBom) p.push(`passou bem ${r.diaBom === 1 ? "o dia, e você ganhou 50 moedas" : r.diaBom + " dias, e você ganhou " + 50 * r.diaBom + " moedas"}`);
   if (r.diaRuim) p.push(`teve ${r.diaRuim === 1 ? "um dia ruim, e você perdeu 20 moedas" : r.diaRuim + " dias ruins, e você perdeu " + 20 * r.diaRuim + " moedas"}`);
@@ -2395,19 +2751,24 @@ function planejarAvisos() {
   if (!S || S.pausado) return [];
   const real = S, sorteio = Math.random, agora = Date.now();
   let tAtencao = null, tCritico = null;
+  const babaAvisos = [];
   try {
     S = JSON.parse(JSON.stringify(real));
     silencio = {};
     Math.random = () => 0.99;
-    const limite = Math.round(6 * 3600 * S.vel);
+    const horasBaba = babaAtiva() ? (S.babaAte - S.min) / S.vel / 3600 : 0;
+    const limite = Math.round(Math.max(6, Math.min(12, horasBaba + 1)) * 3600 * S.vel);
     for (let i = 1; i <= limite && tCritico === null; i++) {
+      const faltas = S.babaFaltas.length, comBaba = babaAtiva();
       minuto();
       const t = agora + (i / S.vel) * 1000;
+      S.babaFaltas.slice(faltas).forEach(f => babaAvisos.push({ quando: Math.round(t), chamado: false, titulo: `${BABA} avisa: está faltando coisa`, texto: Maiusc(f.t) }));
+      if (comBaba && !babaAtiva()) babaAvisos.push({ quando: Math.round(t), chamado: false, titulo: `${BABA} foi embora`, texto: `O turno da babá acabou. ${S.nome} está com você de novo.` });
       if (tAtencao === null && (S.chorando || S.desejo || S.chamando)) tAtencao = t;
       if (S.chamando) tCritico = t;
     }
   } finally { S = real; silencio = null; Math.random = sorteio; }
-  if (tAtencao === null) return [];
+  if (tAtencao === null) return babaAvisos.filter(a => a.quando > agora + 30000);
   const nome = S.nome, DEZ = 10 * 60000;
   const aviso = (t, ch) => ({
     quando: Math.round(t), chamado: ch,
@@ -2418,9 +2779,11 @@ function planejarAvisos() {
   let t = Math.max(tAtencao, agora + 60000);
   for (let k = 0; k < 36; k++, t += DEZ) lista.push(aviso(t, tCritico !== null && t >= tCritico));
   if (tCritico !== null && !lista.some(a => Math.abs(a.quando - tCritico) < 2 * 60000)) lista.push(aviso(tCritico, true));
-  return lista.sort((a, b) => a.quando - b.quando).slice(0, 40);
+  babaAvisos.forEach(a => lista.push(a));
+  return lista.filter(a => a.quando > agora + 30000).sort((a, b) => a.quando - b.quando).slice(0, 44);
 }
 window.aoSair = () => {
+  if (ouvindoVoz) pararDeOuvir(true);
   pararMusica();
   if (respiracao) { respiracao.pause(); respiracao = null; }
   if (B) terminarBanho();

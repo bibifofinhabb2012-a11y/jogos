@@ -18,6 +18,7 @@ import android.webkit.WebViewClient;
 
 /** Tela única: o jogo roda numa WebView; a ponte "Android" agenda avisos e vibra. */
 public class MainActivity extends Activity implements SensorEventListener {
+    static final int PEDIDO_MICROFONE = 2;
     private WebView web;
     private SensorManager sensores;
     private Sensor movimento;
@@ -73,8 +74,23 @@ public class MainActivity extends Activity implements SensorEventListener {
         web.evaluateJavascript("window.aoVoltar && window.aoVoltar()", null);
     }
 
+    /** Roda um trecho de JavaScript no jogo, de qualquer linha de execução. */
+    void js(String codigo) {
+        runOnUiThread(() -> { if (web != null) web.evaluateJavascript(codigo, null); });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int pedido, String[] permissoes, int[] resultados) {
+        super.onRequestPermissionsResult(pedido, permissoes, resultados);
+        if (pedido == PEDIDO_MICROFONE) {
+            boolean ok = resultados.length > 0 && resultados[0] == PackageManager.PERMISSION_GRANTED;
+            js("window.vozPermissao && window.vozPermissao(" + ok + ")");
+        }
+    }
+
     @Override
     protected void onPause() {
+        Voz.parar();
         // o jogo calcula quando o bebê vai precisar de atenção e chama Android.agendar
         web.evaluateJavascript("window.aoSair && window.aoSair()", null);
         if (sensores != null) sensores.unregisterListener(this);

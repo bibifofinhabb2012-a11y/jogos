@@ -1,10 +1,12 @@
 package br.meubebe.app;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -34,6 +36,26 @@ public class Ponte {
 
     @JavascriptInterface
     public void testar(String titulo, String texto) { Avisos.mostrar(ctx, titulo, texto, false); }
+
+    // Microfone: o jogo pede, a gravação manda números (volume, altura da voz), nunca o áudio.
+
+    @JavascriptInterface
+    public boolean temMicrofone() {
+        return Build.VERSION.SDK_INT < 23 || ctx.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @JavascriptInterface
+    public void pedirMicrofone() {
+        tela.runOnUiThread(() -> {
+            if (Build.VERSION.SDK_INT >= 23) tela.requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, MainActivity.PEDIDO_MICROFONE);
+        });
+    }
+
+    @JavascriptInterface
+    public void ouvir() { if (temMicrofone()) Voz.comecar((MainActivity) tela); }
+
+    @JavascriptInterface
+    public void pararDeOuvir() { Voz.parar(); }
 
     /** Padrão em milissegundos: vibra, pausa, vibra... */
     @JavascriptInterface

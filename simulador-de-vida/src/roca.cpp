@@ -6,9 +6,49 @@
 #include "jogo.h"
 #include "util.h"
 
-constexpr double HORAS_PARA_COLHER = 72;  // 3 dias do jogo, sempre com a terra molhada
-static const char* PRODUTO[4] = {"", "milho", "feijao", "arroz"};
-static const char* SEMENTE[4] = {"", "semente-milho", "semente-feijao", "semente-arroz"};
+// Espécies: tipo 1 a 8. horas = tempo com a terra molhada até colher (24 = 1 dia do jogo).
+// Perenes (laranja, banana, cacau) continuam no lugar depois da colheita e dão de novo em 2 dias.
+struct Especie {
+    const char* id;            // sufixo da semente e nome do produto: "milho" -> "semente-milho" e "milho"
+    const char* planta, *plantas;
+    const char* produto, *produtos;
+    double horas; int qtd; bool perene;
+    const char* colheita;
+};
+static const Especie ESPECIES[9] = {
+    {"", "", "", "", "", 0, 0, false, ""},
+    {"milho", "pé de milho", "pés de milho", "espiga de milho", "espigas de milho", 72, 3, false,
+     "Você quebra as espigas do pé de milho, uma, duas, três, com aquele estalo da palha."},
+    {"feijao", "pé de feijão de corda", "pés de feijão de corda", "punhado de feijão de corda", "punhados de feijão de corda", 72, 4, false,
+     "Você puxa as vagens compridas do feijão de corda e debulha numa mão cheia."},
+    {"arroz", "touceira de arroz", "touceiras de arroz", "feixe de arroz", "feixes de arroz", 72, 3, false,
+     "Você corta a touceira de arroz rente ao chão com o machado e amarra os feixes."},
+    {"laranja", "pé de laranja", "pés de laranja", "laranja", "laranjas", 144, 6, true,
+     "Você estica o braço entre as folhas e torce as laranjas do galho, uma por uma, com cheiro de casca."},
+    {"banana", "bananeira", "bananeiras", "banana", "bananas", 120, 8, true,
+     "Você puxa o cacho para baixo e solta as bananas, ainda verdolengas, uma por uma."},
+    {"abobora", "pé de abóbora", "pés de abóbora", "abóbora", "abóboras", 96, 2, false,
+     "Você corta o talo grosso e levanta as abóboras do chão, pesadas, com a casca firme."},
+    {"cenoura", "pé de cenoura", "pés de cenoura", "cenoura", "cenouras", 72, 5, false,
+     "Você segura as folhas rente à terra e puxa: as cenouras saem laranjinhas, com terra grudada."},
+    {"cacau", "pé de cacau", "pés de cacau", "fruto de cacau", "frutos de cacau", 168, 4, true,
+     "Você corta os frutos de cacau do tronco, grandes e amarelos, que vão virar chocolate."},
+};
+constexpr int NESPECIES = 8;
+static double horasPara(int tipo) { return tipo >= 1 && tipo <= NESPECIES ? ESPECIES[tipo].horas : 72; }
+std::string nomeProduto(const std::string& t, bool plural) {
+    for (int k = 1; k <= NESPECIES; k++) {
+        if (t == ESPECIES[k].id) return plural ? ESPECIES[k].produtos : ESPECIES[k].produto;
+        if (t == std::string("semente-") + ESPECIES[k].id) {
+            std::string p = ESPECIES[k].planta;
+            const std::string pe = "pé de ";
+            p = p.rfind(pe, 0) == 0 ? p.substr(pe.size()) : p == "bananeira" ? "banana" : p == "touceira de arroz" ? "arroz" : p;
+            return (plural ? "sementes de " : "semente de ") + p;
+        }
+    }
+    return "";
+}
+int tipoDaSemente(const std::string& t) { for (int k = 1; k <= NESPECIES; k++) if (t == std::string("semente-") + ESPECIES[k].id) return k; return 0; }
 
 void Jogo::marcar(double segundos, std::function<void()> f) { agenda.push_back({agora + segundos, std::move(f)}); }
 
@@ -24,15 +64,14 @@ int Jogo::plantaFrente() const {
 }
 
 std::string Jogo::nomePlanta(int tipo, bool plural) const {
-    if (tipo == 1) return plural ? "pés de milho" : "pé de milho";
-    if (tipo == 2) return plural ? "pés de feijão de corda" : "pé de feijão de corda";
-    return plural ? "touceiras de arroz" : "touceira de arroz";
+    if (tipo < 1 || tipo > NESPECIES) tipo = 1;
+    return plural ? ESPECIES[tipo].plantas : ESPECIES[tipo].planta;
 }
 
 std::string Jogo::estadoPlanta(const Planta& p) const {
     bool molhada = minutos < p.molhadaAte;
-    if (p.horas >= HORAS_PARA_COLHER) return "pronto para colher";
-    double dias = (HORAS_PARA_COLHER - p.horas) / 24.0;
+    if (p.horas >= horasPara(p.tipo)) return "pronto para colher";
+    double dias = (horasPara(p.tipo) - p.horas) / 24.0;
     std::string falta = dias > 1.75 ? "faltam uns " + std::to_string((int)std::lround(dias)) + " dias"
                       : dias > 0.75 ? "falta mais ou menos um dia" : "falta menos de um dia";
     std::string fase = p.horas < 12 ? "a semente ainda está debaixo da terra" : p.horas < 36 ? "brotou, ainda pequeno" : "crescendo bem";
@@ -50,13 +89,14 @@ bool Jogo::usarNaRoca(Coisa& c) {
     int cel = fy * LADO + fx;
     if (t == "machado") {
         if (k.planta) {
-            if (k.planta == 3 && plantas[cel].horas >= HORAS_PARA_COLHER) colher(cel, true);
+            if (k.planta == 3 && plantas[cel].horas >= horasPara(3)) colher(cel, true);
             else fala::dizer("Cuidado: o machado estragaria o " + nomePlanta(k.planta) + ".");
             return true;
         }
         if (k.chao == Chao::Mato && k.obs == Obstaculo::Nada) {
             k.chao = Chao::TerraArada;
             limpos.push_back(cel);
+            acaoNaFazenda("limpo " + std::to_string(cel));
             energia -= 1.5; sede -= 0.5; higiene -= 0.5;
             audio::tocar3D("machado", fx + 0.5f, fy + 0.5f, 0.5f, 0.9f, 2, (float)acaso(0.92, 1.08));
             int jaLimpos = (int)limpos.size();
@@ -70,7 +110,8 @@ bool Jogo::usarNaRoca(Coisa& c) {
         return true;
     }
     if (semente) {
-        int tipo = t == "semente-milho" ? 1 : t == "semente-feijao" ? 2 : 3;
+        int tipo = tipoDaSemente(t);
+        if (!tipo) return false;
         if (k.chao == Chao::Mato) { fala::dizer("Aí é matagal. Limpe primeiro com o machado."); return true; }
         if (k.planta) { fala::dizer("Já tem um " + nomePlanta(k.planta) + " aí."); return true; }
         if (k.chao != Chao::TerraArada || k.obs != Obstaculo::Nada || k.movel >= 0 || (fx == x && fy == y)) {
@@ -78,9 +119,10 @@ bool Jogo::usarNaRoca(Coisa& c) {
         }
         k.planta = (uint8_t)tipo;
         plantas[cel] = Planta{tipo, 0, 0};
+        acaoNaFazenda("planta " + std::to_string(cel) + " " + std::to_string(tipo));
         energia -= 0.5;
         audio::tocar3D("cavar", fx + 0.5f, fy + 0.5f, 0.2f, 0.9f, 2);
-        std::string msg = "Você abre uma covinha com os dedos, põe a semente e cobre de terra. " + maiuscula(nomePlanta(tipo)) + " plantado. Agora precisa de água.";
+        std::string msg = "Você abre uma covinha com os dedos, põe a semente e cobre de terra. Plantado: " + nomePlanta(tipo) + ". Agora precisa de água.";
         if (tirar({t, 0})) msg += " Você pega outra semente no saco.";
         else { c = {}; msg += " Acabaram as sementes desse tipo."; }
         fala::dizer(msg);
@@ -100,6 +142,7 @@ bool Jogo::usarNaRoca(Coisa& c) {
         if (c.carga <= 0) { fala::dizer("O regador está vazio. Encha na beira do córrego."); return true; }
         c.carga--;
         plantas[cel].molhadaAte = minutos + 24 * 60;
+        acaoNaFazenda("rega " + std::to_string(cel));
         energia -= 0.3;
         audio::tocar3D("regador", fx + 0.5f, fy + 0.5f, 0.3f, 0.9f, 2);
         fala::dizer("Você rega o " + nomePlanta(k.planta) + ". A terra escurece, molhada." + (c.carga == 0 ? " O regador ficou vazio." : ""));
@@ -113,19 +156,25 @@ bool Jogo::usarNaRoca(Coisa& c) {
 void Jogo::colher(int cel, bool comMachado) {
     Planta p = plantas[cel];
     int fx = cel % LADO, fy = cel / LADO;
-    if (p.horas < HORAS_PARA_COLHER) { fala::dizer(maiuscula(nomePlanta(p.tipo)) + ": " + estadoPlanta(p) + "."); return; }
+    const Especie& e = ESPECIES[p.tipo >= 1 && p.tipo <= NESPECIES ? p.tipo : 1];
+    if (p.horas < e.horas) { fala::dizer(maiuscula(nomePlanta(p.tipo)) + ": " + estadoPlanta(p) + "."); return; }
     if (p.tipo == 3 && !comMachado) { fala::dizer("O arroz está pronto. Arroz se colhe com o machado: segure o machado e aperte Espaço."); return; }
-    int qtd = p.tipo == 1 ? 3 : p.tipo == 2 ? 4 : 3;
-    guardar({PRODUTO[p.tipo], 0}, qtd);
-    guardar({SEMENTE[p.tipo], 0}, 2);
-    plantas.erase(cel);
-    mapa.em(fx, fy).planta = 0;
+    guardar({e.id, 0}, e.qtd);
+    std::string resto;
+    if (e.perene) {  // a árvore fica, e dá de novo
+        plantas[cel].horas = e.horas - 48;
+        acaoNaFazenda("colhe " + std::to_string(cel) + " " + std::to_string(e.horas - 48));
+        resto = " Foi tudo para a mochila. O pé continua aí, e dá de novo em uns 2 dias, se for regado.";
+    } else {
+        guardar({std::string("semente-") + e.id, 0}, 2);
+        plantas.erase(cel);
+        mapa.em(fx, fy).planta = 0;
+        acaoNaFazenda("colhe " + std::to_string(cel) + " -1");
+        resto = " Foi tudo para a mochila, e ainda sobraram 2 sementes para plantar de novo. A terra fica limpa para outra planta.";
+    }
     energia -= 0.5;
     audio::tocar3D(p.tipo == 3 ? "machado" : "colher", fx + 0.5f, fy + 0.5f, 0.5f, 0.9f, 2);
-    const char* txt = p.tipo == 1 ? "Você quebra as espigas do pé de milho, uma, duas, três, com aquele estalo da palha."
-                    : p.tipo == 2 ? "Você puxa as vagens compridas do feijão de corda e debulha numa mão cheia."
-                                  : "Você corta a touceira de arroz rente ao chão com o machado e amarra os feixes.";
-    fala::dizer(std::string(txt) + " Foi tudo para a mochila, e ainda sobraram 2 sementes para plantar de novo. A terra fica limpa para outra planta.");
+    fala::dizer(std::string(e.colheita) + resto);
     evento("colheu");
 }
 
@@ -133,8 +182,8 @@ void Jogo::atualizarRoca(double dm) {
     auto& minhas = fazendaGuardada ? fazendaGuardada->plantas : plantas;  // só as suas crescem por aqui
     if (mundoAtual != "fazenda" && !fazendaGuardada) return;
     for (auto& [cel, p] : minhas) {
-        if (minutos >= p.molhadaAte || p.horas >= HORAS_PARA_COLHER) continue;
-        p.horas = std::min(HORAS_PARA_COLHER, p.horas + dm / 60.0);
+        if (minutos >= p.molhadaAte || p.horas >= horasPara(p.tipo)) continue;
+        p.horas = std::min(horasPara(p.tipo), p.horas + dm / 60.0);
     }
 }
 

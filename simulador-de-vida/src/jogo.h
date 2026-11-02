@@ -29,6 +29,7 @@ struct Movel {
     std::vector<std::vector<Pilha>> partes;  // compartimentos: portas do guarda-roupa, a geladeira inteira
     int som = 0;                             // som contínuo (motor da geladeira, chama, chuveiro)
     double ciclo = 0;                        // motor da geladeira: liga e desliga sozinho
+    double gas = 600;                        // fogão: segundos de verdade de chama que o botijão ainda tem
 };
 
 // Opção de menu. ativar: Enter. tudo: Shift Enter. ajustar: setas para os lados.
@@ -161,8 +162,16 @@ private:
     // onde está: "fazenda" (a sua), "cidade" ou "visita:Nome". Fora de casa, a fazenda fica guardada aqui e continua viva.
     std::string mundoAtual = "fazenda";
     std::unique_ptr<Mundo> fazendaGuardada;
-    bool viajando = false;
+    bool viajando = false, chegadaCalada = false;  // calada: teleporte, sem a fala do trator
     int somViagem = 0, somBar = 0;
+    // vícios: cigarro aceso (segundos que faltam) e álcool no sangue (garrafas de cerveja, vai baixando)
+    double fumando = 0, proximaTragada = 0, alcool = 0;
+    // casamento (online): com quem casou, e em qual fazenda o casal mora ("" ainda não decidiram)
+    std::string conjuge, moraCom;
+    char generoConjuge = '?';
+    struct Evento { std::string tipo, a, b; char ga = 'h', gb = 'h'; double fim = 0; } evento_;  // "casamento" ou "festa"
+    std::map<std::string, int> pegosNaFesta;
+    double estadoRede = 0;
     // online, chat e voz
     Campo campo;
     int pacotesVoz = 0;            // quantos pedaços de voz chegaram (para teste)
@@ -272,6 +281,22 @@ private:
     std::string estadoFazenda();             // texto com o que muda na fazenda (para quem visita)
     void aplicarEstado(const std::string& texto);
     void pararSonsDosMoveis();
+    void beberAlcool(double doses, const std::string& texto);
+    // casamento e festa (casamento.cpp)
+    void menuPrefeito();
+    void usarAlianca();
+    void receberApp(const std::string& tipo, const std::string& de, const std::string& dados);
+    void comecarCasamento(const std::string& a, char ga, const std::string& b, char gb);
+    void cerimonia();
+    void comecarFesta();
+    void teleportarPara(const std::string& mundoCan, int tx, int ty);
+    void irAoEvento();
+    void menuMesaFesta();
+    void conversarSobreFazenda();
+    bool moradorDe(const std::string& dono) const { return !moraCom.empty() && moraCom == dono && dono != rede::meuNome(); }
+    bool souMorador() const { return !moraCom.empty() && moraCom != nomeOnline; }
+    void acaoNaFazenda(const std::string& acao);   // morador mexeu: avisa o dono
+    void aplicarAcao(const std::string& acao);     // dono aplica na fazenda dele
     // nome do lugar igual para todos os jogadores: "fazenda:Dono" ou "cidade"
     std::string mundoCanonico() const {
         if (mundoAtual == "fazenda") return "fazenda:" + (rede::meuNome().empty() ? nomeOnline : rede::meuNome());

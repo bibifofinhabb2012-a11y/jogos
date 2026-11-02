@@ -60,3 +60,11 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Testes: roteiros com `real N` (espera de verdade), `digitar texto`, `vozteste`, `contarvoz`. Para testar, roda um anfitrião em segundo plano e um cliente com 127.0.0.1.
 - Não testado aqui: voz com microfone de verdade e o som saindo; rede entre dois computadores pela Radmin; Firewall do Windows.
 - Ideias para depois: plantar e colher na fazenda dos outros com permissão; mapa da cidade maior (mercado, igreja); Tião e Nezinha na cidade.
+
+## Bar, bebida, cigarro e casamento (novembro)
+- Seu Zé (`mundo.cpp`, `PRODUTOS`): botijão (troca o gás do fogão, `Movel::gas` em segundos de chama), cerveja, maço, isqueiro, latinha de gás, pacotes de 10 sementes.
+- `ESPECIES` em `roca.cpp`: milho, feijão, arroz, laranja, banana, abóbora, cenoura, cacau. Perenes (laranja, banana, cacau) voltam a dar 48 h depois de colher.
+- Cigarro: `combinar` isqueiro+cigarro (40% de acender), `fumando` com tragadas; isqueiro+latinha enche. Álcool: `beberAlcool`, `alcool` cai 0,4 por hora do jogo; acima de 2,5 cambaleia e vomita.
+- Casamento em `casamento.cpp`, por mensagens APP: pedido, resposta, evento-casamento, proposta-fazenda, fazenda-ok, fazenda-nao, acao, estado. Festa dura 30 min de verdade; mesa só funciona durante a festa, 5 de cada por jogador.
+- Morador (`moraCom`): só roça e portas (`acaoNaFazenda` manda a ação ao dono, que aplica e devolve o estado). A fazenda antiga do morador é apagada. Morador que abre o jogo sozinho começa na cidade.
+- Ainda não feito: fazer chocolate com cacau; o morador usar geladeira e guarda-roupa; divórcio.

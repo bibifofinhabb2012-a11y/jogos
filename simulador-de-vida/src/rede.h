@@ -26,6 +26,8 @@ struct Ganchos {
     std::function<void(int id, const unsigned char* dados, int n)> voz;
     std::function<void(int id)> andou;                      // um jogador mudou de quadrado: tocar o passo dele
     std::function<void(const std::string& msg)> aviso;      // conexão caiu, recusada etc.
+    // mensagem do jogo entre jogadores (pedido de casamento, evento, ação na fazenda do casal...)
+    std::function<void(const std::string& tipo, const std::string& de, const std::string& dados)> app;
 };
 
 bool iniciar();                // liga a biblioteca; false se não deu
@@ -42,6 +44,8 @@ void enviarChat(const std::string& texto);
 void enviarVoz(const unsigned char* dados, int n);
 void enviarRelogio(double minutos);   // só o anfitrião
 void pedirFazenda(const std::string& dono);
+// manda uma mensagem do jogo para um jogador pelo nome, ou para todos com "*" (quem manda não recebe a própria)
+void enviarApp(const std::string& tipo, const std::string& para, const std::string& dados);
 void mudouDeMundo(const std::string& mundo);
 std::vector<std::string> outrosJogadores();
 const std::map<int, Remoto>& remotos();

@@ -14,7 +14,7 @@
 #endif
 
 namespace rede {
-enum Tipo : unsigned char { OLA = 1, BEMVINDO, JOGADOR, SAIU, POS, CHAT, RELOGIO, PEDIR, FAZENDA, VOZ, MUNDO };
+enum Tipo : unsigned char { OLA = 1, BEMVINDO, JOGADOR, SAIU, POS, CHAT, RELOGIO, PEDIR, FAZENDA, VOZ, MUNDO, APP };
 constexpr char SEP = '\x1f';
 
 static bool ligada = false, souAnfitriao = false, conectado = false;
@@ -134,6 +134,14 @@ void pedirFazenda(const std::string& dono) {
     } else mandar(servidor, PEDIR, juntar({"-1", dono}), 0, true);
 }
 
+void enviarApp(const std::string& tipo, const std::string& para, const std::string& dados) {
+    if (!conectado) return;
+    std::string c = juntar({tipo, nome, para, dados});
+    if (!souAnfitriao) { mandar(servidor, APP, c, 0, true); return; }
+    if (para == "*") espalhar(APP, c, 0, true);
+    else for (auto& [id, r] : outros) if (r.nome == para) mandar(peerDe(id), APP, c, 0, true);
+}
+
 // ---------- recebimento ----------
 static void receber(ENetPeer* de, const std::string& d, const Ganchos& g) {
     if (d.empty()) return;
@@ -202,6 +210,15 @@ static void receber(ENetPeer* de, const std::string& d, const Ganchos& g) {
             if (g.chat && f.size() >= 2) g.chat(f[0], f[1]);
             break;
         case RELOGIO: if (g.relogio) g.relogio(std::atof(f[0].c_str())); break;
+        case APP: {  // tipo, de, para, dados (os dados podem ter separadores: junta o resto)
+            if (f.size() < 4) break;
+            std::string dados = f[3]; for (size_t k = 4; k < f.size(); k++) dados += SEP + f[k];
+            if (souAnfitriao) {
+                if (f[2] == "*") espalhar(APP, corpo, 0, true, de);
+                else if (f[2] != nome) { for (auto& [id, r] : outros) if (r.nome == f[2]) mandar(peerDe(id), APP, corpo, 0, true); break; }
+            }
+            if (g.app && (f[2] == "*" || f[2] == nome)) g.app(f[0], f[1], dados);
+        } break;
         case PEDIR: {  // f[0] quem pediu (id), f[1] dono da fazenda
             int quem = std::atoi(f[0].c_str());
             if (souAnfitriao && quem == -1) quem = idDoPeer[de];

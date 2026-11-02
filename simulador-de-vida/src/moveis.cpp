@@ -27,6 +27,7 @@ static const TipoMovel TIPOS[] = {
     {"mesa-bar", "mesa do bar", true, true, false, false},
     {"ze", "seu Zé", false, false, false, false},
     {"prefeito", "seu Manel do Bacanal, o prefeito", false, false, false, false},
+    {"mesa-festa", "mesa de comes e bebes", true, false, false, false},
 };
 static const TipoMovel& tipoDe(const std::string& t) {
     for (const auto& k : TIPOS) if (t == k.tipo) return k;
@@ -88,12 +89,15 @@ void Jogo::interagir(int i) {
     if (t == "tiao" || t == "nezinha") { conversarCom(i); return; }
     if (t == "trator") { menuTrator(); return; }
     if (t == "balcao" || t == "ze") { menuZe(); return; }
-    if (t == "prefeito") { conversarPrefeito(); return; }
+    if (t == "prefeito") { menuPrefeito(); return; }
+    if (t == "mesa-festa") { menuMesaFesta(); return; }
     if (t == "mesa-bar") { fala::dizer("Uma mesa de bar, de lata, com marcas de copo e um cinzeiro."); return; }
-    if (mundoAtual.rfind("visita:", 0) == 0) { fala::dizer("Na casa dos outros, melhor não mexer."); return; }
+    if (mundoAtual.rfind("visita:", 0) == 0 && !moradorDe(mundoAtual.substr(7))) { fala::dizer("Na casa dos outros, melhor não mexer."); return; }
+    if (mundoAtual.rfind("visita:", 0) == 0 && (t == "geladeira" || t == "guarda-roupa" || t == "correio" || t == "remessa")) { fala::dizer("Isso fica com " + mundoAtual.substr(7) + ", por enquanto."); return; }
     if (t == "correio") { abrirCorreio(); return; }
     if (t == "remessa") { abrirRemessa(i); return; }
     if (t == "fogao") {
+        if (!m.ligado && m.gas <= 0) { fala::dizer("Você gira o botão, mas não sai gás: o botijão acabou. Compre outro no bar do seu Zé, segure e aperte Espaço de frente para o fogão."); return; }
         m.ligado = !m.ligado;
         audio::tocar3D(m.ligado ? "fogao" : "fogao-desligar", mx, my, 0.9f, 0.9f, 2);
         if (m.ligado) { if (!m.som) m.som = audio::fonteMovel("chama", mx, my, 0.9f, 0.5f, 1.5f, true); }
@@ -178,7 +182,12 @@ void Jogo::chuveiro() {
 }
 
 // Geladeira e guarda-roupa abrem um menu com o que tem dentro.
-static bool vaiNaGeladeira(const std::string& t) { return t == "barra" || t == "barra-aberta" || t == "garrafa" || t == "garrafa-aberta" || t == "leite" || t == "comida"; }
+static bool vaiNaGeladeira(const std::string& t) {
+    static const char* OK[] = {"barra", "barra-aberta", "garrafa", "garrafa-aberta", "leite", "comida", "cerveja", "bolo", "brigadeiro", "beijinho", "camafeu",
+                               "empada", "torta", "risole", "coxinha", "refrigerante", "vinho", "uisque", "salada", "maionese", "laranja", "banana", "cenoura", "abobora"};
+    for (const char* o : OK) if (t == o) return true;
+    return false;
+}
 
 void Jogo::abrirRecipiente(int i) {
     Movel& m = moveis[i];
@@ -270,6 +279,14 @@ void Jogo::atualizarMoveis(double dt) {
             m.ciclo += dt;
             if (m.ciclo > 110) m.ciclo = 0;
             audio::lacoVolume(m.som, m.ciclo < 40 ? 0.45f : 0.0f);  // 40 segundos ligado, 70 desligado
+        }
+        if (m.tipo == "fogao" && m.ligado) {  // a chama gasta o botijão
+            m.gas -= dt;
+            if (m.gas <= 0) {
+                m.gas = 0; m.ligado = false;
+                if (m.som) { audio::pararFonte(m.som); m.som = 0; }
+                avisar("A chama do fogão vai diminuindo, azulzinha, e apaga: acabou o gás do botijão.");
+            }
         }
         if (m.tipo == "chuveiro" && m.ligado && x == m.x && y == m.y - 1) {
             higiene = std::min(100.0, higiene + 8 * dt);

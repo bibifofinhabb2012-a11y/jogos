@@ -13,6 +13,11 @@ static int preco(const std::string& t) {
     if (t == "milho") return 4;
     if (t == "feijao") return 3;
     if (t == "arroz") return 5;
+    if (t == "laranja") return 3;
+    if (t == "banana") return 2;
+    if (t == "abobora") return 8;
+    if (t == "cenoura") return 3;
+    if (t == "cacau") return 10;
     if (t == "pedra") return 1;
     if (t == "adubo") return 2;
     if (t == "leite") return 6;
@@ -131,7 +136,7 @@ void Jogo::abrirRemessa(int i) {
                     v2.push_back({maiuscula(plural(c, p.qtd, nomeCoisa(c))) + ": " + std::to_string(p.qtd) + ", a " + std::to_string(preco(c.tipo)) + " moedas cada",
                         [por, c]() { por(c, 1); }, [this, por, c]() { int n = 0; for (const Pilha& q : mochila) if (q.coisa == c) n = q.qtd; por(c, n); }, nullptr});
                 }
-                if (v2.empty()) v2.push_back({"Nada na mochila que o prefeito compre. Ele compra milho, feijão e arroz", [] {}, nullptr, nullptr});
+                if (v2.empty()) v2.push_back({"Nada na mochila que o prefeito compre. Ele compra o que a roça dá: milho, feijão, arroz, laranja, banana, abóbora, cenoura e cacau", [] {}, nullptr, nullptr});
                 return v2;
             };
             abrirMenu(g);

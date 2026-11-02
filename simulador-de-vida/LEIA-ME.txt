@@ -31,7 +31,7 @@ I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem
 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia.
 2: o mesmo para a mão direita.
 3: diz o que tem nas duas mãos.
-T: combina o que está nas duas mãos; com as duas vazias, bate palmas.
+T: combina o que está nas duas mãos (isqueiro e cigarro: tenta acender; isqueiro e latinha de gás: enche o isqueiro); com as duas vazias, bate palmas.
 U: fome.
 S: sede.
 E: energia.
@@ -42,7 +42,7 @@ Shift mais V: bexiga.
 Control mais Q, segurando: fazer cocô, sentando, até acabar.
 Shift mais Q, segurando: fazer xixi, de cócoras, até acabar.
 Dois-pontos: no jogo online, abre o campo de mensagem do chat; Enter envia, Esc cancela, Backspace apaga; o jogo fala cada letra que você digita.
-Tab: menu: tutorial, hospedar online, entrar em jogo online, jogadores, ativar e desativar chat, histórico do chat, ativar e desativar voz, configurações de volume, sair; Tab de novo volta ao jogo; sozinho, o menu pausa o jogo, no online não.
+Tab: menu: tutorial, hospedar online, entrar em jogo online, jogadores, teleportar para o evento (quando tem casamento), conversar sobre a fazenda (depois de casar), ativar e desativar chat, histórico do chat, ativar e desativar voz, configurações de volume, sair; Tab de novo volta ao jogo; sozinho, o menu pausa o jogo, no online não.
 Nos menus: setas para cima e para baixo escolhem, Enter faz, Shift Enter pega, guarda ou vende tudo, setas para os lados mudam volume, uma letra pula, Esc volta.
 F2: repete a última fala.
 F1: esta ajuda.
@@ -70,7 +70,30 @@ CIDADE E TRATOR
 O trator fica estacionado no terreiro, na frente da casa sede, ao lado da estrada. De frente para ele, Espaço
 abre a escolha do destino: a cidade, ou, no online, a fazenda de outro jogador. Na cidade tem a praça,
 o bar do seu Zé (oeste da praça) e a prefeitura (leste). No balcão do bar, seu Zé vende pó de café,
-garrafa de água, garrafa vazia para leite, açúcar, farinha de trigo, gás e cigarro. Cigarro na mão e Espaço: fuma.
+garrafa de água, garrafa vazia para leite, açúcar, farinha de trigo, botijão de gás, cerveja, maço de cigarro, isqueiro,
+latinha de gás para isqueiro e sementes (pacotes com 10).
+Botijão na mão, de frente para o fogão, Espaço: troca o gás. O botijão do fogão dura uns 25 minutos de verdade de chama acesa (10 horas do jogo); o primeiro dura 10 minutos.
+Cigarro: isqueiro numa mão, cigarro na outra, T até acender. Aceso, ele fuma sozinho até o fim.
+Isqueiro sem gás: isqueiro numa mão, latinha na outra, T enche.
+Cerveja, vinho e uísque deixam bêbado. Mais de duas garrafas de cerveja: o personagem fica tonto e às vezes
+cambaleia para o lado errado. Da terceira em diante, vomita. Passa com o tempo.
+
+SEMENTES E TEMPO ATÉ COLHER (dias do jogo)
+Milho, feijão e arroz: 3 dias. Cenoura: 3 dias. Abóbora: 4 dias. Banana: 5 dias. Laranja: 6 dias. Cacau: 7 dias.
+Laranja, banana e cacau são pés que ficam: depois de colher, dão de novo em 2 dias, sem plantar outra vez.
+O cacau colhido serve para fazer chocolate (por enquanto, se vende na remessa).
+
+CASAMENTO (online)
+1. Na prefeitura, Espaço no prefeito Manel do Bacanal: compre a caixinha de alianças por 50 moedas.
+2. Com a aliança na mão, Espaço: escolha com quem casar. Você é levado até a pessoa e ela recebe o pedido.
+3. Se ela aceitar, todos os jogadores recebem o aviso do casamento. No Tab aparece "Teleportar para o evento".
+4. O prefeito faz a cerimônia na prefeitura. Depois a festa é no salão de festas, ao sul da praça,
+   por meia hora de verdade. Na mesa de comes e bebes, Espaço abre o menu: cada jogador pega até 5 de cada coisa.
+   O que sobrar dá para guardar na geladeira de casa.
+5. Depois de casados, no Tab: "Conversar sobre a fazenda". Um propõe em qual fazenda morar e o outro aceita.
+   A outra fazenda deixa de existir, e a escolhida passa a ser a fazenda dos dois.
+   Quem foi morar pode plantar, regar, colher e abrir portas; geladeira, guarda-roupa, correio e remessa são do dono.
+   Quem mora com o outro, ao abrir o jogo sozinho, começa na cidade.
 
 JOGAR ONLINE PELA RADMIN VPN
 1. Todos instalam a Radmin VPN e entram na mesma rede dela (quem hospeda cria a rede, os outros entram).
@@ -80,7 +103,8 @@ JOGAR ONLINE PELA RADMIN VPN
    particulares e públicas. Sem isso, os amigos não conseguem entrar.
 4. Quem entra: Tab, Entrar em jogo online, escreve o nome e o endereço da Radmin de quem hospeda, Enter.
 5. No online, cada um tem a sua fazenda. Para visitar, vá de trator: Espaço no trator e escolha
-   "Ir para a fazenda de" alguém. Na fazenda dos outros dá para andar, olhar e conversar, mas não mexer.
+   "Ir para a fazenda de" alguém. Na fazenda dos outros dá para andar, olhar e conversar, mas não mexer
+   (a não ser na fazenda onde você mora depois de casar).
    O ponto de encontro é o bar do seu Zé, na cidade.
 6. Os passos dos outros jogadores soam em 3D, de onde eles estão. No Ç, em Pessoas, dá para achar,
    rastrear com O e ir até eles com Alt O.

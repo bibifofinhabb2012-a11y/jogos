@@ -17,9 +17,13 @@ inline std::string maiuscula(std::string s) {
     if (!s.empty() && s[0] >= 'a' && s[0] <= 'z') s[0] = (char)(s[0] - 32);
     return s;
 }
+std::string nomeProduto(const std::string& t, bool plural);  // colheita e sementes (roca.cpp)
+int tipoDaSemente(const std::string& t);
+
 inline std::string plural(const Coisa& c, int qtd, const std::string& singular) {
     if (qtd == 1) return singular;
     const std::string& t = c.tipo;
+    if (!nomeProduto(t, true).empty()) return nomeProduto(t, true);
     if (t == "barra") return "barras de ração embrulhadas";
     if (t == "barra-aberta") return "barras de ração abertas";
     if (t == "antibiotico") return "comprimidos de antibiótico";
@@ -38,6 +42,17 @@ inline std::string plural(const Coisa& c, int qtd, const std::string& singular) 
     if (t == "acucar") return "sacos de açúcar";
     if (t == "farinha") return "sacos de farinha de trigo";
     if (t == "gas") return "botijões de gás";
+    if (t == "cerveja") return "garrafas de cerveja";
+    if (t == "bolo") return "fatias de bolo";
+    if (t == "brigadeiro" || t == "beijinho" || t == "camafeu" || t == "risole" || t == "coxinha" || t == "empada") return t == "camafeu" ? "camafeus" : t + "s";
+    if (t == "torta") return "pedaços de torta de carne moída";
+    if (t == "refrigerante") return "copos de refrigerante";
+    if (t == "vinho") return "taças de vinho";
+    if (t == "uisque") return "doses de uísque";
+    if (t == "salada") return "pratinhos de salada";
+    if (t == "maionese") return "pratinhos de maionese";
+    if (t == "isqueiro") return "isqueiros";
+    if (t == "gas-isqueiro") return "latinhas de gás para isqueiro";
     if (t == "tampa") return "tampas de garrafa";
     if (t == "garrafa" || t == "garrafa-aberta") {
         std::string estado = t == "garrafa" ? "tampadas" : "abertas";

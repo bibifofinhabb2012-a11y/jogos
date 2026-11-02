@@ -158,6 +158,13 @@ laco("sv-trator", 256807, "trator", -18, dur=12); u(256807)
 laco("sv-bar", 415974, "bar", -22); u(415974)
 trecho("sv-isqueiro", 827018, "isqueiro", alvo=-18); u(827018)
 trecho("sv-tosse", 743354, "tosse", alvo=-18); u(743354)
+# bar e casamento
+trecho("sv-vomito", 246308, "vomito", alvo=-16); u(246308)
+trecho("sv-cerveja", 390337, "cerveja", alvo=-18); u(390337)
+forte("sv-tragada", 853043, "tragada", 3.0, -22); u(853043)
+laco("sv-festa", 246117, "festa", -22); u(246117)
+trecho("sv-aplausos", 462362, "aplausos", alvo=-18); u(462362)
+trecho("sv-sinos", 807688, "sinos", 0, 6.0, -20); u(807688)
 trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
 
 # sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial

@@ -32,6 +32,7 @@ void Jogo::criarMoveisCidade() {
     m("balcao", 455, 150); m("ze", 455, 152);
     m("mesa-bar", 445, 140); m("mesa-bar", 465, 140); m("mesa-bar", 455, 136);
     m("prefeito", 550, 155); m("mesa", 550, 153);
+    m("mesa-festa", 455, 195);
     ocupar();
 }
 
@@ -72,15 +73,16 @@ void Jogo::chegarEm(const std::string& destino) {
         x = FAZENDA_CHEGADA[0]; y = FAZENDA_CHEGADA[1]; rumo = FAZENDA_CHEGADA[2];
         lugarAtual = mapa.nomeLugar(x, y);
         audio::tocar("porta-fechar", 0.6f);
-        fala::dizer("O trator para na frente da casa sede, você desce e o motor morre. De volta à sua fazenda.");
+        if (!chegadaCalada) fala::dizer("O trator para na frente da casa sede, você desce e o motor morre. De volta à sua fazenda.");
     } else if (destino == "cidade") {
         mapa = Mapa(true);
         plantas.clear(); limpos.clear();
         criarMoveisCidade();
         x = CIDADE_CHEGADA[0]; y = CIDADE_CHEGADA[1]; rumo = CIDADE_CHEGADA[2];
         lugarAtual = mapa.nomeLugar(x, y);
-        somBar = audio::fonteMovel("bar", 455.5f, 145.5f, 1.0f, 0.6f, 4, true);
-        fala::dizer("O trator para no estacionamento da cidade. Você desce. Daqui se ouve o movimento do bar do seu Zé, a oeste da praça; a prefeitura fica a leste. "
+        bool festa = evento_.tipo == "festa" && agora < evento_.fim;
+        somBar = audio::fonteMovel(festa ? "festa" : "bar", 455.5f, festa ? 192.5f : 145.5f, 1.0f, 0.6f, 4, true);
+        if (!chegadaCalada) fala::dizer("O trator para no estacionamento da cidade. Você desce. Daqui se ouve o movimento do bar do seu Zé, a oeste da praça; a prefeitura fica a leste. "
                     "Ç até Lugares acha os dois. Para voltar, Espaço no trator, que fica bem na sua frente.");
     } else {  // fazenda de outro jogador: o mesmo desenho, com o estado que o dono mandar
         std::string dono = destino.substr(7);
@@ -90,7 +92,8 @@ void Jogo::chegarEm(const std::string& destino) {
         x = FAZENDA_CHEGADA[0]; y = FAZENDA_CHEGADA[1]; rumo = FAZENDA_CHEGADA[2];
         lugarAtual = mapa.nomeLugar(x, y);
         rede::pedirFazenda(dono);
-        fala::dizer("O trator para na frente da casa sede da fazenda de " + dono + ". Você desce. Na casa dos outros, dá para andar, olhar e conversar, mas não mexer nas coisas.");
+        if (chegadaCalada) {} else if (moradorDe(dono)) fala::dizer("O trator para na frente da casa sede. Em casa: a fazenda de " + dono + " e " + rede::meuNome() + ". Aqui você pode limpar, plantar, regar, colher e abrir portas.");
+        else fala::dizer("O trator para na frente da casa sede da fazenda de " + dono + ". Você desce. Na casa dos outros, dá para andar, olhar e conversar, mas não mexer nas coisas.");
     }
     rede::mudouDeMundo(mundoCanonico());
     evento("viajou");
@@ -101,25 +104,42 @@ void Jogo::menuTrator() {
     m.titulo = "Trator, para onde ir";
     m.opcoes = [this]() {
         std::vector<Opcao> v;
-        if (mundoAtual != "fazenda") v.push_back({"Voltar para a minha fazenda", [this]() { viajar("fazenda"); }, nullptr, nullptr});
+        if (souMorador()) {  // casou e se mudou: a casa é a fazenda do casal
+            if (mundoAtual != "visita:" + moraCom) v.push_back({"Ir para casa, na fazenda de " + moraCom + " e " + rede::meuNome(), [this]() {
+                auto o = rede::outrosJogadores();
+                if (std::find(o.begin(), o.end(), moraCom) == o.end()) { fala::dizer("A fazenda de vocês só abre quando " + moraCom + " estiver online."); return; }
+                viajar("visita:" + moraCom);
+            }, nullptr, nullptr});
+        } else if (mundoAtual != "fazenda") v.push_back({"Voltar para a minha fazenda", [this]() { viajar("fazenda"); }, nullptr, nullptr});
         if (mundoAtual != "cidade") v.push_back({"Ir para a cidade, no bar do seu Zé", [this]() { viajar("cidade"); }, nullptr, nullptr});
         for (const std::string& n : rede::outrosJogadores())
-            if (mundoAtual != "visita:" + n) v.push_back({"Ir para a fazenda de " + n, [this, n]() { viajar("visita:" + n); }, nullptr, nullptr});
+            if (mundoAtual != "visita:" + n && !(souMorador() && n == moraCom)) v.push_back({"Ir para a fazenda de " + n, [this, n]() { viajar("visita:" + n); }, nullptr, nullptr});
         return v;
     };
     abrirMenu(m);
 }
 
 // ---------- bar do seu Zé ----------
-struct Produto { const char* nome; Coisa coisa; int preco; };
+struct Produto { const char* nome; Coisa coisa; int preco; int qtd; };
 static const Produto PRODUTOS[] = {
-    {"Pacote de pó de café, meio quilo", {"po-cafe", 0}, 12},
-    {"Garrafa de água, cheia", {"garrafa", 4}, 2},
-    {"Garrafa vazia, para guardar leite", {"garrafa", 0}, 1},
-    {"Saco de açúcar, um quilo", {"acucar", 0}, 8},
-    {"Saco de farinha de trigo, um quilo", {"farinha", 0}, 7},
-    {"Botijão de gás", {"gas", 0}, 60},
-    {"Maço de cigarro, 20 cigarros", {"cigarro", 20}, 10},
+    {"Pacote de pó de café, meio quilo", {"po-cafe", 0}, 12, 1},
+    {"Garrafa de água, cheia", {"garrafa", 4}, 2, 1},
+    {"Garrafa vazia, para guardar leite", {"garrafa", 0}, 1, 1},
+    {"Saco de açúcar, um quilo", {"acucar", 0}, 8, 1},
+    {"Saco de farinha de trigo, um quilo", {"farinha", 0}, 7, 1},
+    {"Botijão de gás, para o fogão", {"gas", 0}, 60, 1},
+    {"Garrafa de cerveja, bem gelada", {"cerveja", 0}, 6, 1},
+    {"Maço de cigarro, 20 cigarros", {"cigarro", 20}, 10, 1},
+    {"Isqueiro", {"isqueiro", 30}, 5, 1},
+    {"Latinha de gás para isqueiro, dá 5 cargas", {"gas-isqueiro", 5}, 8, 1},
+    {"Sementes de milho, pacote com 10", {"semente-milho", 0}, 4, 10},
+    {"Sementes de feijão de corda, pacote com 10", {"semente-feijao", 0}, 4, 10},
+    {"Sementes de arroz, pacote com 10", {"semente-arroz", 0}, 4, 10},
+    {"Sementes de laranja, pacote com 10", {"semente-laranja", 0}, 12, 10},
+    {"Sementes de banana, pacote com 10", {"semente-banana", 0}, 12, 10},
+    {"Sementes de abóbora, pacote com 10", {"semente-abobora", 0}, 8, 10},
+    {"Sementes de cenoura, pacote com 10", {"semente-cenoura", 0}, 6, 10},
+    {"Sementes de cacau, pacote com 10, para fazer chocolate", {"semente-cacau", 0}, 20, 10},
 };
 
 void Jogo::menuZe() {
@@ -148,7 +168,7 @@ void Jogo::menuZe() {
                         if (!m) { fala::dizer("Você está sem a carteira."); return; }
                         if (*m < p.preco) { fala::dizer("Seu Zé: Tá faltando dinheiro, " + gen("freguês", "freguesa") + ". Você tem " + std::to_string(*m) + " moedas."); return; }
                         *m -= p.preco;
-                        guardar(p.coisa);
+                        guardar(p.coisa, p.qtd);
                         audio::tocar("moedas", 0.7f);
                         fala::dizer("Comprado. Restam " + std::to_string(*m) + " moedas.");
                         evento("comprou");
@@ -188,6 +208,8 @@ std::string Jogo::estadoFazenda() {
 
 void Jogo::aplicarEstado(const std::string& texto) {
     if (mundoAtual.rfind("visita:", 0) != 0) return;
+    for (const auto& [c, p] : plantas) mapa.em(c % LADO, c / LADO).planta = 0;  // o dono manda tudo de novo
+    plantas.clear();
     std::istringstream in(texto);
     std::string linha;
     while (std::getline(in, linha)) {
@@ -200,4 +222,22 @@ void Jogo::aplicarEstado(const std::string& texto) {
     }
     ocupar();
     if (!mapa.passa(x, y)) { x = FAZENDA_CHEGADA[0]; y = FAZENDA_CHEGADA[1]; }
+}
+
+// Cerveja, vinho, uísque: uma dose é uma garrafa de cerveja. Passou de duas, o mundo roda; da terceira em diante, vomita.
+void Jogo::beberAlcool(double doses, const std::string& texto) {
+    double antes = alcool;
+    alcool += doses;
+    std::string efeito;
+    if (alcool > 2.5 && antes <= 2.5) {
+        efeito = " O mundo começa a girar. Os pés não obedecem direito, e você perde a noção de para onde está virad" + gen("o", "a") + ".";
+        marcar(15, [this]() {
+            if (alcool <= 2.5) return;
+            audio::tocar("vomito", 0.9f);
+            fome = std::max(0.0, fome - 25); sede = std::max(0.0, sede - 15); higiene = std::max(0.0, higiene - 20);
+            alcool = std::max(0.0, alcool - 0.3);
+            avisar("O estômago revira. Você se dobra e vomita tudo ali mesmo. Que vergonha. Melhor parar por hoje e beber água.");
+        });
+    } else if (alcool > 1.5 && antes <= 1.5) efeito = " Bate aquela alegria leve, e as bochechas esquentam.";
+    fala::dizer(texto + efeito);
 }

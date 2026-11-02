@@ -13,7 +13,8 @@ void Jogo::abrirMenu(Menu m) {
     m.sel = 0;
     menus.push_back(m);
     audio::tocar("menu-abrir", 0.5f);
-    falarOpcao(menus.back().titulo + ". ");
+    const std::string& t = menus.back().titulo;
+    falarOpcao(t + (!t.empty() && (t.back() == '?' || t.back() == '.') ? " " : ". "));
 }
 
 void Jogo::fecharMenu() {
@@ -123,6 +124,11 @@ void Jogo::menuPrincipal() {
                 fala::dizer("Fora do online. Agora é jogo sozinho de novo.", false);
             }, nullptr, nullptr});
         }
+        if (!evento_.tipo.empty() && agora < evento_.fim)
+            v.push_back({std::string("Teleportar para o evento: ") + (evento_.tipo == "casamento" ? "casamento de " : "festa de ") + evento_.a + " e " + evento_.b,
+                         [this]() { irAoEvento(); }, nullptr, nullptr});
+        if (!conjuge.empty() && moraCom.empty() && rede::online())
+            v.push_back({"Conversar com " + conjuge + " sobre a fazenda", [this]() { while (!menus.empty()) fecharMenu(); conversarSobreFazenda(); }, nullptr, nullptr});
         v.push_back({chatAtivo ? "Desativar chat" : "Ativar chat", [this]() {
             chatAtivo = !chatAtivo; if (!arquivoConfig.empty()) salvarConfig(arquivoConfig);
             fala::dizer(chatAtivo ? "Chat ativado. Dois-pontos abre o campo de mensagem." : "Chat desativado. As mensagens não serão lidas.");

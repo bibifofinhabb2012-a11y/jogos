@@ -3,7 +3,7 @@ project(SimuladorDeVida CXX C)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(simulador-de-vida src/main.cpp src/jogo.cpp src/mapa.cpp src/audio.cpp src/fala.cpp src/moveis.cpp src/menu.cpp src/guia.cpp src/tutorial.cpp src/roca.cpp src/correio.cpp src/mundo.cpp src/rede.cpp src/texto.cpp src/voz.cpp)
+add_executable(simulador-de-vida src/main.cpp src/jogo.cpp src/mapa.cpp src/audio.cpp src/fala.cpp src/moveis.cpp src/menu.cpp src/guia.cpp src/tutorial.cpp src/roca.cpp src/correio.cpp src/mundo.cpp src/rede.cpp src/texto.cpp src/voz.cpp src/casamento.cpp)
 target_include_directories(simulador-de-vida PRIVATE externo)
 
 # rede (ENet) e voz (Opus): baixados e compilados junto, em qualquer sistema

@@ -20,6 +20,10 @@ void Mapa::gerarCidade() {
     retangulo(430, 130, 480, 160, Chao::Ceramica);
     contorno(430, 130, 480, 160, Obstaculo::Parede);
     abrir(455, 130, Obstaculo::Porta, Chao::Ceramica);
+    // salão de festas, atrás do bar, porta para o sul
+    retangulo(430, 175, 480, 210, Chao::Ceramica);
+    contorno(430, 175, 480, 210, Obstaculo::Parede);
+    abrir(455, 175, Obstaculo::Porta, Chao::Ceramica);
     // prefeitura
     retangulo(520, 130, 580, 165, Chao::Taco);
     contorno(520, 130, 580, 165, Obstaculo::Parede);
@@ -27,6 +31,7 @@ void Mapa::gerarCidade() {
     lugares = {
         {"bar do seu Zé", 431, 131, 479, 159, true},
         {"prefeitura", 521, 131, 579, 164, true},
+        {"salão de festas", 431, 176, 479, 209, true},
         {"praça da cidade", 470, 60, 530, 120, false},
         {"estacionamento da cidade", 485, 21, 515, 40, false},
         {"rua da cidade", 381, 21, 619, 219, false},

@@ -93,6 +93,7 @@ rede::Ganchos Jogo::ganchos() {
         audio::tocar3D(Mapa::somPasso(mapa.em(r.x, r.y).chao), r.x + 0.5f, r.y + 0.5f, 0.0f, 0.7f, 3, (float)acaso(0.94, 1.06));
     };
     g.aviso = [this](const std::string& m) { avisar(m); };
+    g.app = [this](const std::string& tipo, const std::string& de, const std::string& dados) { receberApp(tipo, de, dados); };
     return g;
 }
 
@@ -109,6 +110,12 @@ void Jogo::servicoRede(double dt) {
         posicaoRede = 0.08;
     }
     if (rede::anfitriao() && relogioRede <= 0) { rede::enviarRelogio(minutos); relogioRede = 5; }
+    estadoRede -= dt;
+    if (estadoRede <= 0) {  // quem está na minha fazenda recebe o estado dela de tempos em tempos
+        estadoRede = 15;
+        for (const auto& [id, r] : rede::remotos())
+            if (r.mundo == "fazenda:" + rede::meuNome()) { rede::enviarApp("estado", "*", rede::meuNome() + "\n" + estadoFazenda()); break; }
+    }
     // a voz dos outros sai de onde eles estão; a minha vai para a rede
     for (const auto& [id, r] : rede::remotos()) voz::posicionar(id, r.x + 0.5f, r.y + 0.5f, r.mundo == mc);
     if (vozAtiva) voz::capturar([](const unsigned char* d, int n) { rede::enviarVoz(d, n); });

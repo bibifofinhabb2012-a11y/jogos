@@ -5,25 +5,39 @@ vem cada coisa, na frente, atrás, à esquerda ou à direita. O jogo fala pelo l
 estiver aberto (NVDA, JAWS e outros). Sem leitor de tela, usa a voz do Windows.
 
 TECLAS
-Seta para cima: andar para a frente. Segure para continuar andando. Com Control, correr.
+Seta para cima: andar para a frente; segure para continuar; com Control, correr.
 Seta para baixo: andar de costas.
 Setas para a esquerda e para a direita: andar de lado.
 Control mais seta para o lado: virar 45 graus.
 Shift mais seta para o lado: virar 90 graus.
-Shift mais seta para cima ou para baixo: dar meia-volta, 180 graus.
+Shift mais seta para cima ou para baixo: dar meia-volta.
+R: sentar; se estiver sentado, agachado ou deitado, levantar.
+Control mais R: deitar.
+Shift mais R: agachar.
+Shift mais Enter: abrir ou fechar a porta ou porteira encostada em você.
+B: onde você está.
 L: onde você está, a que distância das divisas, e o que tem à frente.
 Q: dia e hora.
-I: abre e fecha a mochila. Com ela aberta, setas para cima e para baixo escolhem o item,
-seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda.
-1: seleciona a mão direita e diz o que tem nela. Apertado duas vezes, esvazia a mão direita.
-2: o mesmo para a mão esquerda.
-Espaço: usa o que está na mão selecionada. Barra aberta: come. Garrafa aberta: bebe um gole.
-Bússola: diz para onde você está virado. Saco de dormir: dorme. Carteira: conta o dinheiro.
-T: combina o que está nas duas mãos. Barra numa mão e a outra vazia: abre a barra, que fica
-na mesma mão. Garrafa numa mão e a outra vazia: abre a garrafa, e a tampa fica na outra mão.
-Garrafa aberta e tampa: tampa a garrafa, que fica na mão em que estava. Mãos vazias: palmas.
-U: fome. S: sede. E: energia (dormindo, diz quanto já recuperou). H: saúde.
-R: repete a última fala. F1: ajuda. Esc duas vezes: salva e sai.
+I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda.
+1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia.
+2: o mesmo para a mão direita.
+3: diz o que tem nas duas mãos.
+Espaço: usa o que está na mão selecionada: comer, beber, olhar a bússola, dormir, contar o dinheiro.
+T: combina o que está nas duas mãos; com as duas vazias, bate palmas.
+U: fome.
+S: sede.
+E: energia.
+H: saúde.
+V: intestino.
+Shift mais V: bexiga.
+Control mais Q, segurando: fazer cocô, sentado, até acabar.
+Shift mais Q, segurando: fazer xixi, agachado, até acabar.
+F2: repete a última fala.
+F1: esta ajuda.
+Esc duas vezes: salva e sai.
+
+Barra numa mão e a outra vazia, T abre a barra, que fica na mesma mão. Garrafa numa mão e a outra vazia, T abre a garrafa e a tampa fica na outra mão; T de novo tampa.
+Para andar, é preciso estar de pé. Cocô só sentado; xixi só agachado. Soltar a tecla antes do fim deixa o resto para depois.
 
 O jogo salva sozinho a cada minuto e ao sair.
 Os créditos dos sons estão em sons/CREDITOS.txt.

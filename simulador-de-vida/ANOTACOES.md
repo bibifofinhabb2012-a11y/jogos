@@ -8,7 +8,7 @@ Aos 18 anos, o pai larga a pessoa na porteira da fazenda dele, parada há anos, 
 ## Como é feito
 - `src/main.cpp`: janela SDL2, teclado, laço principal, salvar a cada minuto. `--roteiro arquivo` roda sem janela nem som e escreve as falas no terminal: é como se testa aqui.
 - `src/jogo.cpp`: mochila, mãos, combinações (T), uso (Enter), fome, sede, energia, saúde, sono, relógio, passos, bússola, sons do ambiente, abertura com o pai.
-- `src/mapa.cpp`: 500 por 500 metros (x leste, y norte). Porteira principal no sul (x 248 a 252, y 5), início em (245, 9) virado para o norte, casa sede em x 235 a 265, y 205 a 225 com cinco cômodos, curral, galinheiro, paiol, horta, pomar, córrego serpenteando por y 330 com ponte na estrada, mata no noroeste, cerca de arame em volta.
+- `src/mapa.cpp`: 1000 por 1000 metros (x leste, y norte). Veja a seção Mapa. Córrego por y 620 com ponte na estrada, mata no noroeste, curral, galinheiro e paiol no terreiro, cerca de arame em volta.
 - `src/audio.cpp`: OpenAL Soft com HRTF (som binaural no fone). Sons em `sons/*.mp3`, mono; `nome-1.mp3`, `nome-2.mp3` são variações sorteadas.
 - `src/fala.cpp`: Tolk no Windows (NVDA, JAWS, SAPI); no Linux, imprime.
 - Relógio: 1 segundo real = 12 segundos do jogo (um dia = 2 horas reais). Dormindo, 1 segundo real = 10 minutos.
@@ -21,8 +21,11 @@ Aos 18 anos, o pai larga a pessoa na porteira da fazenda dele, parada há anos, 
 Do Freesound, pelo fluxo "Buscar sons no Freesound" (grupos com prefixo `sv-` na branch `sons-candidatos`). `ferramentas/preparar_sons.py <pasta sons-candidatos>` corta os passos um a um, nivela e grava em `sons/`, com `sons/CREDITOS.txt`. Passos foram conferidos com o classificador do Meu Bebê nas gravações inteiras.
 
 ## Teclas (definidas por ela)
-I mochila (setas escolhem, direita e esquerda põem nas mãos). 1 e 2 selecionam a mão e dizem o que tem; duas vezes esvaziam. Espaço usa a coisa da mão selecionada (come, bebe, bússola diz a direção, dorme). T combina: barra fechada + mão vazia abre a barra na mesma mão e a embalagem some; garrafa + mão vazia abre, e a tampa vai para a outra mão; garrafa aberta + tampa tampa, e a garrafa fica na mão em que estava; mãos vazias batem palmas. U fome, S sede, E energia (dormindo: "energia em N por cento, você está dormindo"). Setas cima e baixo andam; esquerda e direita andam de lado; Control + lado vira 45 graus; Shift + lado vira 90; Shift + cima ou baixo vira 180. Dormindo toca ruído branco.
-Escolhidas por Claude: Control + cima corre, L olha em volta e dá a posição, Q hora, H saúde, R repete, F1 ajuda, Esc duas vezes sai. A bússola só funciona na mão (não tem mais tecla B).
+1 mão esquerda, 2 mão direita (selecionam e dizem; duas vezes esvaziam), 3 as duas mãos. Espaço usa a mão selecionada. T combina (barra abre na mesma mão; garrafa abre e a tampa vai para a outra mão; T de novo tampa). I mochila. U fome, S sede, E energia. R senta ou levanta (de qualquer posição, R levanta), Control R deita, Shift R agacha. B lugar. V intestino, Shift V bexiga. Control Q segurando: cocô (só sentado, peido antes, plops enquanto segura). Shift Q segurando: xixi (só agachado). Soltar antes: "Ainda tem cocô pra sair!" ou "Ainda tem xixi pra sair!". Shift Enter abre e fecha porta ou porteira encostada; ao pisar ao lado de uma, o jogo avisa. Setas cima e baixo andam; esquerda e direita andam de lado; Control + lado vira 45, Shift + lado vira 90, Shift + cima ou baixo vira 180.
+Escolhidas por Claude: Control + cima corre, L olha em volta e dá a posição, Q hora, H saúde, F2 repete, F1 ajuda, Esc duas vezes sai.
+
+## Mapa (versão 2 do salvo)
+1000 por 1000. Início em (500, 9), no gramado da porteira, virado para o norte. Porta da frente da casa em (500, 109), no meio da parede da varanda, a 100 quadrados; começa fechada. Casa de 200 por 200 (x 400 a 599, y 109 a 308): sala na frente, corredor no meio, cozinha e quarto a oeste, banheiro e segundo quarto a leste, porta dos fundos em (500, 308). Ela pediu "100 por 100" para o mapa com uma casa de 200 por 200; entendi 1000 por 1000 e avisei.
 
 ## Ainda não feito (próximos passos)
 Pegar coisas do chão e de lugares; plantar na horta; animais; ferramentas no paiol; ir à cidade comprar; ossos quebrados (o gesso já combina com água, mas não há fratura ainda); infecção (antibiótico); água do córrego sem ferver dando dor de barriga; reverberação dentro de casa; mobília.

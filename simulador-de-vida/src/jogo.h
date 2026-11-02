@@ -6,7 +6,8 @@
 #include <vector>
 #include "mapa.h"
 
-enum class Tecla { Cima, Baixo, Esquerda, Direita, I, U, S, E, T, L, H, Q, R, Um, Dois, Enter, Espaco, Esc, F1 };
+enum class Tecla { Cima, Baixo, Esquerda, Direita, I, U, S, E, T, L, H, Q, R, B, V, Um, Dois, Tres, Enter, Espaco, Esc, F1, F2 };
+enum class Postura { EmPe, Sentado, Agachado, Deitado };
 
 // Uma coisa: o tipo e uma carga (goles numa garrafa, moedas na carteira).
 struct Coisa {
@@ -32,7 +33,12 @@ public:
 private:
     Mapa mapa;
     // onde está e para onde olha (0 norte, 1 nordeste, ... 7 noroeste)
-    int x = 245, y = 9, rumo = 0;
+    int x = 500, y = 9, rumo = 0;
+    Postura postura = Postura::EmPe;
+    double intestino = 30, bexiga = 30;  // de 0 (vazio) a 100 (não segura mais)
+    int excretando = 0;                   // 1 xixi, 2 cocô, segurando a tecla
+    double excretaT = 0, proximoPlop = 0;
+    int somXixi = 0;
     // necessidades, de 0 a 100: 100 é satisfeito
     double fome = 85, sede = 85, energia = 90, saude = 100;
     double minutos = 7 * 60;  // relógio do jogo, em minutos desde a meia-noite do dia 1
@@ -42,7 +48,7 @@ private:
     int itemMochila = 0;
     bool dormindo = false;
     bool sair = false, confirmarSair = false;
-    double relogioSalvar = 0, ultimoAviso[4] = {100, 100, 100, 100};
+    double relogioSalvar = 0, ultimoAviso[5] = {100, 100, 100, 100, 100};
     // andar: tecla segurada e tempo até o próximo passo
     bool andandoFrente = false, andandoTras = false, correndo = false;
     int andandoLado = 0;   // -1 esquerda, 1 direita (passo de lado)
@@ -76,6 +82,15 @@ private:
     void passoPara(int r);
     void virar(int lado);
     void bussola();
+    void mudarPostura(Postura p);
+    void abrirPorta();
+    void anunciarPortas();
+    void comecarExcretar(int tipo);
+    void pararExcretar(bool cedo);
+    void dizerIntestino();
+    void dizerBexiga();
+    void verMaos();
+    std::string relativo(int dirAbs) const;
     void olhar();
     void hora();
     void ajuda();

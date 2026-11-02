@@ -15,7 +15,7 @@ static bool traduzir(SDL_Keycode k, Tecla& t) {
     static const std::map<SDL_Keycode, Tecla> mapa = {
         {SDLK_UP, Tecla::Cima}, {SDLK_DOWN, Tecla::Baixo}, {SDLK_LEFT, Tecla::Esquerda}, {SDLK_RIGHT, Tecla::Direita},
         {SDLK_i, Tecla::I}, {SDLK_u, Tecla::U}, {SDLK_s, Tecla::S}, {SDLK_e, Tecla::E}, {SDLK_t, Tecla::T},
-        {SDLK_l, Tecla::L}, {SDLK_h, Tecla::H}, {SDLK_q, Tecla::Q}, {SDLK_r, Tecla::R},
+        {SDLK_l, Tecla::L}, {SDLK_b, Tecla::B}, {SDLK_v, Tecla::V}, {SDLK_3, Tecla::Tres}, {SDLK_KP_3, Tecla::Tres}, {SDLK_F2, Tecla::F2}, {SDLK_h, Tecla::H}, {SDLK_q, Tecla::Q}, {SDLK_r, Tecla::R},
         {SDLK_1, Tecla::Um}, {SDLK_KP_1, Tecla::Um}, {SDLK_2, Tecla::Dois}, {SDLK_KP_2, Tecla::Dois},
         {SDLK_RETURN, Tecla::Enter}, {SDLK_KP_ENTER, Tecla::Enter}, {SDLK_SPACE, Tecla::Espaco},
         {SDLK_ESCAPE, Tecla::Esc}, {SDLK_F1, Tecla::F1},
@@ -31,7 +31,7 @@ static bool traduzir(SDL_Keycode k, Tecla& t) {
 static int rodarRoteiro(const char* arquivo) {
     static const std::map<std::string, Tecla> nomes = {
         {"cima", Tecla::Cima}, {"baixo", Tecla::Baixo}, {"esquerda", Tecla::Esquerda}, {"direita", Tecla::Direita},
-        {"i", Tecla::I}, {"u", Tecla::U}, {"s", Tecla::S}, {"e", Tecla::E}, {"t", Tecla::T}, {"l", Tecla::L},
+        {"i", Tecla::I}, {"u", Tecla::U}, {"s", Tecla::S}, {"e", Tecla::E}, {"t", Tecla::T}, {"l", Tecla::L}, {"b", Tecla::B}, {"v", Tecla::V}, {"3", Tecla::Tres}, {"f2", Tecla::F2},
         {"h", Tecla::H}, {"q", Tecla::Q}, {"r", Tecla::R}, {"1", Tecla::Um}, {"2", Tecla::Dois},
         {"enter", Tecla::Enter}, {"espaco", Tecla::Espaco}, {"esc", Tecla::Esc}, {"f1", Tecla::F1},
     };

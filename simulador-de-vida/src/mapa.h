@@ -1,11 +1,11 @@
-// O mapa: 500 por 500 quadrados de 1 metro. x cresce para o leste, y para o norte.
+// O mapa: 1000 por 1000 quadrados de 1 metro. x cresce para o leste, y para o norte.
 // Cada quadrado tem um chão (o que se pisa, com seu som de passo) e pode ter um obstáculo.
 #pragma once
 #include <cstdint>
 #include <string>
 #include <vector>
 
-constexpr int LADO = 500;
+constexpr int LADO = 1000;
 
 enum class Chao : uint8_t { Grama, Pasto, Terra, Cascalho, Calcada, Taco, Ceramica, Madeira, Agua, TerraArada, Folhas };
 enum class Obstaculo : uint8_t { Nada, Cerca, CercaMadeira, Tela, Parede, Arvore, Corrego, Porteira, Porta };
@@ -13,6 +13,7 @@ enum class Obstaculo : uint8_t { Nada, Cerca, CercaMadeira, Tela, Parede, Arvore
 struct Celula {
     Chao chao = Chao::Pasto;
     Obstaculo obs = Obstaculo::Nada;
+    bool aberta = false;  // portas e porteiras: dá para passar só abertas
 };
 
 struct Lugar {
@@ -33,6 +34,8 @@ public:
     bool dentro(int x, int y) const;
     // ponto de água do córrego mais perto de (x, y), procurando até "raio" metros
     bool aguaMaisPerto(int x, int y, int raio, int& ax, int& ay) const;
+    bool ehPassagem(int x, int y) const { return valido(x, y) && (em(x, y).obs == Obstaculo::Porta || em(x, y).obs == Obstaculo::Porteira); }
+    std::vector<std::pair<int, int>> passagens() const;  // todas as portas e porteiras, para salvar
 
     static const char* nome(Chao ch);           // "grama", "piso de taco"...
     static const char* somPasso(Chao ch);       // nome do grupo de sons de passo
@@ -43,5 +46,5 @@ private:
     std::vector<Lugar> lugares;  // do mais específico para o mais geral
     void retangulo(int x0, int y0, int x1, int y1, Chao ch);
     void contorno(int x0, int y0, int x1, int y1, Obstaculo o);
-    void abrir(int x, int y, Obstaculo o, Chao ch);
+    void abrir(int x, int y, Obstaculo o, Chao ch, bool aberta = true);
 };

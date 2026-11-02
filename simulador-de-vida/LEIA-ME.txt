@@ -48,7 +48,9 @@ F2: repete a última fala.
 F1: esta ajuda.
 Esc duas vezes: salva e sai.
 
-Para começar, o tutorial ensina o básico passo a passo: aperte Tab e escolha Tutorial.
+Para começar, o tutorial ensina passo a passo: aperte Tab e escolha Tutorial. A primeira parte é a casa: andar, mochila, mãos,
+comer, achar as coisas com Ç, K, L e O. A segunda vai de trator até a cidade: comprar com seu Zé, encher o isqueiro,
+acender o cigarro e beber cerveja; depois explica o gás do fogão, as sementes e o casamento (nesses, Enter continua).
 A história: seu pai deixa você na porteira e manda ir até a casa do seu Tião, o caseiro, que mora com dona Nezinha
 numa casinha a oeste da casa sede. Para achar: Ç até Lugares, L até a casinha, O para seguir o bip ou Alt O para ir sozinho.
 Ele dá sementes de milho, feijão de corda e arroz, um machado e um regador. Dona Nezinha dá café e uma garrafa térmica,

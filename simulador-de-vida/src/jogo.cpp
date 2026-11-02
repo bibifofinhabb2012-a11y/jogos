@@ -171,7 +171,7 @@ void Jogo::verMao(int qual) {
         }
         guardar(m); m = {};
         audio::tocar("mochila", 0.5f);
-        fala::dizer(extra + "Mão " + lado + " vazia. " + maiuscula(n) + " voltou para a mochila.");
+        fala::dizer(extra + "Mão " + lado + " vazia. " + maiuscula(n) + (n.find(",") != std::string::npos ? "," : "") + " voltou para a mochila.");
         return;
     }
     fala::dizer(m.tipo.empty() ? "Mão " + lado + " vazia." : "Mão " + lado + ": " + nomeCoisa(m) + ".");
@@ -236,6 +236,7 @@ void Jogo::combinar() {
         if (lata.carga <= 0) { fala::dizer("A latinha está vazia."); return; }
         lata.carga--; isq.carga = 30;
         audio::tocar("tampa", 0.6f, 1.4f);
+        evento("encheu");
         fala::dizer("Você vira o isqueiro, encaixa o bico da latinha e aperta: chiado de gás. Isqueiro cheio." + std::string(lata.carga ? " A latinha ainda dá " + std::to_string(lata.carga) + (lata.carga == 1 ? " carga." : " cargas.") : " A latinha acabou."));
         return;
     }
@@ -271,7 +272,7 @@ void Jogo::usar(bool direita) {
     if (t == "cigarro") { fala::dizer(c.carga ? "Para acender: isqueiro numa mão, o maço na outra, e T até pegar fogo." : "O maço está vazio."); return; }
     if (t == "isqueiro") { fala::dizer(c.carga ? "Um isqueiro de plástico. Com o maço de cigarro na outra mão, T acende." : "O isqueiro está sem gás. Encha com a latinha: isqueiro numa mão, latinha na outra, T."); return; }
     if (t == "gas-isqueiro") { fala::dizer("Latinha de gás. Com o isqueiro na outra mão, T enche o isqueiro."); return; }
-    if (t == "cerveja") { c = {}; audio::tocar("cerveja", 0.8f); beberAlcool(1, "Você abre a garrafa de cerveja, ouve o chiado, e bebe gelada, num gole comprido."); sede = std::min(100.0, sede + 10); bexiga = std::min(100.0, bexiga + 15); return; }
+    if (t == "cerveja") { c = {}; audio::tocar("cerveja", 0.8f); beberAlcool(1, "Você abre a garrafa de cerveja, ouve o chiado, e bebe gelada, num gole comprido."); evento("cerveja"); sede = std::min(100.0, sede + 10); bexiga = std::min(100.0, bexiga + 15); return; }
     // comes e bebes da festa
     struct Comida { const char* t; double fome, sede, alcool; const char* txt; };
     static const Comida COMIDAS[] = {
@@ -800,7 +801,7 @@ void Jogo::tecla(Tecla t, bool shift, bool ctrl, bool alt, char letra) {
         }
         case Tecla::F2: fala::dizer(fala::ultima()); break;
         case Tecla::F1: ajuda(); break;
-        case Tecla::Enter: if (shift) abrirPorta(); break;
+        case Tecla::Enter: if (shift) abrirPorta(); else evento("enter"); break;
         case Tecla::Esc:
             if (confirmarSair) { sair = true; fala::dizer("Jogo salvo. Até logo."); }
             else { confirmarSair = true; fala::dizer("Aperte Esc de novo para salvar e sair."); }

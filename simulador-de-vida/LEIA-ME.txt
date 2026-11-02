@@ -50,10 +50,15 @@ Esc duas vezes: salva e sai.
 Para começar, o tutorial ensina o básico passo a passo: aperte Tab e escolha Tutorial.
 A história: seu pai deixa você na porteira e manda ir até a casa do seu Tião, o caseiro, que mora com dona Nezinha
 numa casinha a oeste da casa sede. Para achar: Ç até Lugares, L até a casinha, O para seguir o bip ou Alt O para ir sozinho.
-Seu Tião dá sementes de milho, feijão de corda e arroz, um machado e um regador. Dona Nezinha dá café e uma garrafa térmica,
+Ele dá sementes de milho, feijão de corda e arroz, um machado e um regador. Dona Nezinha dá café e uma garrafa térmica,
 que ela enche de novo uma vez por dia. A roça fica depois da ponte do córrego, à direita da estrada, tomada de matagal.
-Limpe com o machado, plante, regue todo dia (a rega vale um dia), e em 3 dias do jogo colha. Seu Tião compra a colheita:
-espiga de milho a 4 moedas, punhado de feijão a 3, feixe de arroz a 5.
+Limpe com o machado, plante, regue todo dia (a rega vale um dia), e em 3 dias do jogo colha.
+Para vender: ponha a colheita na caixa de remessa, no gramado da porteira principal. Toda noite, às 10, o prefeito,
+seu Manel do Bacanal, recolhe e paga na carteira, mesmo que você esteja dormindo: espiga de milho a 4 moedas,
+punhado de feijão a 3, feixe de arroz a 5. A caixa de correio fica à direita da porta da casa sede; no segundo dia
+chega uma carta do prefeito. Dormir na cama faz o tempo passar até as 6 da manhã seguinte.
+No começo de um jogo novo, você escolhe se o personagem é homem ou mulher: muda como seu Tião, dona Nezinha
+e as cartas falam com você.
 Barra numa mão e a outra vazia, T abre a barra, que fica na mesma mão. Garrafa numa mão e a outra vazia, T abre a garrafa e a tampa fica na outra mão; T de novo tampa.
 Para andar, é preciso estar de pé. Na diagonal, não dá para raspar quina de parede.
 A casa tem sala (sofá, poltrona, mesa de centro), cozinha (pia, fogão a gás, geladeira com 10 garrafas de água),

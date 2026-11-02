@@ -27,6 +27,7 @@ void Jogo::novo() {
     maoDireita = maoEsquerda = {};
     mapa = Mapa();
     plantas.clear(); limpos.clear(); cenaTiao = false; diaCafe = 0; agenda.clear();
+    genero = '?'; cartas.clear(); proximaColeta = 22 * 60; aoAcordar.clear(); acordarEm = -1;
     criarMoveis();
     segurando = sentadoEm = -1; tomandoBanho = 0;
     menus.clear(); categoria = -1; alvos.clear(); rastreando = false; caminho.clear();
@@ -318,11 +319,14 @@ void Jogo::avisosDoCorpo() {
 
 void Jogo::dormir() {
     if (dormindo) return;
-    if (energia > 75) { fala::dizer("Você ainda não está com sono."); return; }
+    bool naCama = sentadoEm >= 0 && moveis[sentadoEm].tipo == "cama";
+    if (energia > (naCama ? 85 : 75)) { fala::dizer("Você ainda não está com sono."); return; }
     dormindo = true;
     postura = Postura::Deitado;
     if (!somSono) somSono = audio::laco("ruido", false, 0.35f);
     if (sentadoEm >= 0 && moveis[sentadoEm].tipo == "cama") {
+        double hojeSeis = std::floor(minutos / 1440) * 1440 + 6 * 60;
+        acordarEm = minutos < hojeSeis - 60 ? hojeSeis : hojeSeis + 1440;  // as 6 da manhã que vêm (de madrugada, as de hoje)
         fala::dizer("Você puxa o lençol, afunda a cabeça no travesseiro e dorme. E diz como a energia está se recuperando. Qualquer outra tecla, menos U, S, V e Q, acorda.");
         evento("dormiu");
         return;
@@ -337,9 +341,12 @@ void Jogo::dormir() {
 void Jogo::acordar(const std::string& motivo) {
     if (!dormindo) return;
     dormindo = false;
+    acordarEm = -1;
     if (somSono) { audio::pararFonte(somSono); somSono = 0; }
     char h[64]; std::snprintf(h, sizeof h, "%d e %02d", hora24(), (int)minutos % 60);
     fala::dizer(motivo + " São " + h + ", dia " + std::to_string(diaDoJogo()) + ". Energia: " + porCento(energia) + ".");
+    for (const std::string& t : aoAcordar) fala::dizer(t, false);  // o que aconteceu de noite
+    aoAcordar.clear();
 }
 
 // ---------- mundo ----------
@@ -725,7 +732,10 @@ void Jogo::atualizar(double seg) {
     intestino = std::clamp(intestino, 0.0, 100.0); bexiga = std::clamp(bexiga, 0.0, 100.0); higiene = std::clamp(higiene, 0.0, 100.0);
     energia = std::clamp(energia, 0.0, 100.0); saude = std::clamp(saude, 0.0, 100.0);
 
-    if (dormindo) {
+    if (dormindo && acordarEm >= 0) {  // na cama: dorme até amanhecer
+        if (minutos >= acordarEm) { energia = 100; acordar("Amanhece. O galo canta longe, a claridade entra pela janela, e você acorda " + gen("descansado", "descansada") + " na cama."); }
+        else if (bexiga >= 95 || intestino >= 95) acordar(bexiga >= 95 ? "A vontade de fazer xixi te acorda no meio da noite." : "A barriga aperta e te acorda no meio da noite: precisa fazer cocô.");
+    } else if (dormindo) {
         if (energia >= 100) acordar("Você acorda com o corpo leve e a cabeça descansada.");
         else if (hora24() == 6 && energia >= 70) acordar("O galo canta longe e a claridade entra. Você acorda.");
         else if (bexiga >= 95 || intestino >= 95) acordar(bexiga >= 95 ? "A vontade de fazer xixi te acorda." : "A barriga aperta e te acorda: precisa fazer cocô.");
@@ -754,6 +764,8 @@ void Jogo::atualizar(double seg) {
     }
     ambiente(seg);
     atualizarRoca(dm);
+    if (minutos >= 1440 + 6 * 60) chegouCarta("manel1");  // no dia seguinte à chegada
+    while (minutos >= proximaColeta) { coletarRemessa(); proximaColeta += 1440; }  // seu Manel passa às 22h
     for (size_t k = 0; k < agenda.size();) {  // coisas marcadas (a cena com seu Tião)
         if (agenda[k].first <= agora) { auto f = agenda[k].second; agenda.erase(agenda.begin() + (long)k); f(); }
         else k++;
@@ -815,10 +827,12 @@ void Jogo::ambiente(double dt) {
 }
 
 void Jogo::abertura(bool novoJogo) {
+    if (novoJogo && genero == '?') { escolherGenero(true); return; }
     if (!novoJogo) {
         char h[16]; std::snprintf(h, sizeof h, "%d e %02d", hora24(), (int)minutos % 60);
         fala::dizer("Simulador de Vida. Que bom ter você de volta. Dia " + std::to_string(diaDoJogo()) + ", " + h + ". Você está em: " +
                     mapa.nomeLugar(x, y) + ", de frente para o " + direcao(rumo) + ". F1 para ouvir as teclas.");
+        if (genero == '?') escolherGenero(false);  // jogo salvo antes da escolha existir
         return;
     }
     carroPai = audio::fonteMovel("carro", 253, 2, 0.6f, 0.8f, 6, true);
@@ -856,6 +870,8 @@ void Jogo::salvar(const std::string& arquivo) const {
       << "relogio " << minutos << '\n'
       << "corpo2 " << (int)postura << ' ' << intestino << ' ' << bexiga << ' ' << higiene << '\n';
     f << "historia " << (cenaTiao ? 1 : 0) << ' ' << diaCafe << '\n';
+    f << "genero " << genero << '\n' << "coleta " << proximaColeta << '\n';
+    for (const Carta& c : cartas) f << "carta " << c.id << ' ' << (c.lida ? 1 : 0) << '\n';
     for (int c : limpos) f << "limpo " << c << '\n';
     for (const auto& [c, p] : plantas) f << "planta " << c << ' ' << p.tipo << ' ' << p.horas << ' ' << p.molhadaAte << '\n';
     for (size_t i = 0; i < moveis.size(); i++) {
@@ -872,6 +888,7 @@ void Jogo::salvar(const std::string& arquivo) const {
 bool Jogo::carregar(const std::string& arquivo) {
     std::ifstream f(arquivo);
     if (!f) return false;
+    menus.clear();
     std::vector<Pilha> m;
     std::string linha;
     int versao = 1;
@@ -892,6 +909,9 @@ bool Jogo::carregar(const std::string& arquivo) {
             }
         }
         else if (k == "historia") { int c = 0; s >> c >> diaCafe; cenaTiao = c != 0; }
+        else if (k == "genero") { s >> genero; if (genero != 'h' && genero != 'm') genero = '?'; }
+        else if (k == "coleta") s >> proximaColeta;
+        else if (k == "carta") { Carta c; int l = 0; s >> c.id >> l; c.lida = l != 0; cartas.push_back(c); }
         else if (k == "limpo") { int c; s >> c; if (c >= 0 && c < LADO * LADO) { limpos.push_back(c); mapa.em(c % LADO, c / LADO).chao = Chao::TerraArada; } }
         else if (k == "planta") {
             int c; Planta p; s >> c >> p.tipo >> p.horas >> p.molhadaAte;

@@ -77,6 +77,9 @@ Mapa::Mapa() : c(LADO * LADO) {
             int yc = 620 + (int)std::lround(20 * std::sin(rx / 70.0));
             if (ry < yc - 3) { em(rx, ry).chao = Chao::Mato; em(rx, ry).obs = Obstaculo::Nada; }
         }
+    // estrada para a cidade: sai do terreiro para o leste, até a porteira leste; lá fora fica a prefeitura
+    retangulo(661, 198, 993, 202, Chao::Terra);
+    retangulo(995, 195, LADO - 1, 205, Chao::Terra);
     // curral, galinheiro e paiol, no terreiro
     retangulo(680, 150, 760, 230, Chao::Terra);
     contorno(680, 150, 760, 230, Obstaculo::CercaMadeira);
@@ -90,6 +93,7 @@ Mapa::Mapa() : c(LADO * LADO) {
     // cerca de arame em volta da fazenda, com a porteira principal no sul, aberta
     contorno(5, 5, LADO - 6, LADO - 6, Obstaculo::Cerca);
     for (int x = 498; x <= 502; x++) abrir(x, 5, Obstaculo::Porteira, Chao::Terra);
+    for (int y = 198; y <= 202; y++) abrir(LADO - 6, y, Obstaculo::Porteira, Chao::Terra, false);
 
     // do mais específico para o mais geral
     lugares = {
@@ -116,6 +120,8 @@ Mapa::Mapa() : c(LADO * LADO) {
         {"gramado da porteira principal", 460, 6, 540, 40, false},
         {"terreiro da sede", 340, 80, 660, 380, false},
         {"estrada da fazenda", 498, 41, 502, 985, false},
+        {"estrada para a cidade, do lado de fora da fazenda", 995, 195, LADO - 1, 205, false},
+        {"estrada para a cidade", 661, 198, 993, 202, false},
         {"mata", 6, 520, 300, 992, false},
         {"estrada municipal, do lado de fora da fazenda", 0, 0, LADO - 1, 4, false},
         {"pasto", 0, 0, LADO - 1, LADO - 1, false},

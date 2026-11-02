@@ -7,7 +7,6 @@
 #include "util.h"
 
 constexpr double HORAS_PARA_COLHER = 72;  // 3 dias do jogo, sempre com a terra molhada
-static const int PRECO[4] = {0, 4, 3, 5};       // moedas por espiga, punhado, feixe
 static const char* PRODUTO[4] = {"", "milho", "feijao", "arroz"};
 static const char* SEMENTE[4] = {"", "semente-milho", "semente-feijao", "semente-arroz"};
 
@@ -143,8 +142,8 @@ void Jogo::cenaChegada() {
     cenaTiao = true;
     int t = idx("tiao"), n = idx("nezinha");
     andandoFrente = andandoTras = false; andandoLado = 0; caminho.clear(); rastreando = false;
-    fala::dizer("Seu Tião vê você chegando, abre um sorriso e grita para dentro de casa: Nezinha, ô Nezinha! Corre ver, o menino do Alceu chegou!");
-    fala::dizer("E vem de braços abertos: Aôôôba! O Alceu me falou que tu vinha, mas rapaz, tu tá um homem! Ó, vou te falar, as vaca aqui são meio arredia no começo, viu? "
+    fala::dizer("Seu Tião vê você chegando, abre um sorriso e grita para dentro de casa: Nezinha, ô Nezinha! Corre ver, " + gen("o menino", "a menina") + " do Alceu chegou!");
+    fala::dizer("E vem de braços abertos: Aôôôba! O Alceu me falou que tu vinha, mas " + gen("rapaz, tu tá um homem", "guria, tu tá uma mulher") + "! Ó, vou te falar, as vaca aqui são meio arredia no começo, viu? "
                 "Tu vai ter que se acostumar com os coice. Faz parte da vida na lida. As galinha também são cheia de novela, tem que ter milho pra alimentar esse povo todo.", false);
     fala::dizer("Ele entra e volta com um saco de pano e umas ferramentas: Toma, isso aqui é pra ti. Semente de milho, de feijão de corda e de arroz. "
                 "A roça fica pra lá da ponte do córrego, do lado direito da estrada, mas tá tomada de matagal: tem que limpar no machado. "
@@ -166,7 +165,7 @@ void Jogo::cenaChegada() {
                 mapa.em(372, 187).movel = (int16_t)n;
             }
         });
-    fala::dizer("Dona Nezinha aparece na porta, enxugando as mãos no avental: Ô, menino, se aprochegue! Vamos tomar um café, passei ainda agora!", false);
+    fala::dizer("Dona Nezinha aparece na porta, enxugando as mãos no avental: Ô, " + gen("menino", "menina") + ", se aprochegue! Vamos tomar um café, passei ainda agora!", false);
     fala::dizer("Ela serve uma xícara de café, quente e doce. Você toma devagar, e o cansaço da viagem vai embora.", false);
     marcar(34.0, [this]() { audio::tocar("cafe", 0.8f); });
     marcar(37.0, [this]() { audio::tocar("gole", 0.8f); energia = std::min(100.0, energia + 15); sede = std::min(100.0, sede + 5); });
@@ -175,7 +174,8 @@ void Jogo::cenaChegada() {
     fala::dizer("Ganhou, na mochila: 20 sementes de milho, 20 de feijão de corda, 20 de arroz, um machado, um regador e uma garrafa térmica de café com 8 goles. "
                 "Como fazer: com o machado na mão, Espaço de frente para o matagal limpa a terra. Com a semente na mão, Espaço de frente para a terra limpa planta. "
                 "Com o regador na mão, Espaço de frente para a planta rega; na beira do córrego, enche. Planta regada cresce; com 3 dias do jogo fica pronta. "
-                "Para colher, mão vazia e Espaço; o arroz se colhe com o machado. Seu Tião compra a colheita: fale com ele com Espaço e a mão vazia. "
+                "Para colher, mão vazia e Espaço; o arroz se colhe com o machado. "
+                "Seu Tião ainda conta: o que colher, tu põe na caixa de remessa, lá perto da porteira, que o prefeito passa toda noite e paga. "
                 "Para achar a roça: Ç até Lugares, e L até Roça.", false);
     evento("tiao");
 }
@@ -187,10 +187,10 @@ void Jogo::conversarCom(int i) {
         "Tá vendo esse céu? Amanhã é dia bom de plantar.",
         "As vaca tão arisca hoje, nem chega perto do curral, viu?",
         "Milho bem regado dá espiga que é uma beleza. Água todo dia, tchê.",
-        "Colheu? Traz aqui que eu levo pra vender na cidade e te pago direitinho.",
+        "Colheu? Põe na caixa de remessa, lá na porteira. O Manel do Bacanal passa de noite e paga direitinho.",
     };
     static const char* LINHAS_NEZINHA[] = {
-        "Tu tá comendo direito, menino? Essas barra aí não sustenta ninguém.",
+        "Tu tá comendo direito, MENINO? Essas barra aí não sustenta ninguém.",
         "Cuidado com o sol na roça, viu? Leva água.",
         "Aqui em casa o café tá sempre passado. Se aprochegue quando quiser.",
     };
@@ -200,47 +200,24 @@ void Jogo::conversarCom(int i) {
         m.opcoes = [this]() {
             std::vector<Opcao> v;
             v.push_back({"Conversar", [this]() { fala::dizer(std::string("Seu Tião: ") + LINHAS_TIAO[(int)acaso(0, 3.99)]); }, nullptr, nullptr});
-            v.push_back({"Vender a colheita", [this]() {
-                Menu vm; vm.titulo = "Vender para seu Tião";
-                vm.opcoes = [this]() {
-                    std::vector<Opcao> vv;
-                    for (int tp = 1; tp <= 3; tp++) {
-                        int q = 0; for (const Pilha& p : mochila) if (p.coisa.tipo == PRODUTO[tp]) q = p.qtd;
-                        if (!q) continue;
-                        Coisa c{PRODUTO[tp], 0};
-                        auto vender = [this, c, tp](int n) {
-                            Pilha* carteira = nullptr;
-                            for (Pilha& p : mochila) if (p.coisa.tipo == "carteira") carteira = &p;
-                            Coisa* naMao = maoDireita.tipo == "carteira" ? &maoDireita : maoEsquerda.tipo == "carteira" ? &maoEsquerda : nullptr;
-                            for (int k = 0; k < n; k++) tirar(c);
-                            int ganho = n * PRECO[tp];
-                            if (naMao) naMao->carga += ganho; else if (carteira) carteira->coisa.carga += ganho; else guardar({"carteira", ganho});
-                            audio::tocar("moedas", 0.8f);
-                            fala::dizer("Seu Tião conta as moedas na palma da mão: " + std::to_string(ganho) + " moedas. Foi tudo para a carteira.");
-                            evento("vendeu");
-                        };
-                        vv.push_back({maiuscula(plural(c, q, nomeCoisa(c))) + ": " + std::to_string(q) + ", a " + std::to_string(PRECO[tp]) + " moedas cada",
-                            [vender]() { vender(1); }, [vender, q]() { vender(q); }, nullptr});
-                    }
-                    if (vv.empty()) vv.push_back({"Você não tem colheita para vender", [] {}, nullptr, nullptr});
-                    return vv;
-                };
-                abrirMenu(vm);
-            }, nullptr, nullptr});
             return v;
         };
     } else {
         m.titulo = "Dona Nezinha";
         m.opcoes = [this]() {
             std::vector<Opcao> v;
-            v.push_back({"Conversar", [this]() { fala::dizer(std::string("Dona Nezinha: ") + LINHAS_NEZINHA[(int)acaso(0, 2.99)]); }, nullptr, nullptr});
+            v.push_back({"Conversar", [this]() {
+                std::string l = LINHAS_NEZINHA[(int)acaso(0, 2.99)];
+                auto p = l.find("MENINO"); if (p != std::string::npos) l.replace(p, 6, gen("menino", "menina"));
+                fala::dizer("Dona Nezinha: " + l);
+            }, nullptr, nullptr});
             v.push_back({"Pedir para encher a garrafa de café", [this]() {
-                if (diaCafe == diaDoJogo()) { fala::dizer("Dona Nezinha: Hoje já enchi, menino! Amanhã passo mais."); return; }
+                if (diaCafe == diaDoJogo()) { fala::dizer("Dona Nezinha: Hoje já enchi, " + gen("menino", "menina") + "! Amanhã passo mais."); return; }
                 bool cheia = false;  // enche a que estiver na mão; senão, a da mochila; senão, dá outra
                 for (Coisa* g : {&maoDireita, &maoEsquerda}) if (!cheia && g->tipo == "garrafa-cafe") { g->carga = 8; cheia = true; }
                 for (size_t k = 0; k < mochila.size() && !cheia; k++)
                     if (mochila[k].coisa.tipo == "garrafa-cafe") { Coisa velha = mochila[k].coisa; tirar(velha); guardar({"garrafa-cafe", 8}); cheia = true; }
-                if (!cheia) { fala::dizer("Dona Nezinha: Cadê a garrafa, menino? Perdeu? Toma outra, então.", false); guardar({"garrafa-cafe", 8}); }
+                if (!cheia) { fala::dizer("Dona Nezinha: Cadê a garrafa, " + gen("menino", "menina") + "? Perdeu? Toma outra, então.", false); guardar({"garrafa-cafe", 8}); }
                 diaCafe = diaDoJogo();
                 audio::tocar("cafe", 0.8f);
                 fala::dizer("Dona Nezinha enche a garrafa térmica até a boca: café fresquinho, 8 goles.");

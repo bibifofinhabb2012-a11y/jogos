@@ -14,7 +14,7 @@ constexpr int NCAT = 5;
 
 // "a sala", "o corredor"
 static std::string com(const std::string& l) {
-    static const char* fem[] = {"sala", "cozinha", "casinha de seu Tião e dona Nezinha", "casa da sede", "roça", "varanda da casa", "calçada da casa", "horta", "mata", "estrada da fazenda", "ponte do córrego"};
+    static const char* fem[] = {"sala", "cozinha", "casinha de seu Tião e dona Nezinha", "casa da sede", "roça", "varanda da casa", "calçada da casa", "horta", "mata", "estrada da fazenda", "estrada para a cidade", "ponte do córrego"};
     for (const char* f : fem) if (l == f) return "a " + l;
     return "o " + l;
 }
@@ -42,7 +42,7 @@ void Jogo::montarAlvos() {
     } else if (categoria == 2) {
         for (auto [px, py] : mapa.passagens()) {
             Obstaculo o = mapa.em(px, py).obs;
-            if (mapa.valido(px - 1, py) && mapa.em(px - 1, py).obs == o) continue;  // porteira larga: conta uma vez
+            if ((mapa.valido(px - 1, py) && mapa.em(px - 1, py).obs == o) || (mapa.valido(px, py - 1) && mapa.em(px, py - 1).obs == o)) continue;  // porteira larga: conta uma vez
             // nomeia pelos lugares dos dois lados
             std::vector<std::string> lados;
             for (int d = 0; d < 8; d += 2) {
@@ -55,6 +55,7 @@ void Jogo::montarAlvos() {
             if (px == 500 && py == 109) n = "Porta da frente da casa, entre a varanda e a sala";
             else if (px == 500 && py == 308) n = "Porta dos fundos da casa";
             else if (o == Obstaculo::Porteira && py == 5) n = "Porteira principal da fazenda";
+            else if (o == Obstaculo::Porteira && px == LADO - 6) n = "Porteira leste, da estrada para a cidade";
             else if (lados.size() >= 2 && fora(lados[0]) != fora(lados[1])) { std::string d = fora(lados[0]) ? lados[1] : lados[0]; n += " d" + com(d); }
             else if (lados.size() >= 2) n += " entre " + com(lados[0]) + " e " + com(lados[1]);
             else if (lados.size() == 1) n += " d" + com(lados[0]);
@@ -62,7 +63,7 @@ void Jogo::montarAlvos() {
         }
     } else {
         for (const Lugar& l : mapa.listaLugares()) {
-            if (l.nome == "pasto" || l.nome.rfind("estrada municipal", 0) == 0) continue;
+            if (l.nome == "pasto" || l.nome.rfind("estrada municipal", 0) == 0 || l.nome.find("do lado de fora") != std::string::npos) continue;
             int cx = (l.x0 + l.x1) / 2, cy = (l.y0 + l.y1) / 2, bx = -1, by = -1;
             for (int r = 0; r < 60 && bx < 0; r++)  // quadrado livre mais perto do meio
                 for (int dy = -r; dy <= r && bx < 0; dy++)

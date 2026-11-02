@@ -40,7 +40,12 @@ struct Menu {
     std::function<std::vector<Opcao>()> opcoes;  // gerado na hora: o conteúdo muda
     int sel = 0;
     std::function<void()> aoFechar;
+    bool pausa = false;        // o tempo do jogo para enquanto está aberto (Tab, escolha inicial)
+    bool obrigatorio = false;  // Esc não fecha: precisa escolher (homem ou mulher)
 };
+
+// Carta na caixa de correio. O texto é montado na hora, pelo id (assim muda com homem ou mulher).
+struct Carta { std::string id; bool lida = false; };
 
 // Algo que dá para escolher com K e L e rastrear com O.
 // Lugares grandes têm retângulo (x0..x1, y0..y1): chegar é entrar nele.
@@ -64,7 +69,7 @@ public:
     void atualizar(double segundos);              // tempo real que passou
     bool querSair() const { return sair; }
     void abertura(bool novoJogo);                 // o que se ouve ao abrir o jogo
-    bool pausado() const { return !menus.empty() && menus[0].titulo == "Menu"; }
+    bool pausado() const { for (const Menu& m : menus) if (m.pausa) return true; return false; }
     void carregarConfig(const std::string& arquivo);
     void salvarConfig(const std::string& arquivo) const;
     std::string arquivoConfig;
@@ -126,7 +131,13 @@ private:
     // seu Tião e dona Nezinha
     bool cenaTiao = false;
     int diaCafe = 0;                   // último dia em que dona Nezinha encheu a garrafa
-    std::vector<std::pair<double, std::function<void()>>> agenda;  // coisas marcadas para daqui a pouco (segundos reais)
+    std::vector<std::pair<double, std::function<void()>>> agenda;
+    // homem ou mulher: muda como seu Tião, dona Nezinha e as cartas falam. '?' ainda não escolheu
+    char genero = '?';
+    std::vector<Carta> cartas;
+    double proximaColeta = 22 * 60;          // minuto do jogo em que seu Manel passa na caixa de remessa
+    std::vector<std::string> aoAcordar;      // o que aconteceu enquanto dormia
+    double acordarEm = -1;                   // dormindo na cama: acorda às 6 da manhã seguinte  // coisas marcadas para daqui a pouco (segundos reais)
     int contadorPassos = 0;
 
     // mochila e mãos
@@ -205,6 +216,15 @@ private:
     void cenaChegada();
     void marcar(double segundos, std::function<void()> f);
     int idx(const std::string& tipo) const;
+    std::string gen(const std::string& homem, const std::string& mulher) const { return genero == 'm' ? mulher : homem; }
+    void escolherGenero(bool depoisAbertura);
+    std::string textoCarta(const Carta& c) const;
+    std::string remetente(const Carta& c) const;
+    void chegouCarta(const std::string& id);
+    void abrirCorreio();
+    void abrirRemessa(int i);
+    void coletarRemessa();
+    void avisar(const std::string& texto);  // fala agora, ou guarda para quando acordar
     // tutorial (tutorial.cpp)
     void evento(const std::string& e);
     void comecarTutorial();

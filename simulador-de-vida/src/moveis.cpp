@@ -20,6 +20,8 @@ static const TipoMovel TIPOS[] = {
     {"chuveiro", "chuveiro", false, false, false, false},
     {"tiao", "seu Tião", false, false, false, false},
     {"nezinha", "dona Nezinha", true, false, false, false},
+    {"correio", "caixa de correio", true, false, false, false},
+    {"remessa", "caixa de remessa", true, false, false, false},
 };
 static const TipoMovel& tipoDe(const std::string& t) {
     for (const auto& k : TIPOS) if (t == k.tipo) return k;
@@ -45,6 +47,10 @@ void Jogo::criarMoveis() {
     m("pia", 412, 231); m("vaso", 418, 231); m("chuveiro", 403, 250);
     // gente: seu Tião espera na frente da casinha; dona Nezinha está lá dentro
     m("tiao", 370, 187); m("nezinha", 372, 200);
+    // caixas: correio à direita da porta da frente (olhando de fora), remessa no gramado da porteira
+    m("correio", 502, 108);
+    int r = m("remessa", 505, 8);
+    moveis[r].partes = {{}};
     ocupar();
 }
 
@@ -74,6 +80,8 @@ void Jogo::interagir(int i) {
     float mx = m.x + 0.5f, my = m.y + 0.5f;
     if (t == "geladeira" || t == "guarda-roupa") { abrirRecipiente(i); return; }
     if (t == "tiao" || t == "nezinha") { conversarCom(i); return; }
+    if (t == "correio") { abrirCorreio(); return; }
+    if (t == "remessa") { abrirRemessa(i); return; }
     if (t == "fogao") {
         m.ligado = !m.ligado;
         audio::tocar3D(m.ligado ? "fogao" : "fogao-desligar", mx, my, 0.9f, 0.9f, 2);
@@ -102,7 +110,7 @@ void Jogo::arrastar() {
     int i = movelFrente();
     if (i < 0) { fala::dizer("Não tem móvel na sua frente."); return; }
     if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha") { fala::dizer("Arrastar gente não pode, né?"); return; }
-    if (!tipoDe(moveis[i].tipo).arrasta) { fala::dizer(maiuscula(nomeMovel(i, true)) + " é presa na parede. Não dá para arrastar."); return; }
+    if (!tipoDe(moveis[i].tipo).arrasta) { fala::dizer(maiuscula(nomeMovel(i, true)) + " é fixa no lugar. Não dá para arrastar."); return; }
     if (postura != Postura::EmPe) { fala::dizer("Para arrastar, levante primeiro: aperte R."); return; }
     segurando = i;
     fala::dizer("Você segura " + nomeMovel(i, true) + ". Ande para a frente para empurrar, para trás para puxar, ou para os lados. Control Espaço solta.");

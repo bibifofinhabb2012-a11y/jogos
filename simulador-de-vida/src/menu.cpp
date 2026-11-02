@@ -68,8 +68,9 @@ bool Jogo::teclaMenu(Tecla t, bool shift, char letra) {
         case Tecla::Esquerda: case Tecla::Direita:
             if (n && ops[m.sel].ajustar) ops[m.sel].ajustar(t == Tecla::Direita ? 1 : -1);
             return true;
-        case Tecla::Esc: fecharMenu(); return true;
+        case Tecla::Esc: if (!m.obrigatorio) fecharMenu(); else fala::dizer("Escolha uma opção com as setas e aperte Enter."); return true;
         case Tecla::Tab:
+            if (m.obrigatorio) { fala::dizer("Escolha uma opção com as setas e aperte Enter."); return true; }
             if (pausado()) { while (!menus.empty()) fecharMenu(); fala::dizer("De volta ao jogo."); }
             else { while (!menus.empty()) fecharMenu(); menuPrincipal(); }
             return true;
@@ -91,6 +92,7 @@ bool Jogo::teclaMenu(Tecla t, bool shift, char letra) {
 void Jogo::menuPrincipal() {
     Menu m;
     m.titulo = "Menu";
+    m.pausa = true;
     m.opcoes = [this]() {
         std::vector<Opcao> v;
         v.push_back({passoTutorial >= 0 ? "Tutorial: recomeçar do início" : "Tutorial", [this]() {

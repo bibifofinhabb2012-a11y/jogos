@@ -26,12 +26,19 @@ A lista completa (a mesma do F1) fica em `ferramentas/ajuda.py`, que reescreve `
 ## História, gente e roça (versão de novembro)
 - Pai se chama Alceu; manda ir à casa do Tião. Seu Tião (caseiro) e dona Nezinha moram na casinha (x 355 a 385, y 190 a 210, porta em (370, 190)). Tião fica em (370, 187); Nezinha começa dentro, em (372, 200), e vem até (372, 187) na cena. Os dois são entradas em `moveis` com tipo "tiao" e "nezinha" (categoria Pessoas do Ç, não arrastáveis).
 - A cena (`cenaChegada`, em `roca.cpp`) dispara a 3 metros do Tião, uma vez (`cenaTiao`, salvo em "historia"). As falas são as que ela escreveu, com o sotaque dela ("Aôôôba!", "tu tá um homem", "se aprochegue"). Ela escreveu o personagem como homem ("menino do Alceu"); mantive o texto dela nas falas dos dois. Fora dessas falas, o jogo segue sem gênero.
-- Roça: x 510 a 570, y 590 até 3 quadrados antes do córrego; chão `Mato` vira `TerraArada` com o machado (lista `limpos`). Plantas em `plantas` (chave y*LADO+x) e em `Celula::planta`; crescem só com a terra molhada (rega vale 24 horas do jogo); prontas com 72 horas. Colheita: milho 3 espigas, feijão 4 punhados, arroz 3 feixes (com machado), e 2 sementes de volta. Tião compra a 4, 3 e 5 moedas.
+- Roça: x 510 a 570, y 590 até 3 quadrados antes do córrego; chão `Mato` vira `TerraArada` com o machado (lista `limpos`). Plantas em `plantas` (chave y*LADO+x) e em `Celula::planta`; crescem só com a terra molhada (rega vale 24 horas do jogo); prontas com 72 horas. Colheita: milho 3 espigas, feijão 4 punhados, arroz 3 feixes (com machado), e 2 sementes de volta. O prefeito compra pela caixa de remessa.
 - Lugares grandes (casa da sede, casinha, roça) viram alvo com retângulo: chegar é entrar.
 - Roteiros de teste aceitam `ir x y rumo` (teleporte só de teste), `salvar arquivo` e `carregar arquivo`.
 
+## Correio, remessa, prefeito e gênero
+- Escolha de homem ou mulher no jogo novo (`escolherGenero`, menu obrigatório e com pausa); salva em "genero". Jogo salvo sem escolha pergunta ao abrir. `gen("homem", "mulher")` monta as falas de Tião, Nezinha e das cartas (menino, menina; "rapaz, tu tá um homem" ou "guria, tu tá uma mulher"). Fora dessas falas, o jogo segue sem gênero.
+- Caixa de correio em (502, 108), à direita da porta (olhando de fora). Cartas por id, texto montado na hora (`textoCarta`). A primeira, "manel1", chega no dia 2 às 6h.
+- Caixa de remessa em (505, 8). O prefeito, Manel do Bacanal, recolhe às 22h de todo dia (`proximaColeta`, salvo em "coleta"), acordado ou dormindo; o que acontece dormindo é dito ao acordar (`aoAcordar`). Preços em `preco()` de `correio.cpp` (milho 4, feijão 3, arroz 5; já previstos pedra 1, adubo 2, leite 6). Tião não compra mais.
+- Estrada para a cidade sai do terreiro para o leste até a porteira leste (994, 198 a 202, fechada). A prefeitura fica fora do mapa, por enquanto.
+- Cama: dorme até as 6 da manhã seguinte (`acordarEm`), com energia cheia; só acorda antes por bexiga ou intestino no limite.
+
 ## Organização do código
-- `jogo.cpp`: corpo, mochila, mãos, teclas, andar, salvar. `moveis.cpp`: móveis (tabela TIPOS), arrastar, sentar e deitar, chuveiro, geladeira e guarda-roupa (menus de recipiente). `menu.cpp`: sistema de menus (pilha de `Menu` com opções geradas na hora), menu do Tab e configurações. `guia.cpp`: categorias, K e L, rastreio com bip 3D, caminho por busca em largura (sem cortar quina). `roca.cpp`: Tião e Nezinha, cena, roça, venda. `tutorial.cpp`: lista de passos com texto e condição; eventos vêm de `evento("nome")`.
+- `jogo.cpp`: corpo, mochila, mãos, teclas, andar, salvar. `moveis.cpp`: móveis (tabela TIPOS), arrastar, sentar e deitar, chuveiro, geladeira e guarda-roupa (menus de recipiente). `menu.cpp`: sistema de menus (pilha de `Menu` com opções geradas na hora), menu do Tab e configurações. `guia.cpp`: categorias, K e L, rastreio com bip 3D, caminho por busca em largura (sem cortar quina). `roca.cpp`: Tião e Nezinha, cena, roça. `correio.cpp`: gênero, cartas, remessa, coleta do prefeito. `tutorial.cpp`: lista de passos com texto e condição; eventos vêm de `evento("nome")`.
 - Volume por categoria em `audio.cpp` (`categoriaDe` decide pelo nome do som); salvo em `config.txt`, ao lado do `salvo.txt`.
 - Móveis ocupam um quadrado e ficam em `Celula::movel`. Salvo versão 2 guarda posição dos móveis e o que tem dentro.
 

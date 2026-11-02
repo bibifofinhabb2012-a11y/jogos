@@ -10,9 +10,10 @@
 #include "util.h"
 
 
-// Relógio: 1 segundo de verdade = 12 segundos do jogo (um dia dura 2 horas de verdade).
-// Dormindo, 1 segundo de verdade = 10 minutos do jogo.
-constexpr double MIN_POR_SEG = 0.2, MIN_POR_SEG_DORMINDO = 10.0;
+// Relógio: um dia do jogo dura 1 hora de verdade (1 segundo de verdade = 24 segundos do jogo).
+// Dormindo, 1 segundo de verdade = 10 minutos do jogo. Para mudar a duração do dia, só esta linha.
+constexpr double HORAS_REAIS_POR_DIA = 1.0;
+constexpr double MIN_POR_SEG = 1440.0 / (HORAS_REAIS_POR_DIA * 3600.0), MIN_POR_SEG_DORMINDO = 10.0;
 
 Jogo::Jogo() { novo(); }
 

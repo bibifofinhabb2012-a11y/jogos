@@ -11,7 +11,7 @@ Aos 18 anos, o pai larga a pessoa na porteira da fazenda dele, parada há anos, 
 - `src/mapa.cpp`: 1000 por 1000 metros (x leste, y norte). Veja a seção Mapa. Córrego por y 620 com ponte na estrada, mata no noroeste, curral, galinheiro e paiol no terreiro, cerca de arame em volta.
 - `src/audio.cpp`: OpenAL Soft com HRTF (som binaural no fone). Sons em `sons/*.mp3`, mono; `nome-1.mp3`, `nome-2.mp3` são variações sorteadas.
 - `src/fala.cpp`: Tolk no Windows (NVDA, JAWS, SAPI); no Linux, imprime.
-- Relógio: 1 segundo real = 12 segundos do jogo (um dia = 2 horas reais). Dormindo, 1 segundo real = 10 minutos.
+- Relógio: um dia do jogo = 1 hora real (`HORAS_REAIS_POR_DIA` em `jogo.cpp`; antes eram 2 horas, ela pediu 1 pensando no online). Dormindo, 1 segundo real = 10 minutos. Fome, sede e o resto seguem o relógio do jogo.
 
 ## Compilar
 - Windows: o fluxo `.github/workflows/simulador-windows.yml` compila em todo push que mexe em `simulador-de-vida/` e entrega o zip `simulador-de-vida-windows`. SDL2, OpenAL Soft e Tolk são baixados e compilados pelo CMake.
@@ -50,3 +50,6 @@ Pegar coisas do chão; plantar na horta; animais; ferramentas no paiol; ir à ci
 
 ## Download para ela
 Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `downloads/simulador-de-vida-windows.zip` (baixar o item do Actions com `gh run download`, compactar a pasta "Simulador de Vida" e substituir). Link direto, sem login: https://github.com/bibifofinhabb2012-a11y/jogos/raw/main/downloads/simulador-de-vida-windows.zip
+
+## Online (conversado, não começado)
+Ela quer testar com amigos pela Radmin VPN. Combinado na conversa: num mundo compartilhado o relógio é um só (do servidor); dormir não pula o tempo para ninguém, só recupera energia. Ideia de mapa: uma cidade no meio (prefeitura, casa do seu Tião e dona Nezinha, comércio) e a fazenda de cada jogador em volta, com porteira "Fazenda de fulano", para visitar. Rede: um jogador hospeda (servidor dentro do próprio jogo), os outros entram pelo IP da Radmin. Biblioteca sugerida: ENet (UDP simples, usada em muitos jogos). Primeiro passo: ver os outros andando (passos em 3D, nome) e chat de texto; depois coisas compartilhadas. Conversa por voz fica melhor no Discord.

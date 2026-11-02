@@ -7,6 +7,7 @@
 #include "audio.h"
 #include "fala.h"
 #include "jogo.h"
+#include "rede.h"
 #include "util.h"
 
 static const char* CATEGORIAS[5] = {"Móveis", "Pessoas", "Portas e porteiras", "Lugares", "Plantação"};
@@ -14,11 +15,11 @@ constexpr int NCAT = 5;
 
 // "a sala", "o corredor"
 static std::string com(const std::string& l) {
-    static const char* fem[] = {"sala", "cozinha", "casinha de seu Tião e dona Nezinha", "casa da sede", "roça", "varanda da casa", "calçada da casa", "horta", "mata", "estrada da fazenda", "estrada para a cidade", "ponte do córrego"};
+    static const char* fem[] = {"sala", "cozinha", "casinha de seu Tião e dona Nezinha", "casa da sede", "roça", "prefeitura", "praça da cidade", "rua da cidade", "varanda da casa", "calçada da casa", "horta", "mata", "estrada da fazenda", "estrada para a cidade", "ponte do córrego"};
     for (const char* f : fem) if (l == f) return "a " + l;
     return "o " + l;
 }
-static bool fora(const std::string& l) { return l == "terreiro da sede" || l == "pasto" || l == "calçada da casa" || l == "varanda da casa" || l.rfind("pasto", 0) == 0; }
+static bool fora(const std::string& l) { return l == "rua da cidade" || l == "praça da cidade" || l == "terreiro da sede" || l == "pasto" || l == "calçada da casa" || l == "varanda da casa" || l.rfind("pasto", 0) == 0; }
 
 static int distancia(int ax, int ay, int bx, int by) { return std::max(std::abs(ax - bx), std::abs(ay - by)); }
 
@@ -26,14 +27,17 @@ void Jogo::montarAlvos() {
     alvos.clear();
     if (categoria == 1) {
         for (size_t i = 0; i < moveis.size(); i++)
-            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha")
-                alvos.push_back({maiuscula(nomeMovel((int)i)) + ", " + (moveis[i].tipo == "tiao" ? "o caseiro" : "a esposa dele"), moveis[i].x, moveis[i].y, true});
+            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito")
+                alvos.push_back({maiuscula(nomeMovel((int)i)) + (moveis[i].tipo == "tiao" ? ", o caseiro" : moveis[i].tipo == "nezinha" ? ", a esposa dele" : moveis[i].tipo == "ze" ? ", no balcão do bar" : ", na prefeitura"),
+                                 moveis[i].x, moveis[i].y, true});
+        for (const auto& [id, r] : rede::remotos())  // outros jogadores no mesmo lugar
+            if (r.mundo == mundoCanonico()) { alvos.push_back({r.nome + ", jogador", r.x, r.y, true}); alvos.back().jogador = id; }
     } else if (categoria == 4) {
         for (const auto& [c, p] : plantas)
             alvos.push_back({maiuscula(nomePlanta(p.tipo)) + ", " + estadoPlanta(p), c % LADO, c / LADO, true});
     } else if (categoria == 0) {
         for (size_t i = 0; i < moveis.size(); i++) {
-            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha") continue;
+            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito") continue;
             std::string n = nomeMovel((int)i);
             std::string l = mapa.nomeLugar(moveis[i].x, moveis[i].y);
             alvos.push_back({maiuscula(n) + ", " + (l == "calçada da casa" ? "na casa" : l == "box do chuveiro" ? "no box" : "no " + l), moveis[i].x, moveis[i].y, true});
@@ -63,7 +67,7 @@ void Jogo::montarAlvos() {
         }
     } else {
         for (const Lugar& l : mapa.listaLugares()) {
-            if (l.nome == "pasto" || l.nome.rfind("estrada municipal", 0) == 0 || l.nome.find("do lado de fora") != std::string::npos) continue;
+            if (l.nome == "pasto" || l.nome == "fora da cidade" || l.nome == "rua da cidade" || l.nome.rfind("estrada municipal", 0) == 0 || l.nome.find("do lado de fora") != std::string::npos) continue;
             int cx = (l.x0 + l.x1) / 2, cy = (l.y0 + l.y1) / 2, bx = -1, by = -1;
             for (int r = 0; r < 60 && bx < 0; r++)  // quadrado livre mais perto do meio
                 for (int dy = -r; dy <= r && bx < 0; dy++)
@@ -175,6 +179,11 @@ void Jogo::irAteAlvo() {
 
 void Jogo::atualizarGuia(double dt) {
     if (!rastreando) return;
+    if (rastreado.jogador >= 0) {  // jogador anda: o bip segue ele
+        auto it = rede::remotos().find(rastreado.jogador);
+        if (it == rede::remotos().end() || it->second.mundo != mundoCanonico()) { rastreando = false; caminho.clear(); fala::dizer(rastreado.nome + " saiu daqui. Rastreio desligado."); return; }
+        rastreado.x = it->second.x; rastreado.y = it->second.y;
+    }
     if (chegou(rastreado)) {
         rastreando = false; caminho.clear();
         // fica de frente para a coisa

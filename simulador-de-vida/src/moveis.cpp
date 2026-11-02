@@ -22,6 +22,11 @@ static const TipoMovel TIPOS[] = {
     {"nezinha", "dona Nezinha", true, false, false, false},
     {"correio", "caixa de correio", true, false, false, false},
     {"remessa", "caixa de remessa", true, false, false, false},
+    {"trator", "trator", false, false, false, false},
+    {"balcao", "balcão do bar", false, false, false, false},
+    {"mesa-bar", "mesa do bar", true, true, false, false},
+    {"ze", "seu Zé", false, false, false, false},
+    {"prefeito", "seu Manel do Bacanal, o prefeito", false, false, false, false},
 };
 static const TipoMovel& tipoDe(const std::string& t) {
     for (const auto& k : TIPOS) if (t == k.tipo) return k;
@@ -51,6 +56,7 @@ void Jogo::criarMoveis() {
     m("correio", 502, 108);
     int r = m("remessa", 505, 8);
     moveis[r].partes = {{}};
+    m("trator", 506, 97);   // estacionado no terreiro, na frente da casa, do lado da estrada
     ocupar();
 }
 
@@ -80,6 +86,11 @@ void Jogo::interagir(int i) {
     float mx = m.x + 0.5f, my = m.y + 0.5f;
     if (t == "geladeira" || t == "guarda-roupa") { abrirRecipiente(i); return; }
     if (t == "tiao" || t == "nezinha") { conversarCom(i); return; }
+    if (t == "trator") { menuTrator(); return; }
+    if (t == "balcao" || t == "ze") { menuZe(); return; }
+    if (t == "prefeito") { conversarPrefeito(); return; }
+    if (t == "mesa-bar") { fala::dizer("Uma mesa de bar, de lata, com marcas de copo e um cinzeiro."); return; }
+    if (mundoAtual.rfind("visita:", 0) == 0) { fala::dizer("Na casa dos outros, melhor não mexer."); return; }
     if (t == "correio") { abrirCorreio(); return; }
     if (t == "remessa") { abrirRemessa(i); return; }
     if (t == "fogao") {
@@ -109,7 +120,8 @@ void Jogo::arrastar() {
     if (segurando >= 0) { fala::dizer("Você solta " + nomeMovel(segurando, true) + "."); segurando = -1; return; }
     int i = movelFrente();
     if (i < 0) { fala::dizer("Não tem móvel na sua frente."); return; }
-    if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha") { fala::dizer("Arrastar gente não pode, né?"); return; }
+    if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito") { fala::dizer("Arrastar gente não pode, né?"); return; }
+    if (mundoAtual.rfind("visita:", 0) == 0) { fala::dizer("Na casa dos outros, melhor não mexer."); return; }
     if (!tipoDe(moveis[i].tipo).arrasta) { fala::dizer(maiuscula(nomeMovel(i, true)) + " é fixa no lugar. Não dá para arrastar."); return; }
     if (postura != Postura::EmPe) { fala::dizer("Para arrastar, levante primeiro: aperte R."); return; }
     segurando = i;

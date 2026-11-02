@@ -34,6 +34,10 @@ inline std::string plural(const Coisa& c, int qtd, const std::string& singular) 
     if (t == "milho") return "espigas de milho";
     if (t == "feijao") return "punhados de feijão de corda";
     if (t == "arroz") return "feixes de arroz";
+    if (t == "po-cafe") return "pacotes de pó de café";
+    if (t == "acucar") return "sacos de açúcar";
+    if (t == "farinha") return "sacos de farinha de trigo";
+    if (t == "gas") return "botijões de gás";
     if (t == "tampa") return "tampas de garrafa";
     if (t == "garrafa" || t == "garrafa-aberta") {
         std::string estado = t == "garrafa" ? "tampadas" : "abertas";

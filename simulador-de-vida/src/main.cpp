@@ -2,6 +2,7 @@
 // Uso normal: abre a janela e joga.
 // Teste: simulador-de-vida --roteiro arquivo.txt  (sem janela nem som; escreve as falas no terminal)
 #include <SDL.h>
+#include <cmath>
 #include <cstdio>
 #include <fstream>
 #include <map>
@@ -10,6 +11,8 @@
 #include "audio.h"
 #include "fala.h"
 #include "jogo.h"
+#include "rede.h"
+#include "voz.h"
 
 static bool traduzir(SDL_Keycode k, Tecla& t) {
     static const std::map<SDL_Keycode, Tecla> mapa = {
@@ -18,7 +21,7 @@ static bool traduzir(SDL_Keycode k, Tecla& t) {
         {SDLK_l, Tecla::L}, {SDLK_b, Tecla::B}, {SDLK_v, Tecla::V}, {SDLK_k, Tecla::K}, {SDLK_o, Tecla::O}, {SDLK_w, Tecla::W}, {SDLK_TAB, Tecla::Tab}, {231, Tecla::Cedilha}, {SDLK_3, Tecla::Tres}, {SDLK_KP_3, Tecla::Tres}, {SDLK_F2, Tecla::F2}, {SDLK_h, Tecla::H}, {SDLK_q, Tecla::Q}, {SDLK_r, Tecla::R},
         {SDLK_1, Tecla::Um}, {SDLK_KP_1, Tecla::Um}, {SDLK_2, Tecla::Dois}, {SDLK_KP_2, Tecla::Dois},
         {SDLK_RETURN, Tecla::Enter}, {SDLK_KP_ENTER, Tecla::Enter}, {SDLK_SPACE, Tecla::Espaco},
-        {SDLK_ESCAPE, Tecla::Esc}, {SDLK_F1, Tecla::F1},
+        {SDLK_ESCAPE, Tecla::Esc}, {SDLK_F1, Tecla::F1}, {SDLK_BACKSPACE, Tecla::Backspace},
     };
     auto it = mapa.find(k);
     if (it == mapa.end()) {
@@ -39,6 +42,7 @@ static int rodarRoteiro(const char* arquivo) {
         {"enter", Tecla::Enter}, {"espaco", Tecla::Espaco}, {"esc", Tecla::Esc}, {"f1", Tecla::F1},
     };
     fala::iniciar(true);
+    rede::iniciar();
     Jogo jogo;
     jogo.abertura(true);
     std::ifstream f(arquivo);
@@ -65,6 +69,26 @@ static int rodarRoteiro(const char* arquivo) {
                 for (double t = 0; t < seg; t += 0.05) jogo.atualizar(0.05);
                 jogo.soltar(tc);
             } else jogo.soltar(tc);
+        } else if (cmd == "digitar") {  // escreve num campo aberto, letra por letra
+            std::string resto; std::getline(s >> std::ws, resto);
+            for (size_t k = 0; k < resto.size();) {
+                size_t n = ((unsigned char)resto[k] & 0x80) == 0 ? 1 : ((unsigned char)resto[k] & 0xE0) == 0xC0 ? 2 : 3;
+                jogo.texto(resto.substr(k, n)); k += n;
+            }
+        } else if (cmd == "vozteste") {  // manda 1 segundo de um tom pela voz, como se fosse o microfone
+            for (int q = 0; q < 50; q++) {
+                short pcm[320]; unsigned char pac[400];
+                for (int k = 0; k < 320; k++) pcm[k] = (short)(8000 * std::sin(2 * 3.14159 * 220 * (q * 320 + k) / 16000.0));
+                int b = voz::codificarTeste(pcm, pac, sizeof pac);
+                short volta[960];
+                if (q == 0) std::printf("teste opus: %d bytes, decodificou %d amostras\n", b, voz::decodificarTeste(pac, b, volta));
+                rede::enviarVoz(pac, b);
+            }
+        } else if (cmd == "contarvoz") { std::printf("pacotes de voz recebidos: %d\n", jogo.pacotesVozLidos());
+        } else if (cmd == "real") {  // espera tempo de verdade (para a rede trabalhar)
+            double seg = 1; s >> seg;
+            Uint64 fimR = SDL_GetTicks64() + (Uint64)(seg * 1000);
+            while (SDL_GetTicks64() < fimR) { jogo.atualizar(0.05); SDL_Delay(50); }
         } else if (cmd == "ir") {
             int ix, iy, ir; s >> ix >> iy >> ir; jogo.testeIr(ix, iy, ir);
         } else if (cmd == "salvar" || cmd == "carregar") {
@@ -96,6 +120,8 @@ int main(int argc, char** argv) {
     SDL_free(pref);
 
     bool comSom = audio::iniciar(pasta + "sons");
+    rede::iniciar();
+    SDL_StartTextInput();  // para o chat e os campos de escrita (letras com acento, dois-pontos)
     Jogo jogo;
     jogo.carregarConfig(std::string(salvo.substr(0, salvo.size() - 9)) + "config.txt");
     bool tinha = jogo.carregar(salvo);
@@ -108,6 +134,7 @@ int main(int argc, char** argv) {
         SDL_Event ev;
         while (SDL_PollEvent(&ev)) {
             if (ev.type == SDL_QUIT) { jogo.salvar(salvo); goto fim; }
+            if (ev.type == SDL_TEXTINPUT) { jogo.texto(ev.text.text); continue; }
             Tecla t;
             SDL_Keycode kc = ev.type == SDL_KEYDOWN || ev.type == SDL_KEYUP ? ev.key.keysym.sym : 0;
             // no teclado ABNT2, o Ç fica onde o ponto e vírgula fica no americano
@@ -134,6 +161,8 @@ int main(int argc, char** argv) {
     jogo.salvar(salvo);
     SDL_Delay(1200);  // dá tempo de ouvir "Jogo salvo"
 fim:
+    voz::encerrar();
+    rede::encerrar();
     audio::encerrar();
     fala::encerrar();
     SDL_DestroyRenderer(tela);

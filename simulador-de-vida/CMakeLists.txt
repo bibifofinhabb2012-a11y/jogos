@@ -3,12 +3,26 @@ project(SimuladorDeVida CXX C)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(simulador-de-vida src/main.cpp src/jogo.cpp src/mapa.cpp src/audio.cpp src/fala.cpp src/moveis.cpp src/menu.cpp src/guia.cpp src/tutorial.cpp src/roca.cpp src/correio.cpp)
+add_executable(simulador-de-vida src/main.cpp src/jogo.cpp src/mapa.cpp src/audio.cpp src/fala.cpp src/moveis.cpp src/menu.cpp src/guia.cpp src/tutorial.cpp src/roca.cpp src/correio.cpp src/mundo.cpp src/rede.cpp src/texto.cpp src/voz.cpp)
 target_include_directories(simulador-de-vida PRIVATE externo)
+
+# rede (ENet) e voz (Opus): baixados e compilados junto, em qualquer sistema
+include(FetchContent)
+FetchContent_Declare(enet GIT_REPOSITORY https://github.com/lsalzman/enet.git GIT_TAG v1.3.18 GIT_SHALLOW TRUE)
+set(OPUS_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
+set(OPUS_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(OPUS_INSTALL_PKG_CONFIG_MODULE OFF CACHE BOOL "" FORCE)
+set(OPUS_INSTALL_CMAKE_CONFIG_MODULE OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(opus GIT_REPOSITORY https://github.com/xiph/opus.git GIT_TAG v1.5.2 GIT_SHALLOW TRUE)
+FetchContent_MakeAvailable(enet opus)
+target_include_directories(simulador-de-vida PRIVATE ${enet_SOURCE_DIR}/include)
+target_link_libraries(simulador-de-vida PRIVATE enet opus)
+if(WIN32)
+  target_link_libraries(simulador-de-vida PRIVATE ws2_32 winmm)
+endif()
 
 if(WIN32)
   # No Windows, baixa e compila SDL2, OpenAL Soft (som 3D com HRTF) e Tolk (fala pelo leitor de tela).
-  include(FetchContent)
   set(SDL_TEST OFF CACHE BOOL "" FORCE)
   set(SDL2_DISABLE_SDL2MAIN OFF CACHE BOOL "" FORCE)
   FetchContent_Declare(sdl2 GIT_REPOSITORY https://github.com/libsdl-org/SDL.git GIT_TAG release-2.30.9 GIT_SHALLOW TRUE)

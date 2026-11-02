@@ -21,13 +21,13 @@ static std::map<std::string, std::vector<ALuint>> banco;  // grupo -> variaçõe
 static std::vector<ALuint> fontes;                          // fontes de toque único, reaproveitadas
 static std::map<int, ALuint> lacos;                         // fontes contínuas e móveis
 static std::map<int, std::pair<std::string, float>> lacoInfo;  // categoria e volume pedido de cada uma
-static std::map<std::string, float> volumes = {{"ambiente", 1}, {"passos", 1}, {"efeitos", 1}, {"interface", 1}, {"musica", 1}};
+static std::map<std::string, float> volumes = {{"ambiente", 1}, {"passos", 1}, {"efeitos", 1}, {"interface", 1}, {"musica", 1}, {"voz", 1}};
 
 static std::string categoriaDe(const std::string& nome) {
     if (nome.rfind("passos", 0) == 0) return "passos";
     static const char* amb[] = {"vento", "corrego", "grilos", "cigarra", "passaros", "sapos", "galo", "geladeira", "carro"};
     for (const char* a : amb) if (nome == a) return "ambiente";
-    static const char* intf[] = {"gota", "bip", "chegou", "menu-abrir", "menu-fechar", "tutorial-ok"};
+    static const char* intf[] = {"gota", "bip", "chegou", "menu-abrir", "menu-fechar", "tutorial-ok", "chat"};
     for (const char* a : intf) if (nome == a) return "interface";
     if (nome.rfind("musica", 0) == 0) return "musica";
     return "efeitos";

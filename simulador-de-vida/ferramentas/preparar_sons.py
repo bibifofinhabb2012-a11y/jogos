@@ -153,6 +153,11 @@ trecho("sv-colher", 699492, "colher", alvo=-18); u(699492)
 trecho("sv-cafe", 432775, "cafe", 0, 3.0, -20); u(432775)
 trecho("sv-gole", 272037, "gole", alvo=-18); u(272037)
 trecho("sv-sementes", 235278, "sementes", alvo=-20); u(235278)
+# cidade, viagem e vícios
+laco("sv-trator", 256807, "trator", -18, dur=12); u(256807)
+laco("sv-bar", 415974, "bar", -22); u(415974)
+trecho("sv-isqueiro", 827018, "isqueiro", alvo=-18); u(827018)
+trecho("sv-tosse", 743354, "tosse", alvo=-18); u(743354)
 trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
 
 # sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial
@@ -169,6 +174,7 @@ tons([(660, 660, 0.12, 12), (990, 990, 0.25, 9)], "chegou", -20)
 tons([(500, 800, 0.08, 25)], "menu-abrir", -26)
 tons([(800, 500, 0.08, 25)], "menu-fechar", -26)
 tons([(523, 523, 0.1, 10), (659, 659, 0.1, 10), (784, 784, 0.3, 7)], "tutorial-ok", -22)
+tons([(1175, 1175, 0.06, 30), (1568, 1568, 0.12, 22)], "chat", -24)
 
 # bússola precária: a agulha chacoalhando na caixinha de lata
 x = ler(arquivo("sv-bussola", 421154))
@@ -185,7 +191,7 @@ gravar(r, "ruido", -26)
 cred = {x["id"]: x for x in json.load(open(os.path.join(ORIGEM, "creditos.json")))}
 with open(os.path.join(DESTINO, "CREDITOS.txt"), "w", encoding="utf-8") as f:
     f.write("Sons do Simulador de Vida. Todos do Freesound (freesound.org), com licença CC0 (domínio público) ou CC BY (pede crédito).\n")
-    f.write("O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tutorial) foram gerados para o jogo.\n\n")
+    f.write("O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tutorial, chat) foram gerados para o jogo.\n\n")
     for sid in dict.fromkeys(usados):
         c = cred.get(sid)
         if not c: continue

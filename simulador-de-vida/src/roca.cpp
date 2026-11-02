@@ -130,7 +130,9 @@ void Jogo::colher(int cel, bool comMachado) {
 }
 
 void Jogo::atualizarRoca(double dm) {
-    for (auto& [cel, p] : plantas) {
+    auto& minhas = fazendaGuardada ? fazendaGuardada->plantas : plantas;  // só as suas crescem por aqui
+    if (mundoAtual != "fazenda" && !fazendaGuardada) return;
+    for (auto& [cel, p] : minhas) {
         if (minutos >= p.molhadaAte || p.horas >= HORAS_PARA_COLHER) continue;
         p.horas = std::min(HORAS_PARA_COLHER, p.horas + dm / 60.0);
     }

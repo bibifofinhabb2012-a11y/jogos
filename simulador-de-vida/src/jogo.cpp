@@ -59,6 +59,11 @@ std::string Jogo::nomeCoisa(const Coisa& c, bool comArtigo) const {
     else if (t == "camisa") n = "camisa de flanela xadrez, do seu pai";
     else if (t == "calca") n = "calça jeans gasta";
     else if (t == "chapeu") n = "chapéu de palha";
+    else if (t == "po-cafe") n = "pacote de pó de café";
+    else if (t == "acucar") n = "saco de açúcar";
+    else if (t == "farinha") n = "saco de farinha de trigo";
+    else if (t == "gas") n = "botijão de gás";
+    else if (t == "cigarro") n = c.carga == 0 ? "maço de cigarro vazio" : "maço de cigarro, com " + std::to_string(c.carga);
     else if (t == "semente-milho") n = "semente de milho";
     else if (t == "semente-feijao") n = "semente de feijão de corda";
     else if (t == "semente-arroz") n = "semente de arroz";
@@ -71,7 +76,7 @@ std::string Jogo::nomeCoisa(const Coisa& c, bool comArtigo) const {
     else if (t == "tampa") n = "tampa de garrafa";
     else n = t;
     if (!comArtigo) return n;
-    bool fem = t != "antibiotico" && t != "pacote" && t != "gesso" && t != "saco-dormir" && t != "chapeu" && t != "machado" && t != "regador" && t != "feixe" && t != "arroz" && t != "feijao";
+    bool fem = t != "antibiotico" && t != "pacote" && t != "gesso" && t != "saco-dormir" && t != "chapeu" && t != "machado" && t != "regador" && t != "feixe" && t != "arroz" && t != "feijao" && t != "po-cafe" && t != "acucar" && t != "farinha" && t != "gas" && t != "cigarro";
     return std::string(fem ? "a " : "o ") + n;
 }
 
@@ -212,7 +217,18 @@ void Jogo::usar(bool direita) {
     std::string lado = direita ? "direita" : "esquerda";
     const std::string& t = c.tipo;
     if (t.empty()) { fala::dizer("A mão " + lado + " está vazia."); return; }
+    if (mundoAtual.rfind("visita:", 0) == 0 && (t == "machado" || t == "regador" || t.rfind("semente-", 0) == 0)) { fala::dizer("Na roça dos outros, só o dono planta e colhe."); return; }
     if (usarNaRoca(c)) return;
+    if (t == "cigarro") {
+        if (c.carga <= 0) { fala::dizer("O maço está vazio."); return; }
+        c.carga--;
+        audio::tocar("isqueiro", 0.8f);
+        marcar(2.2, [this]() { audio::tocar("tosse", 0.8f); });
+        saude = std::max(0.0, saude - 0.5);
+        fala::dizer("Você acende um cigarro e dá uma tragada. A fumaça arranha a garganta, e vem a tosse." + std::string(c.carga ? " Restam " + std::to_string(c.carga) + " no maço." : " Era o último do maço."));
+        return;
+    }
+    if (t == "po-cafe" || t == "acucar" || t == "farinha" || t == "gas") { fala::dizer(maiuscula(nomeCoisa(c, true)) + ". Serve para cozinhar, quando a cozinha estiver pronta para isso."); return; }
     if (t == "garrafa-cafe") {
         if (c.carga <= 0) { fala::dizer("A garrafa térmica está vazia. Dona Nezinha enche uma vez por dia."); return; }
         c.carga--;
@@ -328,6 +344,7 @@ void Jogo::dormir() {
     if (sentadoEm >= 0 && moveis[sentadoEm].tipo == "cama") {
         double hojeSeis = std::floor(minutos / 1440) * 1440 + 6 * 60;
         acordarEm = minutos < hojeSeis - 60 ? hojeSeis : hojeSeis + 1440;  // as 6 da manhã que vêm (de madrugada, as de hoje)
+        if (rede::online()) acordarEm = -1;  // online: o dia não pula; acorda quando a energia encher
         fala::dizer("Você puxa o lençol, afunda a cabeça no travesseiro e dorme. E diz como a energia está se recuperando. Qualquer outra tecla, menos U, S, V e Q, acorda.");
         evento("dormiu");
         return;
@@ -579,12 +596,14 @@ std::string Jogo::passagemPerto(int ox, int oy, int r) const {
 }
 
 void Jogo::ajuda() {
-    fala::dizer("Teclas. Seta para cima: andar para a frente; segure para continuar; com Control, correr. Seta para baixo: andar de costas. Setas para a esquerda e para a direita: andar de lado. Control mais seta para o lado: virar 45 graus. Shift mais seta para o lado: virar 90 graus. Shift mais seta para cima ou para baixo: dar meia-volta. R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na sua frente; em outra posição, levantar. Control mais R: deitar; de frente para a cama, deita nela e dorme. Shift mais R: agachar. Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você. Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião ou dona Nezinha, conversa; de frente para uma planta pronta, colhe (o arroz se colhe com o machado). Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta. Alt mais Espaço: liga e desliga o chuveiro, de dentro do box. B: onde você está. Shift mais B: onde você está, a que distância das divisas e o que tem à frente. Ç: próxima categoria: móveis, pessoas, portas e porteiras, lugares, plantação. Shift mais Ç: categoria anterior. L: próximo item da categoria, do mais perto para o mais longe. K: item anterior. O: rastreia o item escolhido: um bip soa de onde ele está; O de novo desliga. Alt mais O: anda sozinho até o item, abrindo as portas; qualquer tecla para. Q: dia e hora. I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, uma letra pula para o próximo item com aquela inicial, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda, Esc fecha. 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia. 2: o mesmo para a mão direita. 3: diz o que tem nas duas mãos. T: combina o que está nas duas mãos; com as duas vazias, bate palmas. U: fome. S: sede. E: energia. H: saúde. W: limpeza: se precisa de banho. V: intestino. Shift mais V: bexiga. Control mais Q, segurando: fazer cocô, sentando, até acabar. Shift mais Q, segurando: fazer xixi, de cócoras, até acabar. Tab: menu: tutorial, configurações de volume, sair; Tab de novo volta ao jogo. Nos menus: setas para cima e para baixo escolhem, Enter faz, Shift Enter pega, guarda ou vende tudo, setas para os lados mudam volume, uma letra pula, Esc volta. F2: repete a última fala. F1: esta ajuda. Esc duas vezes: salva e sai.");
+    fala::dizer("Teclas. Seta para cima: andar para a frente; segure para continuar; com Control, correr. Seta para baixo: andar de costas. Setas para a esquerda e para a direita: andar de lado. Control mais seta para o lado: virar 45 graus. Shift mais seta para o lado: virar 90 graus. Shift mais seta para cima ou para baixo: dar meia-volta. R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na sua frente; em outra posição, levantar. Control mais R: deitar; de frente para a cama, deita nela e dorme. Shift mais R: agachar. Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você. Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado). Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta. Alt mais Espaço: liga e desliga o chuveiro, de dentro do box. B: onde você está. Shift mais B: onde você está, a que distância das divisas e o que tem à frente. Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação. Shift mais Ç: categoria anterior. L: próximo item da categoria, do mais perto para o mais longe. K: item anterior. O: rastreia o item escolhido: um bip soa de onde ele está; O de novo desliga. Alt mais O: anda sozinho até o item, abrindo as portas; qualquer tecla para. Q: dia e hora. I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, uma letra pula para o próximo item com aquela inicial, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda, Esc fecha. 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia. 2: o mesmo para a mão direita. 3: diz o que tem nas duas mãos. T: combina o que está nas duas mãos; com as duas vazias, bate palmas. U: fome. S: sede. E: energia. H: saúde. W: limpeza: se precisa de banho. V: intestino. Shift mais V: bexiga. Control mais Q, segurando: fazer cocô, sentando, até acabar. Shift mais Q, segurando: fazer xixi, de cócoras, até acabar. Dois-pontos: no jogo online, abre o campo de mensagem do chat; Enter envia, Esc cancela, Backspace apaga; o jogo fala cada letra que você digita. Tab: menu: tutorial, hospedar online, entrar em jogo online, jogadores, ativar e desativar chat, histórico do chat, ativar e desativar voz, configurações de volume, sair; Tab de novo volta ao jogo; sozinho, o menu pausa o jogo, no online não. Nos menus: setas para cima e para baixo escolhem, Enter faz, Shift Enter pega, guarda ou vende tudo, setas para os lados mudam volume, uma letra pula, Esc volta. F2: repete a última fala. F1: esta ajuda. Esc duas vezes: salva e sai.");
 }
 
 // ---------- teclas ----------
 void Jogo::tecla(Tecla t, bool shift, bool ctrl, bool alt, char letra) {
+    if (campo.ativo) { teclaCampo(t); return; }  // escrevendo: as letras chegam por texto(); aqui só Enter, Esc, Backspace
     if (carroT < 0 && carroPai) carroT = 0;  // primeira tecla: o pai vai embora
+    if (viajando && t != Tecla::U && t != Tecla::S && t != Tecla::E && t != Tecla::Q) { fala::dizer("Em viagem, no trator. Já, já chega."); return; }
     if (t != Tecla::Esc) confirmarSair = false;
     // andando sozinho até um alvo: qualquer tecla para
     if (!caminho.empty() && !(t == Tecla::O && alt)) { caminho.clear(); fala::dizer("Parou. O rastreio continua: siga o bip, ou Alt O para continuar."); return; }
@@ -664,8 +683,16 @@ void Jogo::tecla(Tecla t, bool shift, bool ctrl, bool alt, char letra) {
             if (alt) { chuveiro(); break; }
             Coisa& m = mao(maoSel == 0);
             int f = movelFrente();
+            for (const auto& [id, r] : rede::remotos())  // outro jogador na frente
+                if (m.tipo.empty() && r.mundo == mundoCanonico() && r.x == x + DX[rumo] && r.y == y + DY[rumo]) {
+                    fala::dizer(r.nome + " está na sua frente. Com gente de verdade, a conversa é pelo chat, com dois-pontos, ou pela voz, que se ativa no Tab.");
+                    return;
+                }
             if (m.tipo.empty() && f >= 0) interagir(f);
-            else if (m.tipo.empty() && plantaFrente() >= 0) colher(plantaFrente(), false);
+            else if (m.tipo.empty() && plantaFrente() >= 0) {
+                if (mundoAtual.rfind("visita:", 0) == 0) fala::dizer(maiuscula(nomePlanta(plantas[plantaFrente()].tipo)) + " de outra pessoa: " + estadoPlanta(plantas[plantaFrente()]) + ".");
+                else colher(plantaFrente(), false);
+            }
             else usar(maoSel == 0);
             break;
         }
@@ -702,10 +729,12 @@ void Jogo::soltar(Tecla t) {
 // ---------- tempo ----------
 void Jogo::atualizar(double seg) {
     agora += seg;
+    servicoRede(seg);
     if (pausado()) { ambiente(0); return; }  // menu do Tab aberto: o tempo para
-    double dm = seg * (dormindo ? MIN_POR_SEG_DORMINDO : MIN_POR_SEG), h = dm / 60.0;
+    bool online = rede::online();  // no online, o relógio é de todos: dormir não pula o tempo
+    double dm = seg * (dormindo && !online ? MIN_POR_SEG_DORMINDO : MIN_POR_SEG), h = dm / 60.0;
     minutos += dm;
-    if (dormindo) { fome -= 1.1 * h; sede -= 2.0 * h; energia += (sentadoEm >= 0 ? 15.0 : 12.0) * h; higiene -= 0.5 * h; }
+    if (dormindo) { fome -= 1.1 * h; sede -= 2.0 * h; energia += (online ? 120.0 : sentadoEm >= 0 ? 15.0 : 12.0) * h; higiene -= 0.5 * h; }
     else { fome -= 2.2 * h; sede -= 4.0 * h; energia -= 3.5 * h; higiene -= 1.5 * h; }
     intestino += 2.5 * h; bexiga += (dormindo ? 2.0 : 4.0) * h;
     if (excretando == 1) {
@@ -771,7 +800,7 @@ void Jogo::atualizar(double seg) {
         if (agenda[k].first <= agora) { auto f = agenda[k].second; agenda.erase(agenda.begin() + (long)k); f(); }
         else k++;
     }
-    if (!cenaTiao) {  // chegou perto de seu Tião pela primeira vez
+    if (!cenaTiao && mundoAtual == "fazenda") {  // chegou perto de seu Tião pela primeira vez
         int t = idx("tiao");
         if (t >= 0 && std::max(std::abs(x - moveis[t].x), std::abs(y - moveis[t].y)) <= 3 && !dormindo) cenaChegada();
     }
@@ -854,18 +883,30 @@ void Jogo::abertura(bool novoJogo) {
 void Jogo::carregarConfig(const std::string& arquivo) {
     arquivoConfig = arquivo;
     std::ifstream f(arquivo);
-    std::string k, cat; float v;
-    while (f >> k >> cat >> v) if (k == "volume") audio::definirVolume(cat, v);
+    std::string linha;
+    while (std::getline(f, linha)) {
+        std::istringstream s(linha);
+        std::string k; s >> k;
+        if (k == "volume") { std::string cat; float v; if (s >> cat >> v) audio::definirVolume(cat, v); }
+        else if (k == "nome") { std::getline(s >> std::ws, nomeOnline); }
+        else if (k == "ip") s >> ultimoIp;
+        else if (k == "chat") { int c = 1; s >> c; chatAtivo = c != 0; }
+    }
 }
 void Jogo::salvarConfig(const std::string& arquivo) const {
     std::ofstream f(arquivo);
-    for (const char* c : {"ambiente", "passos", "efeitos", "interface", "musica"}) f << "volume " << c << ' ' << audio::volume(c) << '\n';
+    for (const char* c : {"ambiente", "passos", "efeitos", "interface", "musica", "voz"}) f << "volume " << c << ' ' << audio::volume(c) << '\n';
+    if (!nomeOnline.empty()) f << "nome " << nomeOnline << '\n';
+    if (!ultimoIp.empty()) f << "ip " << ultimoIp << '\n';
+    f << "chat " << (chatAtivo ? 1 : 0) << '\n';
 }
 
 // ---------- salvar ----------
-void Jogo::salvar(const std::string& arquivo) const {
+void Jogo::salvar(const std::string& arquivo) {
     std::ofstream f(arquivo);
     if (!f) return;
+    bool fora = (bool)fazendaGuardada;  // fora de casa: salva a fazenda guardada, e você volta para ela
+    if (fora) trocarComGuardada();
     f << "versao 2\n" << "pos " << x << ' ' << y << ' ' << rumo << '\n'
       << "corpo " << fome << ' ' << sede << ' ' << energia << ' ' << saude << '\n'
       << "relogio " << minutos << '\n'
@@ -884,6 +925,7 @@ void Jogo::salvar(const std::string& arquivo) const {
     for (const Pilha& p : mochila) f << "item " << p.coisa.tipo << ' ' << p.coisa.carga << ' ' << p.qtd << '\n';
     f << "maoD " << (maoDireita.tipo.empty() ? "-" : maoDireita.tipo) << ' ' << maoDireita.carga << '\n';
     f << "maoE " << (maoEsquerda.tipo.empty() ? "-" : maoEsquerda.tipo) << ' ' << maoEsquerda.carga << '\n';
+    if (fora) trocarComGuardada();
 }
 
 bool Jogo::carregar(const std::string& arquivo) {

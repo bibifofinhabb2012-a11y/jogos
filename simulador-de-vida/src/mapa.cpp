@@ -5,7 +5,36 @@
 // Fazenda do pai, no interior de Minas. Porteira principal no sul, no meio da divisa (x 498 a 502).
 // Quem chega fica no gramado, em (500, 9), virado para o norte. Bem em frente, a 100 quadrados,
 // em (500, 109), está a porta da casa sede, no meio da parede da varanda. A casa tem 200 por 200.
-Mapa::Mapa() : c(LADO * LADO) {
+Mapa::Mapa(bool ehCidade) : cidade(ehCidade), c(LADO * LADO) {
+    if (cidade) gerarCidade(); else gerarFazenda();
+}
+
+// A cidade: um quadrado murado com praça no meio, ruas de calçamento, estacionamento na entrada sul
+// (onde o trator chega), o bar do seu Zé a oeste da praça e a prefeitura a leste.
+void Mapa::gerarCidade() {
+    retangulo(380, 20, 620, 220, Chao::Calcada);
+    retangulo(470, 60, 530, 120, Chao::Grama);          // praça
+    for (int x = 476; x <= 524; x += 8) { em(x, 66).obs = Obstaculo::Arvore; em(x, 114).obs = Obstaculo::Arvore; }
+    contorno(380, 20, 620, 220, Obstaculo::Muro);
+    // bar do seu Zé: porta para o sul, de frente para a praça
+    retangulo(430, 130, 480, 160, Chao::Ceramica);
+    contorno(430, 130, 480, 160, Obstaculo::Parede);
+    abrir(455, 130, Obstaculo::Porta, Chao::Ceramica);
+    // prefeitura
+    retangulo(520, 130, 580, 165, Chao::Taco);
+    contorno(520, 130, 580, 165, Obstaculo::Parede);
+    abrir(550, 130, Obstaculo::Porta, Chao::Taco);
+    lugares = {
+        {"bar do seu Zé", 431, 131, 479, 159, true},
+        {"prefeitura", 521, 131, 579, 164, true},
+        {"praça da cidade", 470, 60, 530, 120, false},
+        {"estacionamento da cidade", 485, 21, 515, 40, false},
+        {"rua da cidade", 381, 21, 619, 219, false},
+        {"fora da cidade", 0, 0, LADO - 1, LADO - 1, false},
+    };
+}
+
+void Mapa::gerarFazenda() {
     std::mt19937 sorte(18);  // sempre o mesmo mapa
     std::uniform_real_distribution<float> u(0, 1);
 
@@ -239,6 +268,7 @@ const char* Mapa::nome(Obstaculo o) {
         case Obstaculo::Porta: return "porta";
         case Obstaculo::Vidro: return "vidro do box";
         case Obstaculo::PortaBox: return "porta do box";
+        case Obstaculo::Muro: return "muro da cidade";
     }
     return "obstáculo";
 }

@@ -1,5 +1,5 @@
 Sons do Simulador de Vida. Todos do Freesound (freesound.org), com licença CC0 (domínio público) ou CC BY (pede crédito).
-O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tutorial) foram gerados para o jogo.
+O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tutorial, chat) foram gerados para o jogo.
 
 "Footsteps on Grass", de harrietniamh. freesound.org/s/400123. CC BY 4.0.
 "running in grass", de EvanSki. freesound.org/s/411148. CC0.
@@ -72,5 +72,9 @@ O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tuto
 "Pouring coffee", de Maajora. freesound.org/s/432775. CC0.
 "Sipping coffee", de aldenroth2. freesound.org/s/272037. CC0.
 "seeds (cristal jar)4.wav", de Godowan. freesound.org/s/235278. CC0.
+"tractor-ladnfill-crush.wav", de radwoc. freesound.org/s/256807. CC0.
+"Bar Ambience, Talking, Music, Glasses, Door Creaking", de BurghRecords. freesound.org/s/415974. CC0.
+"LIGHTER FLICK 10", de reergaregs. freesound.org/s/827018. CC0.
+"Double Cough", de qubodup. freesound.org/s/743354. CC0.
 "sitting down", de soundmast123. freesound.org/s/556591. CC BY 3.0.
 "Metal_Rattling_Small.wav", de GiocoSound. freesound.org/s/421154. CC0.

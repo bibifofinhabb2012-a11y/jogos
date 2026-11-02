@@ -3,11 +3,13 @@
 #pragma once
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include "mapa.h"
+#include "rede.h"
 
-enum class Tecla { Cima, Baixo, Esquerda, Direita, I, U, S, E, T, L, H, Q, R, B, V, K, O, W, Cedilha, Um, Dois, Tres, Enter, Espaco, Esc, Tab, F1, F2, Letra };
+enum class Tecla { Cima, Baixo, Esquerda, Direita, I, U, S, E, T, L, H, Q, R, B, V, K, O, W, Cedilha, Um, Dois, Tres, Enter, Espaco, Esc, Tab, F1, F2, Backspace, Letra };
 enum class Postura { EmPe, Sentado, Agachado, Deitado };
 
 // Uma coisa: o tipo e uma carga (goles numa garrafa, moedas na carteira).
@@ -49,7 +51,10 @@ struct Carta { std::string id; bool lida = false; };
 
 // Algo que dá para escolher com K e L e rastrear com O.
 // Lugares grandes têm retângulo (x0..x1, y0..y1): chegar é entrar nele.
-struct Alvo { std::string nome; int x, y; bool chegarAoLado; int x0 = -1, y0 = 0, x1 = 0, y1 = 0; };
+struct Alvo { std::string nome; int x, y; bool chegarAoLado; int x0 = -1, y0 = 0, x1 = 0, y1 = 0; int jogador = -1; };
+
+// Campo de escrita (chat, nome, endereço). O jogo fala cada letra, porque o leitor de tela não vê a janela.
+struct Campo { bool ativo = false; std::string titulo, texto; std::function<void(const std::string&)> ok; };
 
 // Uma planta na roça. Cresce só enquanto a terra está molhada (um dia do jogo depois de regar).
 struct Planta {
@@ -58,12 +63,22 @@ struct Planta {
     double molhadaAte = 0;   // minuto do jogo até quando a rega vale
 };
 
+// Um lugar onde se pode estar: a sua fazenda, a cidade ou a fazenda de outro jogador.
+struct Mundo {
+    Mapa mapa;
+    std::vector<Movel> moveis;
+    std::map<int, Planta> plantas;
+    std::vector<int> limpos;
+    int x = 0, y = 0, rumo = 0;
+};
+
+
 class Jogo {
 public:
     Jogo();
     void novo();                                  // começa do zero, com a cena do pai
     bool carregar(const std::string& arquivo);    // true: havia um jogo salvo
-    void salvar(const std::string& arquivo) const;
+    void salvar(const std::string& arquivo);
     void tecla(Tecla t, bool shift, bool ctrl, bool alt = false, char letra = 0);  // tecla apertada (não repetição)
     void soltar(Tecla t);                         // tecla solta
     void atualizar(double segundos);              // tempo real que passou
@@ -73,6 +88,11 @@ public:
     void carregarConfig(const std::string& arquivo);
     void salvarConfig(const std::string& arquivo) const;
     std::string arquivoConfig;
+    // texto digitado (SDL_TEXTINPUT): vai para o campo aberto; dois-pontos abre o chat
+    void texto(const std::string& utf8);
+    bool digitando() const { return campo.ativo; }
+    void servicoRede(double dt);   // chamar todo quadro, mesmo com menu aberto
+    int pacotesVozLidos() const { return pacotesVoz; }
     void testeIr(int nx, int ny, int r) { x = nx; y = ny; rumo = r; lugarAtual = mapa.nomeLugar(x, y); }  // só para roteiros de teste
 
 private:
@@ -137,7 +157,21 @@ private:
     std::vector<Carta> cartas;
     double proximaColeta = 22 * 60;          // minuto do jogo em que seu Manel passa na caixa de remessa
     std::vector<std::string> aoAcordar;      // o que aconteceu enquanto dormia
-    double acordarEm = -1;                   // dormindo na cama: acorda às 6 da manhã seguinte  // coisas marcadas para daqui a pouco (segundos reais)
+    double acordarEm = -1;                   // dormindo na cama: acorda às 6 da manhã seguinte
+    // onde está: "fazenda" (a sua), "cidade" ou "visita:Nome". Fora de casa, a fazenda fica guardada aqui e continua viva.
+    std::string mundoAtual = "fazenda";
+    std::unique_ptr<Mundo> fazendaGuardada;
+    bool viajando = false;
+    int somViagem = 0, somBar = 0;
+    // online, chat e voz
+    Campo campo;
+    int pacotesVoz = 0;            // quantos pedaços de voz chegaram (para teste)
+    bool chatAtivo = true, vozAtiva = false;
+    std::vector<std::string> historicoChat;
+    std::string nomeOnline, ultimoIp;
+    double relogioRede = 0, posicaoRede = 0;
+    int enviadoX = -1, enviadoY = -1, enviadoRumo = -1;
+    std::string enviadoMundo;  // coisas marcadas para daqui a pouco (segundos reais)
     int contadorPassos = 0;
 
     // mochila e mãos
@@ -225,6 +259,34 @@ private:
     void abrirRemessa(int i);
     void coletarRemessa();
     void avisar(const std::string& texto);  // fala agora, ou guarda para quando acordar
+    // mundos (mundo.cpp)
+    void trocarComGuardada();                // troca o mundo atual com a fazenda guardada
+    std::vector<Movel>& meusMoveis() { return fazendaGuardada ? fazendaGuardada->moveis : moveis; }
+    void viajar(const std::string& destino);
+    void chegarEm(const std::string& destino);
+    void criarMoveisCidade();
+    void menuTrator();
+    void menuZe();
+    void conversarPrefeito();
+    int* carteira();                         // as moedas, onde a carteira estiver (mão ou mochila)
+    std::string estadoFazenda();             // texto com o que muda na fazenda (para quem visita)
+    void aplicarEstado(const std::string& texto);
+    void pararSonsDosMoveis();
+    // nome do lugar igual para todos os jogadores: "fazenda:Dono" ou "cidade"
+    std::string mundoCanonico() const {
+        if (mundoAtual == "fazenda") return "fazenda:" + (rede::meuNome().empty() ? nomeOnline : rede::meuNome());
+        if (mundoAtual.rfind("visita:", 0) == 0) return "fazenda:" + mundoAtual.substr(7);
+        return mundoAtual;
+    }
+    // texto, chat e online (texto.cpp)
+    void abrirCampo(const std::string& titulo, const std::string& inicial, std::function<void(const std::string&)> ok);
+    void teclaCampo(Tecla t);
+    void abrirChat();
+    rede::Ganchos ganchos();
+    void hospedarOnline();
+    void entrarOnline();
+    void pedirNome(std::function<void()> depois);
+    void ligarVoz(bool ligar);
     // tutorial (tutorial.cpp)
     void evento(const std::string& e);
     void comecarTutorial();

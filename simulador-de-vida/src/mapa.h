@@ -8,7 +8,7 @@
 constexpr int LADO = 1000;
 
 enum class Chao : uint8_t { Grama, Pasto, Terra, Cascalho, Calcada, Taco, Ceramica, Madeira, Agua, TerraArada, Folhas, Mato, Cimento };
-enum class Obstaculo : uint8_t { Nada, Cerca, CercaMadeira, Tela, Parede, Arvore, Corrego, Porteira, Porta, Vidro, PortaBox };
+enum class Obstaculo : uint8_t { Nada, Cerca, CercaMadeira, Tela, Parede, Arvore, Corrego, Porteira, Porta, Vidro, PortaBox, Muro };
 
 struct Celula {
     Chao chao = Chao::Pasto;
@@ -26,7 +26,8 @@ struct Lugar {
 
 class Mapa {
 public:
-    Mapa();
+    explicit Mapa(bool cidade = false);  // a fazenda (cada jogador tem a sua, igual) ou a cidade
+    bool cidade = false;
     bool valido(int x, int y) const { return x >= 0 && y >= 0 && x < LADO && y < LADO; }
     const Celula& em(int x, int y) const { return c[y * LADO + x]; }
     Celula& em(int x, int y) { return c[y * LADO + x]; }
@@ -43,6 +44,8 @@ public:
     }
     // o box do chuveiro: (ix, iy) é onde se fica; o chuveiro fica ao norte, a porta ao sul
     void box(int ix, int iy);
+    void gerarFazenda();
+    void gerarCidade();
     std::vector<std::pair<int, int>> passagens() const;  // todas as portas e porteiras, para salvar
 
     const std::vector<Lugar>& listaLugares() const { return lugares; }

@@ -66,7 +66,7 @@ void Jogo::chegouCarta(const std::string& id) {
     if (std::any_of(cartas.begin(), cartas.end(), [&](const Carta& c) { return c.id == id; })) return;
     cartas.push_back({id, false});
     int i = idx("correio");
-    if (i >= 0) audio::tocar3D("porta-fechar", moveis[i].x + 0.5f, moveis[i].y + 0.5f, 1.0f, 0.4f, 3, 1.6f);
+    if (i >= 0 && mundoAtual == "fazenda") audio::tocar3D("porta-fechar", moveis[i].x + 0.5f, moveis[i].y + 0.5f, 1.0f, 0.4f, 3, 1.6f);
     avisar("Chegou carta nova na caixa de correio, ao lado direito da porta da casa sede.");
 }
 
@@ -143,9 +143,11 @@ void Jogo::abrirRemessa(int i) {
 
 // Às 22 horas de todo dia: o prefeito recolhe tudo e paga na carteira.
 void Jogo::coletarRemessa() {
-    int i = idx("remessa");
+    auto& mv = meusMoveis();  // a remessa é da sua fazenda, mesmo que você esteja na cidade
+    int i = -1;
+    for (size_t k = 0; k < mv.size(); k++) if (mv[k].tipo == "remessa") i = (int)k;
     if (i < 0) return;
-    auto& l = moveis[i].partes[0];
+    auto& l = mv[i].partes[0];
     int total = 0;
     for (const Pilha& p : l) total += p.qtd * preco(p.coisa.tipo);
     if (!total) return;
@@ -154,7 +156,7 @@ void Jogo::coletarRemessa() {
     Pilha* naMochila = nullptr;
     for (Pilha& p : mochila) if (p.coisa.tipo == "carteira") naMochila = &p;
     if (naMao) naMao->carga += total; else if (naMochila) naMochila->coisa.carga += total; else guardar({"carteira", total});
-    audio::tocar3D("carro", moveis[i].x + 2.5f, moveis[i].y - 4.0f, 0.6f, 0.5f, 8);
+    if (mundoAtual == "fazenda") audio::tocar3D("carro", mv[i].x + 2.5f, mv[i].y - 4.0f, 0.6f, 0.5f, 8);
     avisar("Lá pela porteira, um carro para e a caixa de remessa range: é seu Manel do Bacanal, recolhendo. Ele levou tudo e pagou " +
            std::to_string(total) + " moedas, que já estão na sua carteira.");
     evento("coleta");

@@ -6,6 +6,7 @@
 #include "audio.h"
 #include "fala.h"
 #include "jogo.h"
+#include "rede.h"
 #include "util.h"
 
 void Jogo::abrirMenu(Menu m) {
@@ -92,7 +93,8 @@ bool Jogo::teclaMenu(Tecla t, bool shift, char letra) {
 void Jogo::menuPrincipal() {
     Menu m;
     m.titulo = "Menu";
-    m.pausa = true;
+    m.pausa = !rede::online();  // no online o mundo não para
+    if (rede::online()) m.titulo = "Menu. O jogo online não pausa";
     m.opcoes = [this]() {
         std::vector<Opcao> v;
         v.push_back({passoTutorial >= 0 ? "Tutorial: recomeçar do início" : "Tutorial", [this]() {
@@ -101,6 +103,41 @@ void Jogo::menuPrincipal() {
         }, nullptr, nullptr});
         if (passoTutorial >= 0)
             v.push_back({"Parar o tutorial", [this]() { passoTutorial = -1; while (!menus.empty()) fecharMenu(); fala::dizer("Tutorial parado. Para voltar, Tab e Tutorial.", false); }, nullptr, nullptr});
+        if (!rede::online()) {
+            v.push_back({"Hospedar online", [this]() { while (!menus.empty()) fecharMenu(); hospedarOnline(); }, nullptr, nullptr});
+            v.push_back({"Entrar em jogo online", [this]() { while (!menus.empty()) fecharMenu(); entrarOnline(); }, nullptr, nullptr});
+        } else {
+            auto outros = rede::outrosJogadores();
+            v.push_back({"Jogadores online: " + std::to_string(outros.size() + 1), [this, outros]() {
+                std::string l = rede::meuNome() + ", você" + (rede::anfitriao() ? ", hospedando" : "");
+                for (const auto& [id, r] : rede::remotos()) {
+                    std::string onde = r.mundo == "cidade" ? ", na cidade" : r.mundo == "fazenda:" + r.nome ? ", na própria fazenda"
+                                     : r.mundo.rfind("fazenda:", 0) == 0 ? ", visitando a fazenda de " + r.mundo.substr(8) : "";
+                    l += ". " + r.nome + onde;
+                }
+                fala::dizer(l + ".");
+            }, nullptr, nullptr});
+            v.push_back({rede::anfitriao() ? "Parar de hospedar" : "Sair do jogo online", [this]() {
+                rede::sair(); while (!menus.empty()) fecharMenu();
+                if (mundoAtual.rfind("visita:", 0) == 0) chegarEm("fazenda");
+                fala::dizer("Fora do online. Agora é jogo sozinho de novo.", false);
+            }, nullptr, nullptr});
+        }
+        v.push_back({chatAtivo ? "Desativar chat" : "Ativar chat", [this]() {
+            chatAtivo = !chatAtivo; if (!arquivoConfig.empty()) salvarConfig(arquivoConfig);
+            fala::dizer(chatAtivo ? "Chat ativado. Dois-pontos abre o campo de mensagem." : "Chat desativado. As mensagens não serão lidas.");
+        }, nullptr, nullptr});
+        v.push_back({"Histórico do chat", [this]() {
+            Menu h; h.titulo = "Histórico do chat, da mais nova para a mais velha";
+            h.opcoes = [this]() {
+                std::vector<Opcao> hv;
+                for (auto it = historicoChat.rbegin(); it != historicoChat.rend(); ++it) hv.push_back({*it, [] {}, nullptr, nullptr});
+                if (hv.empty()) hv.push_back({"Nenhuma mensagem ainda", [] {}, nullptr, nullptr});
+                return hv;
+            };
+            abrirMenu(h);
+        }, nullptr, nullptr});
+        v.push_back({vozAtiva ? "Desativar voz" : "Ativar voz", [this]() { ligarVoz(!vozAtiva); }, nullptr, nullptr});
         v.push_back({"Configurações", [this]() { menuConfiguracoes(); }, nullptr, nullptr});
         v.push_back({"Sair do jogo", [this]() { sair = true; fala::dizer("Jogo salvo. Até logo."); }, nullptr, nullptr});
         return v;
@@ -118,6 +155,7 @@ void Jogo::menuConfiguracoes() {
             {"passos", "Volume dos passos"},
             {"efeitos", "Volume dos efeitos: portas, objetos, corpo"},
             {"interface", "Volume dos sons de navegação e do rastreio"},
+            {"voz", "Volume da voz dos outros jogadores"},
             {"musica", "Volume da música de fundo, que ainda não existe"},
         };
         for (auto& c : cats) {

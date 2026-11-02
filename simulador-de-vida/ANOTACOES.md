@@ -51,5 +51,12 @@ Pegar coisas do chão; plantar na horta; animais; ferramentas no paiol; ir à ci
 ## Download para ela
 Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `downloads/simulador-de-vida-windows.zip` (baixar o item do Actions com `gh run download`, compactar a pasta "Simulador de Vida" e substituir). Link direto, sem login: https://github.com/bibifofinhabb2012-a11y/jogos/raw/main/downloads/simulador-de-vida-windows.zip
 
-## Online (conversado, não começado)
-Ela quer testar com amigos pela Radmin VPN. Combinado na conversa: num mundo compartilhado o relógio é um só (do servidor); dormir não pula o tempo para ninguém, só recupera energia. Ideia de mapa: uma cidade no meio (prefeitura, casa do seu Tião e dona Nezinha, comércio) e a fazenda de cada jogador em volta, com porteira "Fazenda de fulano", para visitar. Rede: um jogador hospeda (servidor dentro do próprio jogo), os outros entram pelo IP da Radmin. Biblioteca sugerida: ENet (UDP simples, usada em muitos jogos). Primeiro passo: ver os outros andando (passos em 3D, nome) e chat de texto; depois coisas compartilhadas. Conversa por voz fica melhor no Discord.
+## Online (feito em novembro, testado aqui com dois jogos na mesma máquina)
+- `rede.cpp` com ENet (UDP, porta 27960). Quem hospeda é servidor e jogador (id 0) e repassa tudo. Mensagens: OLA, BEMVINDO, JOGADOR, SAIU, POS, MUNDO, CHAT, RELOGIO, PEDIR, FAZENDA, VOZ (canal 0 confiável, 1 posições, 2 voz).
+- Mundos com nome igual para todos (`mundoCanonico`): "fazenda:Dono" ou "cidade". `mundoAtual` local é "fazenda" (a sua), "cidade" ou "visita:Dono". A sua fazenda fica em `fazendaGuardada` enquanto você está fora (trocada com `trocarComGuardada`): plantas crescem, prefeito recolhe, salvar grava ela.
+- Visitar: o visitante gera o mesmo mapa e pede o estado ao dono (`estadoFazenda`: limpos, plantas, móveis, portas); só leitura (não planta, não colhe, não mexe nos móveis).
+- Chat: `texto()` recebe SDL_TEXTINPUT; dois-pontos abre o campo; o jogo fala cada caractere. Voz: `voz.cpp`, captura OpenAL a 16 kHz, Opus 16 kbps em quadros de 20 ms, só manda quando tem som; cada jogador tem uma fonte OpenAL na posição dele (referência 3 m, máximo 40 m).
+- Relógio: anfitrião manda a cada 5 s; no online dormir não acelera o tempo (energia +120 por hora do jogo dormindo). Tab não pausa no online.
+- Testes: roteiros com `real N` (espera de verdade), `digitar texto`, `vozteste`, `contarvoz`. Para testar, roda um anfitrião em segundo plano e um cliente com 127.0.0.1.
+- Não testado aqui: voz com microfone de verdade e o som saindo; rede entre dois computadores pela Radmin; Firewall do Windows.
+- Ideias para depois: plantar e colher na fazenda dos outros com permissão; mapa da cidade maior (mercado, igreja); Tião e Nezinha na cidade.

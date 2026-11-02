@@ -20,9 +20,9 @@ Aos 18 anos, o pai larga a pessoa na porteira da fazenda dele, parada há anos, 
 ## Sons
 Do Freesound, pelo fluxo "Buscar sons no Freesound" (grupos com prefixo `sv-` na branch `sons-candidatos`). `ferramentas/preparar_sons.py <pasta sons-candidatos>` corta os passos um a um, nivela e grava em `sons/`, com `sons/CREDITOS.txt`. Passos foram conferidos com o classificador do Meu Bebê nas gravações inteiras.
 
-## Teclas escolhidas por ela
-I mochila (setas escolhem, direita e esquerda põem nas mãos), 1 e 2 veem as mãos (duas vezes esvaziam), U fome, S sede, E energia, T combina (barra + mão vazia abre a barra; mãos vazias batem palmas).
-Escolhidas por Claude, a confirmar com ela: setas andam e viram 45 graus, Shift corre, Enter usa a mão, Espaço olha, B bússola, Q hora, H saúde, R repete, F1 ajuda, Esc duas vezes sai.
+## Teclas (definidas por ela)
+I mochila (setas escolhem, direita e esquerda põem nas mãos). 1 e 2 selecionam a mão e dizem o que tem; duas vezes esvaziam. Espaço usa a coisa da mão selecionada (come, bebe, bússola diz a direção, dorme). T combina: barra fechada + mão vazia abre a barra na mesma mão e a embalagem some; garrafa + mão vazia abre, e a tampa vai para a outra mão; garrafa aberta + tampa tampa, e a garrafa fica na mão em que estava; mãos vazias batem palmas. U fome, S sede, E energia (dormindo: "energia em N por cento, você está dormindo"). Setas cima e baixo andam; esquerda e direita andam de lado; Control + lado vira 45 graus; Shift + lado vira 90; Shift + cima ou baixo vira 180. Dormindo toca ruído branco.
+Escolhidas por Claude: Control + cima corre, L olha em volta e dá a posição, Q hora, H saúde, R repete, F1 ajuda, Esc duas vezes sai. A bússola só funciona na mão (não tem mais tecla B).
 
 ## Ainda não feito (próximos passos)
 Pegar coisas do chão e de lugares; plantar na horta; animais; ferramentas no paiol; ir à cidade comprar; ossos quebrados (o gesso já combina com água, mas não há fratura ainda); infecção (antibiótico); água do córrego sem ferver dando dor de barriga; reverberação dentro de casa; mobília.

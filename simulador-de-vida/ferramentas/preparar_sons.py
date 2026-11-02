@@ -106,7 +106,8 @@ for i, sid in enumerate([404553, 404552, 404551, 404547], 1): trecho("sv-palmas"
 for i, sid in enumerate([590219, 590217, 590215], 1): trecho("sv-embalagem", sid, f"embalagem-{i}", alvo=-20); u(sid)
 trecho("sv-tampa", 346060, "tampa", alvo=-20); u(346060)
 trecho("sv-beber", 27876, "beber", alvo=-20); u(27876)
-trecho("sv-mastigar", 362024, "mastigar", 0, 2.6, -20); u(362024)
+trecho("sv-crocante", 554708, "mastigar-1", alvo=-18); u(554708)
+trecho("sv-crocante", 507453, "mastigar-2", alvo=-18); u(507453)
 trecho("sv-mochila", 778083, "mochila", 0, 1.6, -22); u(778083)
 trecho("sv-moedas", 853705, "moedas", alvo=-20); u(853705)
 trecho("sv-saco-dormir", 776275, "saco-dormir", 0, 3.0, -22); u(776275)
@@ -118,15 +119,22 @@ print("água", passos("sv-agua", 328168, "passos-agua", 5, 0.5)); u(328168)
 for i, sid in enumerate([435508, 435507, 435506], 1): trecho("sv-galo", sid, f"galo-{i}", alvo=-20); u(sid)
 laco("sv-carro", 401552, "carro", -18); u(401552)
 
-# bússola: um clique curto sintetizado
-t = np.arange(int(0.05 * TAXA)) / TAXA
-gravar(np.sin(2 * np.pi * 2400 * t) * np.exp(-t * 90), "bussola", -24)
+# bússola precária: a agulha chacoalhando na caixinha de lata
+x = ler(arquivo("sv-bussola", 421154))
+jan = int(0.05 * TAXA); env = np.convolve(np.abs(x), np.ones(jan) / jan, mode="same")
+meio = int(np.argmax(env)); ini = max(0, meio - int(0.5 * TAXA))
+gravar(x[ini:ini + int(1.1 * TAXA)].copy(), "bussola", -20); u(421154)
+# ruído branco do sono, gerado: suavizado (passa-baixa leve) e com volume baixo
+rng = np.random.default_rng(7); r = rng.standard_normal(12 * TAXA).astype(np.float32)
+r = np.convolve(r, np.ones(4) / 4, mode="same")
+c = TAXA; r = np.concatenate([r[-c:] * np.linspace(1, 0, c) + r[:c] * np.linspace(0, 1, c), r[c:-c]])
+gravar(r, "ruido", -26)
 
 # créditos
 cred = {x["id"]: x for x in json.load(open(os.path.join(ORIGEM, "creditos.json")))}
 with open(os.path.join(DESTINO, "CREDITOS.txt"), "w", encoding="utf-8") as f:
     f.write("Sons do Simulador de Vida. Todos do Freesound (freesound.org), com licença CC0 (domínio público) ou CC BY (pede crédito).\n")
-    f.write("O clique da bússola foi sintetizado para o jogo.\n\n")
+    f.write("O ruído branco do sono foi gerado para o jogo.\n\n")
     for sid in dict.fromkeys(usados):
         c = cred.get(sid)
         if not c: continue

@@ -5,18 +5,24 @@ vem cada coisa, na frente, atrás, à esquerda ou à direita. O jogo fala pelo l
 estiver aberto (NVDA, JAWS e outros). Sem leitor de tela, usa a voz do Windows.
 
 TECLAS
-Seta para cima: andar para a frente. Segure para continuar andando. Com Shift, correr.
+Seta para cima: andar para a frente. Segure para continuar andando. Com Control, correr.
 Seta para baixo: andar de costas.
-Setas para os lados: virar 45 graus.
-Espaço: onde você está e o que tem à frente.
-B: bússola e posição. Q: dia e hora.
+Setas para a esquerda e para a direita: andar de lado.
+Control mais seta para o lado: virar 45 graus.
+Shift mais seta para o lado: virar 90 graus.
+Shift mais seta para cima ou para baixo: dar meia-volta, 180 graus.
+L: onde você está, a que distância das divisas, e o que tem à frente.
+Q: dia e hora.
 I: abre e fecha a mochila. Com ela aberta, setas para cima e para baixo escolhem o item,
 seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda.
-1: o que tem na mão direita. Apertado duas vezes, esvazia a mão direita.
+1: seleciona a mão direita e diz o que tem nela. Apertado duas vezes, esvazia a mão direita.
 2: o mesmo para a mão esquerda.
-T: combina o que está nas duas mãos. Com as duas vazias, bate palmas.
-Enter: usa o que está na mão: comer, beber, dormir, contar o dinheiro. Shift mais Enter: usa a mão esquerda.
-U: fome. S: sede. E: energia. H: saúde.
+Espaço: usa o que está na mão selecionada. Barra aberta: come. Garrafa aberta: bebe um gole.
+Bússola: diz para onde você está virado. Saco de dormir: dorme. Carteira: conta o dinheiro.
+T: combina o que está nas duas mãos. Barra numa mão e a outra vazia: abre a barra, que fica
+na mesma mão. Garrafa numa mão e a outra vazia: abre a garrafa, e a tampa fica na outra mão.
+Garrafa aberta e tampa: tampa a garrafa, que fica na mão em que estava. Mãos vazias: palmas.
+U: fome. S: sede. E: energia (dormindo, diz quanto já recuperou). H: saúde.
 R: repete a última fala. F1: ajuda. Esc duas vezes: salva e sai.
 
 O jogo salva sozinho a cada minuto e ao sair.

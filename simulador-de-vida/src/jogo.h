@@ -6,7 +6,7 @@
 #include <vector>
 #include "mapa.h"
 
-enum class Tecla { Cima, Baixo, Esquerda, Direita, I, U, S, E, T, B, H, Q, R, Um, Dois, Enter, Espaco, Esc, F1 };
+enum class Tecla { Cima, Baixo, Esquerda, Direita, I, U, S, E, T, L, H, Q, R, Um, Dois, Enter, Espaco, Esc, F1 };
 
 // Uma coisa: o tipo e uma carga (goles numa garrafa, moedas na carteira).
 struct Coisa {
@@ -45,6 +45,9 @@ private:
     double relogioSalvar = 0, ultimoAviso[4] = {100, 100, 100, 100};
     // andar: tecla segurada e tempo até o próximo passo
     bool andandoFrente = false, andandoTras = false, correndo = false;
+    int andandoLado = 0;   // -1 esquerda, 1 direita (passo de lado)
+    int maoSel = 0;        // mão selecionada: 0 direita, 1 esquerda
+    int somSono = 0;
     double esperaPasso = 0;
     std::string ultimoObstaculo;
     double toqueNum[2] = {-10, -10}, agora = 0;
@@ -70,6 +73,7 @@ private:
     void acordar(const std::string& motivo);
     // mundo
     void passo(int sentido);
+    void passoPara(int r);
     void virar(int lado);
     void bussola();
     void olhar();

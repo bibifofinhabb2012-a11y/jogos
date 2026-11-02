@@ -1,5 +1,5 @@
 Sons do Simulador de Vida. Todos do Freesound (freesound.org), com licença CC0 (domínio público) ou CC BY (pede crédito).
-O clique da bússola foi sintetizado para o jogo.
+O ruído branco do sono foi gerado para o jogo.
 
 "Footsteps on Grass", de harrietniamh. freesound.org/s/400123. CC BY 4.0.
 "running in grass", de EvanSki. freesound.org/s/411148. CC0.
@@ -28,7 +28,8 @@ O clique da bússola foi sintetizado para o jogo.
 "SFX_STICKERRIPPER_candyWrapper_40.wav", de MrFossy. freesound.org/s/590215. CC0.
 "Open_a_plastic_bottle.wav", de martingunchev. freesound.org/s/346060. CC0.
 "drinking_gulps.wav", de IneQuation. freesound.org/s/27876. CC BY 3.0.
-"Crunchy cookie eating.wav", de Morgan169. freesound.org/s/362024. CC0.
+"Eating", de EminYILDIRIM. freesound.org/s/554708. CC BY 4.0.
+"Eat_Crunchy.mp3", de schoman3. freesound.org/s/507453. CC0.
 "Zipper_Backpack_Medium_Movement_02", de BlondPanda. freesound.org/s/778083. CC0.
 "Clinking Coins 10", de AleXZavesa. freesound.org/s/853705. CC BY 4.0.
 "Sleeping Bag Struggle", de Joedozer. freesound.org/s/776275. CC0.
@@ -41,3 +42,4 @@ O clique da bússola foi sintetizado para o jogo.
 "Rooster Crow 2", de BenjaminNelan. freesound.org/s/435507. CC0.
 "Rooster Crow 3", de BenjaminNelan. freesound.org/s/435506. CC0.
 "SFX_Car_Engine_Outside_Idle.wav", de GiocoSound. freesound.org/s/401552. CC0.
+"Metal_Rattling_Small.wav", de GiocoSound. freesound.org/s/421154. CC0.

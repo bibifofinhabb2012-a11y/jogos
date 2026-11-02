@@ -15,7 +15,7 @@ static bool traduzir(SDL_Keycode k, Tecla& t) {
     static const std::map<SDL_Keycode, Tecla> mapa = {
         {SDLK_UP, Tecla::Cima}, {SDLK_DOWN, Tecla::Baixo}, {SDLK_LEFT, Tecla::Esquerda}, {SDLK_RIGHT, Tecla::Direita},
         {SDLK_i, Tecla::I}, {SDLK_u, Tecla::U}, {SDLK_s, Tecla::S}, {SDLK_e, Tecla::E}, {SDLK_t, Tecla::T},
-        {SDLK_b, Tecla::B}, {SDLK_h, Tecla::H}, {SDLK_q, Tecla::Q}, {SDLK_r, Tecla::R},
+        {SDLK_l, Tecla::L}, {SDLK_h, Tecla::H}, {SDLK_q, Tecla::Q}, {SDLK_r, Tecla::R},
         {SDLK_1, Tecla::Um}, {SDLK_KP_1, Tecla::Um}, {SDLK_2, Tecla::Dois}, {SDLK_KP_2, Tecla::Dois},
         {SDLK_RETURN, Tecla::Enter}, {SDLK_KP_ENTER, Tecla::Enter}, {SDLK_SPACE, Tecla::Espaco},
         {SDLK_ESCAPE, Tecla::Esc}, {SDLK_F1, Tecla::F1},
@@ -31,7 +31,7 @@ static bool traduzir(SDL_Keycode k, Tecla& t) {
 static int rodarRoteiro(const char* arquivo) {
     static const std::map<std::string, Tecla> nomes = {
         {"cima", Tecla::Cima}, {"baixo", Tecla::Baixo}, {"esquerda", Tecla::Esquerda}, {"direita", Tecla::Direita},
-        {"i", Tecla::I}, {"u", Tecla::U}, {"s", Tecla::S}, {"e", Tecla::E}, {"t", Tecla::T}, {"b", Tecla::B},
+        {"i", Tecla::I}, {"u", Tecla::U}, {"s", Tecla::S}, {"e", Tecla::E}, {"t", Tecla::T}, {"l", Tecla::L},
         {"h", Tecla::H}, {"q", Tecla::Q}, {"r", Tecla::R}, {"1", Tecla::Um}, {"2", Tecla::Dois},
         {"enter", Tecla::Enter}, {"espaco", Tecla::Espaco}, {"esc", Tecla::Esc}, {"f1", Tecla::F1},
     };
@@ -46,11 +46,12 @@ static int rodarRoteiro(const char* arquivo) {
         if (cmd.empty() || cmd[0] == '#') continue;
         std::printf("> %s\n", linha.c_str());
         if (cmd == "tecla" || cmd == "segurar") {
-            std::string n; bool shift = false; s >> n;
+            std::string n; bool shift = false, ctrl = false; s >> n;
             if (n == "shift") { shift = true; s >> n; }
+            if (n == "ctrl") { ctrl = true; s >> n; }
             auto it = nomes.find(n);
             if (it == nomes.end()) { std::printf("tecla desconhecida: %s\n", n.c_str()); continue; }
-            jogo.tecla(it->second, shift, false);
+            jogo.tecla(it->second, shift, ctrl);
             jogo.atualizar(0.05);
             if (cmd == "segurar") {
                 double seg = 1; s >> seg;

@@ -15,17 +15,18 @@ R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na 
 Control mais R: deitar; de frente para a cama, deita nela e dorme. Dormindo, as teclas não acordam: acorda sozinho com a energia em 1000, ou de manhã na cama; U, S, E, H, V, W e Q continuam respondendo.
 Shift mais R: agachar.
 Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você.
-Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir e dormir (deitado, em qualquer lugar: fazenda, cidade, fazenda dos outros), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: com a faca, abate a vaca de corte mais perto, até 5 passos (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de dentro do box, de frente para o chuveiro, liga e desliga; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho; de frente para uma árvore do pomar, descreve.
+Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir e dormir (deitado, em qualquer lugar: fazenda, cidade, fazenda dos outros), contar o dinheiro. Na roça: machado limpa o matagal da frente, picareta arranca a pedra da frente; o machado também derruba árvore, com 5 golpes, e dá lenha; semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: com a faca, abate a vaca de corte mais perto, até 5 passos (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de dentro do box, de frente para o chuveiro, liga e desliga; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho; de frente para uma árvore do pomar, pega a fruta mirada, ou descreve a árvore.
 Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta.
 Z: pular: segure para pegar impulso, um bip por nível, até 10 de altura, e solte para pular; com Z segurado, uma seta escolhe a direção do pulo, e ele leva até 5 passos para lá; dentro de casa, o teto segura em 2.
 B: onde você está.
 Shift mais B: onde você está, a que distância das divisas e o que tem à frente.
-Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação, animais, objetos (as árvores do pomar).
+Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação, animais, objetos (as árvores do pomar, e os matagais e as pedras que faltam limpar na roça).
 Shift mais Ç: categoria anterior.
 L: próximo item da categoria, do mais perto para o mais longe.
 K: item anterior.
 O: rastreia o item escolhido: um bip soa de onde ele está; O de novo desliga.
-Alt mais O: anda sozinho até o item, abrindo as portas; qualquer tecla para.
+Alt mais O: anda sozinho até o item, abrindo as portas; qualquer tecla para. De frente para uma árvore do pomar, com um galho com fruta escolhido no radar, mira a fruta.
+Alt mais L e Alt mais K: radar de árvore: de frente para uma árvore do pomar, passa pelo tronco e pelos galhos, dizendo quais têm fruta; um som vem da altura e do lado de cada galho.
 Q: dia e hora.
 I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, uma letra pula para o próximo item com aquela inicial, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda, Esc fecha.
 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia.
@@ -101,9 +102,17 @@ bolsa 35, botas 45 e sela 70 moedas. De vez em quando, à noite, nasce um bezerr
 
 ROÇA E POMAR
 A roça fica ao sul do córrego, depois da ponte, a leste da estrada. Para ir: Ç até Lugares, L até Roça, e Alt O.
-Ela começa tomada de matagal: limpe com o machado que seu Tião dá, e plante na terra limpa.
+Ela começa tomada de matagal e de pedras. Seu Tião dá o machado e a picareta (quem já tinha conversado com ele antes
+ganha na próxima conversa). Machado de frente para o matagal, Espaço: limpa. Picareta de frente para as pedras, Espaço:
+arranca, e a pedra vai para a mochila. Depois, plante na terra limpa. No Ç, em Objetos, estão os matagais e as pedras
+que faltam, do mais perto para o mais longe; Alt O leva até eles. O machado também derruba árvore: 5 golpes, 4 toras de lenha.
+As árvores do pomar não se derrubam.
 O pomar fica na frente da casa, à direita de quem sai pela porteira principal: macieira, laranjeira, cerejeira,
 bananeira e mangueira, espalhadas. No Ç, a categoria Objetos acha cada árvore. Espaço de mão vazia, de frente, descreve a árvore.
+Frutas: cada árvore dá de 1 a 4 frutas por dia. De frente para a árvore, Alt K e Alt L passam pelo tronco e pelos galhos
+(baixo, do meio e alto, à esquerda e à direita), dizendo quais têm fruta; o som vem do lado e da altura do galho.
+Num galho com fruta, Alt O mira, e Espaço de mão vazia pega: maçã, laranja, cereja, banana ou manga, na mochila.
+Comem-se com Espaço e vendem-se na caixa de remessa.
 
 SEMENTES E TEMPO ATÉ COLHER (dias do jogo)
 Milho, feijão e arroz: 3 dias. Cenoura: 3 dias. Abóbora: 4 dias. Banana: 5 dias. Laranja: 6 dias. Cacau: 7 dias.

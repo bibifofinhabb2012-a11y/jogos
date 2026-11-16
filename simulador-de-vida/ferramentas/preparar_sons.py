@@ -176,6 +176,10 @@ trecho("sv-fritura", 234469, "fritura", 0, 4.0, -20); u(234469)
 trecho("sv-leite", 565964, "leite", 0, 5.0, -20); u(565964)
 trecho("sv-aterrissar", 646658, "aterrissar-1", alvo=-16); u(646658)
 trecho("sv-aterrissar", 646662, "aterrissar-2", alvo=-16); u(646662)
+trecho("sv-picareta", 728758, "picareta-1", alvo=-16); u(728758)
+trecho("sv-picareta", 728759, "picareta-2", alvo=-16); u(728759)
+trecho("sv-picareta", 728757, "picareta-3", alvo=-16); u(728757)
+trecho("sv-arvore", 494071, "arvore", 0, 7.0, -16); u(494071)
 trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
 
 # sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial

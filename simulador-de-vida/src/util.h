@@ -13,8 +13,9 @@ inline double acaso(double a, double b) {
 }
 inline std::string goles(int n) { return n == 1 ? "1 gole" : std::to_string(n) + " goles"; }
 inline std::string maiuscula(std::string s) {
-    // só a primeira letra, e só se for ASCII (as palavras do jogo não começam com acento)
+    // só a primeira letra; também as minúsculas com acento do UTF-8 (á, é, ó, ç...: 0xC3 0xA0 a 0xBE)
     if (!s.empty() && s[0] >= 'a' && s[0] <= 'z') s[0] = (char)(s[0] - 32);
+    else if (s.size() >= 2 && (unsigned char)s[0] == 0xC3 && (unsigned char)s[1] >= 0xA0 && (unsigned char)s[1] <= 0xBE && (unsigned char)s[1] != 0xB7) s[1] = (char)(s[1] - 0x20);
     return s;
 }
 std::string nomeProduto(const std::string& t, bool plural);  // colheita e sementes (roca.cpp)
@@ -47,6 +48,12 @@ inline std::string plural(const Coisa& c, int qtd, const std::string& singular) 
     if (t == "carne-assada") return "pedaços de carne assada";
     if (t == "faca") return "facas de abate";
     if (t == "panela") return "panelas de alumínio";
+    if (t == "picareta") return "picaretas";
+    if (t == "lenha") return "toras de lenha";
+    if (t == "pedra") return "pedras";
+    if (t == "maca") return "maçãs";
+    if (t == "cereja") return "cerejas";
+    if (t == "manga") return "mangas";
     if (t == "leite") return "garrafas de leite";
     if (t == "couro") return "couros de vaca";
     if (t == "cinto") return "cintos de couro";

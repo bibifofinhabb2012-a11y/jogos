@@ -7,7 +7,7 @@
 
 constexpr int LADO = 1000;
 
-enum class Chao : uint8_t { Grama, Pasto, Terra, Cascalho, Calcada, Taco, Ceramica, Madeira, Agua, TerraArada, Folhas, Mato, Cimento };
+enum class Chao : uint8_t { Grama, Pasto, Terra, Cascalho, Calcada, Taco, Ceramica, Madeira, Agua, TerraArada, Folhas, Mato, Cimento, Pedras };
 enum class Obstaculo : uint8_t { Nada, Cerca, CercaMadeira, Tela, Parede, Arvore, Corrego, Porteira, Porta, Vidro, PortaBox, Muro };
 
 struct Celula {

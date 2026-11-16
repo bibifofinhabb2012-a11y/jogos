@@ -17,6 +17,7 @@ void Jogo::trocarComGuardada() {
     std::swap(moveis, fazendaGuardada->moveis);
     std::swap(plantas, fazendaGuardada->plantas);
     std::swap(limpos, fazendaGuardada->limpos);
+    std::swap(cortadas, fazendaGuardada->cortadas);
     std::swap(x, fazendaGuardada->x); std::swap(y, fazendaGuardada->y); std::swap(rumo, fazendaGuardada->rumo);
 }
 
@@ -76,7 +77,7 @@ void Jogo::chegarEm(const std::string& destino) {
         if (!chegadaCalada) fala::dizer("O trator para na frente da casa sede, você desce e o motor morre. De volta à sua fazenda.");
     } else if (destino == "cidade") {
         mapa = Mapa(true);
-        plantas.clear(); limpos.clear();
+        plantas.clear(); limpos.clear(); cortadas.clear();
         criarMoveisCidade();
         x = CIDADE_CHEGADA[0]; y = CIDADE_CHEGADA[1]; rumo = CIDADE_CHEGADA[2];
         lugarAtual = mapa.nomeLugar(x, y);
@@ -87,7 +88,7 @@ void Jogo::chegarEm(const std::string& destino) {
     } else {  // fazenda de outro jogador: o mesmo desenho, com o estado que o dono mandar
         std::string dono = destino.substr(7);
         mapa = Mapa();
-        plantas.clear(); limpos.clear();
+        plantas.clear(); limpos.clear(); cortadas.clear();
         criarMoveis();
         x = FAZENDA_CHEGADA[0]; y = FAZENDA_CHEGADA[1]; rumo = FAZENDA_CHEGADA[2];
         lugarAtual = mapa.nomeLugar(x, y);
@@ -201,6 +202,7 @@ std::string Jogo::estadoFazenda() {
     if (fora) trocarComGuardada();
     std::ostringstream f;
     for (int c : limpos) f << "limpo " << c << '\n';
+    for (int c : cortadas) f << "cortada " << c << '\n';
     for (const auto& [c, p] : plantas) f << "planta " << c << ' ' << p.tipo << ' ' << p.horas << ' ' << p.molhadaAte << '\n';
     for (size_t i = 0; i < moveis.size(); i++) if (!ehVaca(moveis[i].tipo)) f << "movel " << i << ' ' << moveis[i].x << ' ' << moveis[i].y << '\n';
     f << linhasBichos();
@@ -220,6 +222,7 @@ void Jogo::aplicarEstado(const std::string& texto) {
         std::string k; s >> k;
         if (k == "limpo") { int c; s >> c; if (c >= 0 && c < LADO * LADO) mapa.em(c % LADO, c / LADO).chao = Chao::TerraArada; }
         else if (k == "planta") { int c; Planta p; s >> c >> p.tipo >> p.horas >> p.molhadaAte; if (c >= 0 && c < LADO * LADO) { plantas[c] = p; mapa.em(c % LADO, c / LADO).planta = (uint8_t)p.tipo; } }
+        else if (k == "cortada") { int c; s >> c; if (c >= 0 && c < LADO * LADO && !mapa.objetoEm(c % LADO, c / LADO)) mapa.em(c % LADO, c / LADO).obs = Obstaculo::Nada; }
         else if (k == "vacas") { int n; s >> n; ajustarVacas(n); }
         else if (k == "bichos" || k == "bicho") lerBicho(linha);
         else if (k == "movel") { size_t i; int mx, my; s >> i >> mx >> my; if (i < moveis.size() && mapa.valido(mx, my)) { moveis[i].x = mx; moveis[i].y = my; } }

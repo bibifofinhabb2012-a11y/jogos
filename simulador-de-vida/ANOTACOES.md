@@ -93,3 +93,10 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - `Mapa::objetos` (struct `Objeto`): coisas fixas do mapa, achadas no Ç na categoria 6, Objetos. Por enquanto, as 5 árvores do pomar (macieira, laranjeira, cerejeira, bananeira, mangueira), sorteadas com semente fixa (2026) dentro do pomar, a pelo menos 8 passos uma da outra. Não vão no salvo: o mapa gera sempre igual.
 - A grade antiga de árvores sem nome do pomar saiu. Árvore bloqueia o passo e é nomeada ao bater e no Shift B; Espaço descreve (`olharArvore`, roca.cpp).
 - Ideia para depois: colher fruta das árvores.
+
+## Picareta, pedras, lenha e frutas (novembro)
+- `Chao::Pedras`: 30% do mato da roça (sorteio fixo 77). Picareta arranca (vira terra limpa, entra em `limpos`, dá 1 pedra). Seu Tião dá machado e picareta na cena; quem não tem ganha ao conversar.
+- Objetos (categoria 6) lista as árvores do pomar e cada quadrado de matagal ou pedra da roça; depois de limpar, a lista se refaz (L vai para o mais perto).
+- Machado em árvore (fora do pomar): 5 golpes (`golpes`), 4 de lenha; `cortadas` vai no salvo, no estado online e na troca de fazenda; ação de morador "cortada".
+- Pomar (`arvores.cpp`): `EstadoArvore` por objeto (dia, bits das frutas em 6 galhos), salvo como `fruta i dia bits`. Na virada do dia, 1 a 4 frutas em galhos sorteados. Radar: Alt K/L (0 tronco, 1 a 6 galhos, som 3D no lado e na altura), Alt O mira, Espaço pega. O radar vale enquanto a pessoa não se mexe nem vira.
+- `maiuscula` agora sobe também letra com acento (á, é...).

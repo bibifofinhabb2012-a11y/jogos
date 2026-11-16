@@ -266,7 +266,8 @@ void Jogo::aplicarAcao(const std::string& acao) {
     int c = -1; s >> c;
     if (c >= 0 && c < LADO * LADO) {
         int cx = c % LADO, cy = c / LADO;
-        if (k == "limpo" && mapa.em(cx, cy).chao == Chao::Mato) { mapa.em(cx, cy).chao = Chao::TerraArada; limpos.push_back(c); }
+        if (k == "cortada" && mapa.em(cx, cy).obs == Obstaculo::Arvore && !mapa.objetoEm(cx, cy)) { mapa.em(cx, cy).obs = Obstaculo::Nada; cortadas.push_back(c); }
+        if (k == "limpo" && (mapa.em(cx, cy).chao == Chao::Mato || mapa.em(cx, cy).chao == Chao::Pedras)) { mapa.em(cx, cy).chao = Chao::TerraArada; limpos.push_back(c); }
         else if (k == "planta") { int tp = 1; s >> tp; plantas[c] = Planta{tp, 0, 0}; mapa.em(cx, cy).planta = (uint8_t)tp; }
         else if (k == "rega" && plantas.count(c)) plantas[c].molhadaAte = minutos + 24 * 60;
         else if (k == "colhe" && plantas.count(c)) { double h; s >> h; if (h >= 0) plantas[c].horas = h; else { plantas.erase(c); mapa.em(cx, cy).planta = 0; } }

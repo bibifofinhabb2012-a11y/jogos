@@ -34,6 +34,13 @@ void Jogo::montarAlvos() {
             if (r.mundo == mundoCanonico()) { alvos.push_back({r.nome + ", jogador", r.x, r.y, true}); alvos.back().jogador = id; }
     } else if (categoria == 6) {
         for (const Objeto& o : mapa.objetos) alvos.push_back({o.nome + ", no " + mapa.nomeLugar(o.x, o.y), o.x, o.y, true});
+        if (!mapa.cidade)  // o que falta limpar na roça
+            for (int yy = 585; yy <= 645; yy++)
+                for (int xx = 505; xx <= 575; xx++) {
+                    Chao ch = mapa.em(xx, yy).chao;
+                    if (ch == Chao::Mato) alvos.push_back({"Matagal, na roça: machado", xx, yy, true});
+                    else if (ch == Chao::Pedras) alvos.push_back({"Pedras, na roça: picareta", xx, yy, true});
+                }
     } else if (categoria == 5) {
         for (size_t i = 0; i < moveis.size(); i++)
             if (moveis[i].tipo == "vaca" || moveis[i].tipo == "vaca-leite") {

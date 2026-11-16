@@ -127,6 +127,13 @@ void Mapa::gerarFazenda() {
             int yc = 620 + (int)std::lround(20 * std::sin(rx / 70.0));
             if (ry < yc - 3) { em(rx, ry).chao = Chao::Mato; em(rx, ry).obs = Obstaculo::Nada; }
         }
+    {   // no meio do mato, pedras: saem com a picareta (sorteio fixo)
+        std::mt19937 sp(77);
+        std::uniform_real_distribution<float> up(0, 1);
+        for (int ry = 590; ry <= 640; ry++)
+            for (int rx = 510; rx <= 570; rx++)
+                if (em(rx, ry).chao == Chao::Mato && up(sp) < 0.3f) em(rx, ry).chao = Chao::Pedras;
+    }
     // estrada para a cidade: sai do terreiro para o leste, até a porteira leste; lá fora fica a prefeitura
     retangulo(661, 198, 993, 202, Chao::Terra);
     retangulo(995, 195, LADO - 1, 205, Chao::Terra);
@@ -264,6 +271,7 @@ const char* Mapa::nome(Chao ch) {
         case Chao::TerraArada: return "terra fofa, limpa";
         case Chao::Folhas: return "folhas secas da mata";
         case Chao::Mato: return "matagal fechado";
+        case Chao::Pedras: return "chão cheio de pedras";
         case Chao::Cimento: return "cimento queimado";
     }
     return "chão";
@@ -281,6 +289,7 @@ const char* Mapa::somPasso(Chao ch) {
         case Chao::Agua: return "passos-agua";
         case Chao::Folhas: return "passos-folhas";
         case Chao::Mato: return "passos-mato";
+        case Chao::Pedras: return "passos-cascalho";
         case Chao::Cimento: return "passos-calcada";
     }
     return "passos-terra";

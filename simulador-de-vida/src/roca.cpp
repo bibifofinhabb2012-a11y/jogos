@@ -82,6 +82,7 @@ std::string Jogo::estadoPlanta(const Planta& p) const {
 bool Jogo::usarNaRoca(Coisa& c) {
     const std::string& t = c.tipo;
     bool semente = t.rfind("semente-", 0) == 0;
+    if (t == "picareta") { usarPicareta(); return true; }
     if (t != "machado" && t != "regador" && !semente) return false;
     int fx = x + DX[rumo], fy = y + DY[rumo];
     if (!mapa.valido(fx, fy)) { fala::dizer("Não tem nada na sua frente."); return true; }
@@ -103,9 +104,11 @@ bool Jogo::usarNaRoca(Coisa& c) {
             fala::dizer(jaLimpos == 1 ? "Você golpeia o matagal com o machado, puxa as raízes, e o chão aparece. Um quadrado de terra limpa, pronta para plantar."
                                       : "Mais um quadrado limpo. São " + std::to_string(jaLimpos) + ".");
             evento("limpou");
+            if (categoria == 6) { montarAlvos(); itemAlvo = alvos.empty() ? 0 : (int)alvos.size() - 1; }
             return true;
         }
-        if (k.obs == Obstaculo::Arvore) { fala::dizer("Derrubar árvore fica para outro dia."); return true; }
+        if (k.chao == Chao::Pedras) { fala::dizer("Aí é pedra: o machado não dá conta. Use a picareta."); return true; }
+        if (k.obs == Obstaculo::Arvore) { cortarArvore(fx, fy); return true; }
         fala::dizer("Não tem mato na sua frente para cortar.");
         return true;
     }
@@ -113,6 +116,7 @@ bool Jogo::usarNaRoca(Coisa& c) {
         int tipo = tipoDaSemente(t);
         if (!tipo) return false;
         if (k.chao == Chao::Mato) { fala::dizer("Aí é matagal. Limpe primeiro com o machado."); return true; }
+        if (k.chao == Chao::Pedras) { fala::dizer("Aí tem pedra. Tire primeiro com a picareta."); return true; }
         if (k.planta) { fala::dizer("Já tem um " + nomePlanta(k.planta) + " aí."); return true; }
         if (k.chao != Chao::TerraArada || k.obs != Obstaculo::Nada || k.movel >= 0 || (fx == x && fy == y)) {
             fala::dizer("Semente se planta na terra limpa da roça, no quadrado da sua frente."); return true;
@@ -197,12 +201,13 @@ void Jogo::cenaChegada() {
     fala::dizer("E vem de braços abertos: Aôôôba! O Alceu me falou que tu vinha, mas " + gen("rapaz, tu tá um homem", "guria, tu tá uma mulher") + "! Ó, vou te falar, as vaca aqui são meio arredia no começo, viu? "
                 "Tu vai ter que se acostumar com os coice. Faz parte da vida na lida. As galinha também são cheia de novela, tem que ter milho pra alimentar esse povo todo.", false);
     fala::dizer("Ele entra e volta com um saco de pano e umas ferramentas: Toma, isso aqui é pra ti. Semente de milho, de feijão de corda e de arroz. "
-                "A roça fica pra lá da ponte do córrego, do lado direito da estrada, mas tá tomada de matagal: tem que limpar no machado. "
+                "A roça fica pra lá da ponte do córrego, do lado direito da estrada, mas tá tomada de matagal e de pedra: o mato tu limpa no machado, e a pedra tu arranca na picareta. "
+                "O machado também derruba árvore, se precisar de lenha. "
                 "E esse regador aqui é véio, meio amassado, mas ainda rega. A água tu pega no córrego, que passa do ladinho da roça.", false);
     marcar(1.0, [this, t]() { if (t >= 0) audio::tocar3D("passos-calcada", moveis[t].x + 0.5f, moveis[t].y + 2.5f, 0.2f, 0.6f, 4); });
     marcar(14.0, [this]() {
         guardar({"semente-milho", 0}, 20); guardar({"semente-feijao", 0}, 20); guardar({"semente-arroz", 0}, 20);
-        guardar({"machado", 0}); guardar({"regador", 0});
+        guardar({"machado", 0}); guardar({"picareta", 0}); guardar({"regador", 0});
         audio::tocar("sementes", 0.8f);
     });
     // dona Nezinha sai de dentro de casa e vem até a porta
@@ -222,8 +227,9 @@ void Jogo::cenaChegada() {
     marcar(37.0, [this]() { audio::tocar("gole", 0.8f); energia = std::min(100.0, energia + 15); sede = std::min(100.0, sede + 5); });
     fala::dizer("E leva essa garrafa térmica pra roça, que capinar cansa. Quando acabar, volta aqui que eu encho de novo.", false);
     marcar(40.0, [this]() { guardar({"garrafa-cafe", 8}); audio::tocar("mochila", 0.6f); diaCafe = diaDoJogo(); });
-    fala::dizer("Ganhou, na mochila: 20 sementes de milho, 20 de feijão de corda, 20 de arroz, um machado, um regador e uma garrafa térmica de café com 8 goles. "
-                "Como fazer: com o machado na mão, Espaço de frente para o matagal limpa a terra. Com a semente na mão, Espaço de frente para a terra limpa planta. "
+    fala::dizer("Ganhou, na mochila: 20 sementes de milho, 20 de feijão de corda, 20 de arroz, um machado, uma picareta, um regador e uma garrafa térmica de café com 8 goles. "
+                "Como fazer: com o machado na mão, Espaço de frente para o matagal limpa a terra; com a picareta, Espaço de frente para as pedras arranca. "
+                "No Ç, em Objetos, estão os matagais e as pedras da roça. Com a semente na mão, Espaço de frente para a terra limpa planta. "
                 "Com o regador na mão, Espaço de frente para a planta rega; na beira do córrego, enche. Planta regada cresce; com 3 dias do jogo fica pronta. "
                 "Para colher, mão vazia e Espaço; o arroz se colhe com o machado. "
                 "Seu Tião ainda conta: o que colher, tu põe na caixa de remessa, lá perto da porteira, que o prefeito passa toda noite e paga. "
@@ -250,7 +256,20 @@ void Jogo::conversarCom(int i) {
         m.titulo = "Seu Tião";
         m.opcoes = [this]() {
             std::vector<Opcao> v;
-            v.push_back({"Conversar", [this]() { fala::dizer(std::string("Seu Tião: ") + LINHAS_TIAO[(int)acaso(0, 3.99)]); }, nullptr, nullptr});
+            v.push_back({"Conversar", [this]() {
+                bool semMachado = !temCoisa("machado"), semPicareta = !temCoisa("picareta");
+                if (semMachado || semPicareta) {  // quem começou antes da picareta existir, ou perdeu o machado
+                    if (semMachado) guardar({"machado", 0});
+                    if (semPicareta) guardar({"picareta", 0});
+                    audio::tocar("mochila", 0.6f);
+                    fala::dizer(std::string("Seu Tião: Ô, tchê, a roça tá cheia de pedra e de mato! Toma ") +
+                                (semMachado && semPicareta ? "esse machado e essa picareta" : semMachado ? "esse machado" : "essa picareta") +
+                                ". O mato tu limpa no machado; a pedra tu arranca na picareta. E o machado derruba árvore também, se precisar de lenha. "
+                                "Ganhou, na mochila: " + (semMachado && semPicareta ? "um machado e uma picareta." : semMachado ? "um machado." : "uma picareta."));
+                    return;
+                }
+                fala::dizer(std::string("Seu Tião: ") + LINHAS_TIAO[(int)acaso(0, 3.99)]);
+            }, nullptr, nullptr});
             return v;
         };
     } else {

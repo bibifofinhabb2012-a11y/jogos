@@ -73,8 +73,11 @@ struct Mundo {
     std::vector<Movel> moveis;
     std::map<int, Planta> plantas;
     std::vector<int> limpos;
+    std::vector<int> cortadas;
     int x = 0, y = 0, rumo = 0;
 };
+
+struct EstadoArvore { int dia = -1; uint8_t frutas = 0; };  // árvore do pomar: frutas do dia, um bit por galho
 
 
 class Jogo {
@@ -236,6 +239,20 @@ private:
     void abrirRecipiente(int i);
     void atualizarMoveis(double dt);
     void olharArvore(const Objeto& o);
+    // arvores.cpp
+    std::vector<int> cortadas;              // árvores derrubadas (quadrados), vão no salvo
+    std::map<int, int> golpes;              // golpes de machado em cada árvore, até cair
+    std::vector<EstadoArvore> pomar;        // um por objeto do mapa
+    int radarArvore = -1, radarItem = -1, radarX = -1, radarY = -1, radarRumo = -1, frutaMirada = -1;
+    int arvoreDaFrente() const;
+    uint8_t& frutasDa(int i);
+    bool radarValido(int i) const;
+    void radarArvoreTecla(int lado);
+    bool mirarFruta();
+    void maoNaArvore(int i);
+    void cortarArvore(int fx, int fy);
+    void usarPicareta();
+    bool temCoisa(const std::string& tipo) const;
     // pulo.cpp
     bool carregandoPulo = false;
     double cargaPulo = 0, noAr = 0, tempoNoAr = 0;

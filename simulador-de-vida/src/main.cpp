@@ -69,6 +69,8 @@ static int rodarRoteiro(const char* arquivo) {
                 for (double t = 0; t < seg; t += 0.05) jogo.atualizar(0.05);
                 jogo.soltar(tc);
             } else jogo.soltar(tc);
+        } else if (cmd == "inicio") {  // o menu de quando se abre o jogo com salvo
+            jogo.menuInicio();
         } else if (cmd == "apertar" || cmd == "largar") {  // aperta sem soltar, e solta depois (para Z com seta)
             std::string n; s >> n;
             auto it = nomes.find(n);
@@ -131,8 +133,9 @@ int main(int argc, char** argv) {
     SDL_StartTextInput();  // para o chat e os campos de escrita (letras com acento, dois-pontos)
     Jogo jogo;
     jogo.carregarConfig(std::string(salvo.substr(0, salvo.size() - 9)) + "config.txt");
+    jogo.arquivoSalvo = salvo;
     bool tinha = jogo.carregar(salvo);
-    jogo.abertura(!tinha);
+    if (tinha) jogo.menuInicio(); else jogo.abertura(true);
     if (!comSom) fala::dizer("Aviso: não foi possível abrir o som. O jogo continua só com a fala.", false);
 
     Uint64 antes = SDL_GetPerformanceCounter();

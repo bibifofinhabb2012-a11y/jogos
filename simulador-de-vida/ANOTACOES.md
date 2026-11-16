@@ -100,3 +100,11 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Machado em árvore (fora do pomar): 5 golpes (`golpes`), 4 de lenha; `cortadas` vai no salvo, no estado online e na troca de fazenda; ação de morador "cortada".
 - Pomar (`arvores.cpp`): `EstadoArvore` por objeto (dia, bits das frutas em 6 galhos), salvo como `fruta i dia bits`. Na virada do dia, 1 a 4 frutas em galhos sorteados. Radar: Alt K/L (0 tronco, 1 a 6 galhos, som 3D no lado e na altura), Alt O mira, Espaço pega. O radar vale enquanto a pessoa não se mexe nem vira.
 - `maiuscula` agora sobe também letra com acento (á, é...).
+
+## Itens no chão, árvores que brotam, jogo novo (novembro)
+- Categoria 7, Itens: `chao` (vector de `ItemChao`), no salvo como `chao tipo carga x y`, trocado junto com a fazenda (`Mundo::chao`). Não vai para quem visita. Shift Espaço larga; Espaço de mão vazia pega (frente, depois debaixo dos pés).
+- Bosta: cada vaca, em média uma a cada 40 minutos de verdade, até 25 no chão. T com a outra mão vazia vira adubo; adubo na planta: +24 horas de crescimento.
+- Objetos com nome: 5 do pomar + 30 no pasto (carvalho, bétula, ipê, eucalipto, cedro; sorteio fixo 31, 40 passos entre eles). Derrubados: `EstadoArvore::renasce` (1200 s de verdade, conta mesmo longe da fazenda), salvo no 4º campo de `fruta`. Bananeira não se corta. Frutas do dia caem em volta (`espalhar`).
+- Objetos também lista "terra pronta para plantar" (terra arada sem planta) na roça.
+- Menu de início (`menuInicio`, menu.cpp) quando há salvo; "Começar um jogo novo" no Tab (fora do online). `novo()` agora zera também casamento, viagem, fazenda guardada, chão, álcool, cigarro, tutorial. Roteiro: comando `inicio`.
+- Dormindo sem energia, bexiga e intestino não acordam mais (evitava acordar e desmaiar sem parar).

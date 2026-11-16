@@ -129,6 +129,7 @@ void Jogo::menuPrincipal() {
                          [this]() { irAoEvento(); }, nullptr, nullptr});
         if (!conjuge.empty() && moraCom.empty() && rede::online())
             v.push_back({"Conversar com " + conjuge + " sobre a fazenda", [this]() { while (!menus.empty()) fecharMenu(); conversarSobreFazenda(); }, nullptr, nullptr});
+        if (!rede::online()) v.push_back({"Começar um jogo novo", [this]() { confirmarJogoNovo(false); }, nullptr, nullptr});
         v.push_back({chatAtivo ? "Desativar chat" : "Ativar chat", [this]() {
             chatAtivo = !chatAtivo; if (!arquivoConfig.empty()) salvarConfig(arquivoConfig);
             fala::dizer(chatAtivo ? "Chat ativado. Dois-pontos abre o campo de mensagem." : "Chat desativado. As mensagens não serão lidas.");
@@ -179,6 +180,39 @@ void Jogo::menuConfiguracoes() {
                     if (!arquivoConfig.empty()) salvarConfig(arquivoConfig);
                 }});
         }
+        return v;
+    };
+    abrirMenu(m);
+}
+
+// Ao abrir o jogo com um salvo: continuar ou começar de novo.
+void Jogo::menuInicio() {
+    Menu m;
+    m.titulo = "Simulador de Vida. Tem um jogo salvo: dia " + std::to_string(diaDoJogo()) + ". Setas para escolher, Enter para confirmar";
+    m.pausa = true; m.obrigatorio = true;
+    m.opcoes = [this]() {
+        std::vector<Opcao> v;
+        v.push_back({"Continuar o jogo salvo", [this]() { while (!menus.empty()) fecharMenu(); abertura(false); }, nullptr, nullptr});
+        v.push_back({"Começar um jogo novo", [this]() { confirmarJogoNovo(true); }, nullptr, nullptr});
+        return v;
+    };
+    abrirMenu(m);
+}
+
+void Jogo::confirmarJogoNovo(bool doInicio) {
+    Menu m;
+    m.titulo = "Começar um jogo novo apaga o jogo salvo: a fazenda, a mochila, o dinheiro, tudo. Tem certeza?";
+    m.pausa = true;
+    m.obrigatorio = doInicio;
+    m.opcoes = [this, doInicio]() {
+        std::vector<Opcao> v;
+        v.push_back({"Não, voltar", [this, doInicio]() { fecharMenu(); if (!doInicio) fala::dizer("Nada mudou.", false); }, nullptr, nullptr});
+        v.push_back({"Sim, apagar e começar de novo", [this]() {
+            while (!menus.empty()) fecharMenu();
+            novo();
+            if (!arquivoSalvo.empty()) salvar(arquivoSalvo);
+            abertura(true);
+        }, nullptr, nullptr});
         return v;
     };
     abrirMenu(m);

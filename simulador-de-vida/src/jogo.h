@@ -68,16 +68,21 @@ struct Planta {
 };
 
 // Um lugar onde se pode estar: a sua fazenda, a cidade ou a fazenda de outro jogador.
+// Coisa caída no chão (fruta que caiu da árvore, lenha que alguém largou, bosta de vaca): categoria Itens do Ç.
+struct ItemChao { Coisa coisa; int x = 0, y = 0; };
+
 struct Mundo {
     Mapa mapa;
     std::vector<Movel> moveis;
     std::map<int, Planta> plantas;
     std::vector<int> limpos;
     std::vector<int> cortadas;
+    std::vector<ItemChao> chao;
     int x = 0, y = 0, rumo = 0;
 };
 
-struct EstadoArvore { int dia = -1; uint8_t frutas = 0; };  // árvore do pomar: frutas do dia, um bit por galho
+// Árvore com nome (objeto do mapa): frutas do dia, um bit por galho; derrubada, brota de novo depois de 20 minutos de verdade.
+struct EstadoArvore { int dia = -1; uint8_t frutas = 0; double renasce = 0; };
 
 
 class Jogo {
@@ -87,7 +92,9 @@ public:
     bool carregar(const std::string& arquivo);    // true: havia um jogo salvo
     void salvar(const std::string& arquivo);
     void tecla(Tecla t, bool shift, bool ctrl, bool alt = false, char letra = 0);  // tecla apertada (não repetição)
-    void soltar(Tecla t);                         // tecla solta
+    void soltar(Tecla t);
+    void menuInicio();         // ao abrir com jogo salvo: continuar ou começar de novo
+    std::string arquivoSalvo;  // onde o jogo salva (para o jogo novo apagar o velho na hora)                         // tecla solta
     void atualizar(double segundos);              // tempo real que passou
     bool querSair() const { return sair; }
     void abertura(bool novoJogo);                 // o que se ouve ao abrir o jogo
@@ -253,6 +260,15 @@ private:
     void cortarArvore(int fx, int fy);
     void usarPicareta();
     bool temCoisa(const std::string& tipo) const;
+    void atualizarArvores(double seg);
+    // itens no chão
+    std::vector<ItemChao> chao;
+    int itemChaoPerto() const;
+    void pegarDoChao(int i);
+    void largar();
+    bool espalhar(const Coisa& c, int cx, int cy, int raio);
+    // menu de início
+    void confirmarJogoNovo(bool doInicio);
     // pulo.cpp
     bool carregandoPulo = false;
     double cargaPulo = 0, noAr = 0, tempoNoAr = 0;

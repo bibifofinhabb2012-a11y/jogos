@@ -18,6 +18,7 @@ void Jogo::trocarComGuardada() {
     std::swap(plantas, fazendaGuardada->plantas);
     std::swap(limpos, fazendaGuardada->limpos);
     std::swap(cortadas, fazendaGuardada->cortadas);
+    std::swap(chao, fazendaGuardada->chao);
     std::swap(x, fazendaGuardada->x); std::swap(y, fazendaGuardada->y); std::swap(rumo, fazendaGuardada->rumo);
 }
 
@@ -77,7 +78,7 @@ void Jogo::chegarEm(const std::string& destino) {
         if (!chegadaCalada) fala::dizer("O trator para na frente da casa sede, você desce e o motor morre. De volta à sua fazenda.");
     } else if (destino == "cidade") {
         mapa = Mapa(true);
-        plantas.clear(); limpos.clear(); cortadas.clear();
+        plantas.clear(); limpos.clear(); cortadas.clear(); chao.clear();
         criarMoveisCidade();
         x = CIDADE_CHEGADA[0]; y = CIDADE_CHEGADA[1]; rumo = CIDADE_CHEGADA[2];
         lugarAtual = mapa.nomeLugar(x, y);
@@ -88,7 +89,7 @@ void Jogo::chegarEm(const std::string& destino) {
     } else {  // fazenda de outro jogador: o mesmo desenho, com o estado que o dono mandar
         std::string dono = destino.substr(7);
         mapa = Mapa();
-        plantas.clear(); limpos.clear(); cortadas.clear();
+        plantas.clear(); limpos.clear(); cortadas.clear(); chao.clear();
         criarMoveis();
         x = FAZENDA_CHEGADA[0]; y = FAZENDA_CHEGADA[1]; rumo = FAZENDA_CHEGADA[2];
         lugarAtual = mapa.nomeLugar(x, y);

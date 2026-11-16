@@ -78,6 +78,14 @@ void Jogo::atualizarVacas(double seg) {
         Movel& v = moveis[i];
         if (!ehVaca(v.tipo)) continue;
         const Curral& c = curralDe(v.tipo);
+        // de vez em quando, uma bosta no chão do curral (em média uma a cada 40 minutos de verdade por vaca), até 25 no chão
+        if (acaso(0, 1) < seg / 2400.0 && std::count_if(chao.begin(), chao.end(), [](const ItemChao& it) { return it.coisa.tipo == "bosta"; }) < 25) {
+            int d = (int)acaso(0, 7.99), bx = v.x + DX[d], by = v.y + DY[d];
+            if (mapa.passa(bx, by) && bx >= c.x0 && bx <= c.x1 && by >= c.y0 && by <= c.y1 && !(bx == x && by == y)) {
+                chao.push_back({{"bosta", 0}, bx, by});
+                audio::tocar3D("coco", v.x + 0.5f, v.y + 0.5f, 0.6f, 0.35f, 6);
+            }
+        }
         bool fugir = v.ciclo < -0.5;  // acabou de dar coice: sai de perto
         v.ciclo -= seg;
         if (v.ciclo > 0) continue;

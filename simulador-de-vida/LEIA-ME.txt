@@ -15,12 +15,13 @@ R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na 
 Control mais R: deitar; de frente para a cama, deita nela e dorme. Dormindo, as teclas não acordam: acorda sozinho com a energia em 1000, ou de manhã na cama; U, S, E, H, V, W e Q continuam respondendo.
 Shift mais R: agachar.
 Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você.
-Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir e dormir (deitado, em qualquer lugar: fazenda, cidade, fazenda dos outros), contar o dinheiro. Na roça: machado limpa o matagal da frente, picareta arranca a pedra da frente; o machado também derruba árvore, com 5 golpes, e dá lenha; semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: com a faca, abate a vaca de corte mais perto, até 5 passos (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de dentro do box, de frente para o chuveiro, liga e desliga; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho; de frente para uma árvore do pomar, pega a fruta mirada, ou descreve a árvore.
+Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir e dormir (deitado, em qualquer lugar: fazenda, cidade, fazenda dos outros), contar o dinheiro. Na roça: machado limpa o matagal da frente, picareta arranca a pedra da frente; o machado também derruba árvore, com 5 golpes, e dá lenha (as árvores com nome brotam de novo em 20 minutos; a bananeira não se corta); adubo de frente para uma planta adianta um dia; semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: com a faca, abate a vaca de corte mais perto, até 5 passos (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de dentro do box, de frente para o chuveiro, liga e desliga; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho; de frente para uma árvore do pomar, pega a fruta mirada, ou descreve a árvore; de frente para uma coisa no chão, ou em cima dela, pega.
+Shift mais Espaço: larga no chão, na sua frente, o que está na mão selecionada; fica em Itens, no Ç.
 Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta.
 Z: pular: segure para pegar impulso, um bip por nível, até 10 de altura, e solte para pular; com Z segurado, uma seta escolhe a direção do pulo, e ele leva até 5 passos para lá; dentro de casa, o teto segura em 2.
 B: onde você está.
 Shift mais B: onde você está, a que distância das divisas e o que tem à frente.
-Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação, animais, objetos (as árvores do pomar, e os matagais e as pedras que faltam limpar na roça).
+Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação, animais, objetos (árvores com nome, do pomar e do pasto; matagais, pedras e terra pronta da roça), itens (coisas no chão: frutas caídas, o que você largou, bosta de vaca).
 Shift mais Ç: categoria anterior.
 L: próximo item da categoria, do mais perto para o mais longe.
 K: item anterior.
@@ -32,7 +33,7 @@ I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem
 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia.
 2: o mesmo para a mão direita.
 3: diz o que tem nas duas mãos.
-T: combina o que está nas duas mãos (isqueiro e cigarro: tenta acender; isqueiro e latinha de gás: enche o isqueiro; couro e faca: faz cinto, bolsa, chapéu, botas ou sela); com as duas vazias, bate palmas.
+T: combina o que está nas duas mãos (isqueiro e cigarro: tenta acender; isqueiro e latinha de gás: enche o isqueiro; bosta de vaca com a outra mão vazia: vira adubo; couro e faca: faz cinto, bolsa, chapéu, botas ou sela); com as duas vazias, bate palmas.
 U: fome, de 0 a 1000.
 S: sede: água no corpo, de 0 a 1000.
 E: energia, de 0 a 1000.
@@ -43,7 +44,7 @@ Shift mais V: bexiga.
 Control mais Q, segurando: fazer cocô, sentando, até acabar.
 Shift mais Q, segurando: fazer xixi, de cócoras, até acabar.
 Dois-pontos: no jogo online, abre o campo de mensagem do chat; Enter envia, Esc cancela, Backspace apaga; o jogo fala cada letra que você digita.
-Tab: menu: tutorial, hospedar online, entrar em jogo online, jogadores, teleportar para o evento (quando tem casamento), conversar sobre a fazenda (depois de casar), ativar e desativar chat, histórico do chat, ativar e desativar voz, configurações de volume, sair; Tab de novo volta ao jogo; sozinho, o menu pausa o jogo, no online não.
+Tab: menu: tutorial, hospedar online, entrar em jogo online, jogadores, começar um jogo novo (sozinho), teleportar para o evento (quando tem casamento), conversar sobre a fazenda (depois de casar), ativar e desativar chat, histórico do chat, ativar e desativar voz, configurações de volume, sair; Tab de novo volta ao jogo; sozinho, o menu pausa o jogo, no online não.
 Nos menus: setas para cima e para baixo escolhem, Enter faz, Shift Enter pega, guarda ou vende tudo, setas para os lados mudam volume, uma letra pula, Esc volta.
 F2: repete a última fala.
 F1: esta ajuda.
@@ -106,13 +107,25 @@ Ela começa tomada de matagal e de pedras. Seu Tião dá o machado e a picareta 
 ganha na próxima conversa). Machado de frente para o matagal, Espaço: limpa. Picareta de frente para as pedras, Espaço:
 arranca, e a pedra vai para a mochila. Depois, plante na terra limpa. No Ç, em Objetos, estão os matagais e as pedras
 que faltam, do mais perto para o mais longe; Alt O leva até eles. O machado também derruba árvore: 5 golpes, 4 toras de lenha.
-As árvores do pomar não se derrubam.
+Derrubada, a árvore some; as árvores com nome (pomar e pasto) brotam de novo 20 minutos depois, de verdade.
+A bananeira não se corta: não dá madeira.
+Quando você limpa um quadrado, ele aparece em Objetos como terra pronta para plantar.
 O pomar fica na frente da casa, à direita de quem sai pela porteira principal: macieira, laranjeira, cerejeira,
 bananeira e mangueira, espalhadas. No Ç, a categoria Objetos acha cada árvore. Espaço de mão vazia, de frente, descreve a árvore.
 Frutas: cada árvore dá de 1 a 4 frutas por dia. De frente para a árvore, Alt K e Alt L passam pelo tronco e pelos galhos
 (baixo, do meio e alto, à esquerda e à direita), dizendo quais têm fruta; o som vem do lado e da altura do galho.
 Num galho com fruta, Alt O mira, e Espaço de mão vazia pega: maçã, laranja, cereja, banana ou manga, na mochila.
-Comem-se com Espaço e vendem-se na caixa de remessa.
+Comem-se com Espaço e vendem-se na caixa de remessa. Se você derrubar uma árvore de fruta, as frutas dela caem e se espalham.
+Pelo pasto há carvalhos, bétulas, ipês, eucaliptos e cedros: também estão em Objetos, e também se derrubam.
+
+COISAS NO CHÃO (categoria Itens do Ç)
+Frutas que caíram, o que você largou (Shift Espaço larga o que está na mão selecionada) e a bosta das vacas, que aparece
+de vez em quando nos currais. Espaço de mão vazia, de frente ou em cima, pega.
+Bosta de vaca numa mão e a outra vazia, T: vira adubo. Adubo na mão, de frente para uma planta, Espaço: ela ganha um dia.
+
+JOGO NOVO
+Ao abrir o jogo com um jogo salvo, o menu pergunta: continuar o jogo salvo ou começar um novo. No Tab também tem
+"Começar um jogo novo" (fora do online). Começar de novo apaga o jogo salvo; o jogo pede confirmação.
 
 SEMENTES E TEMPO ATÉ COLHER (dias do jogo)
 Milho, feijão e arroz: 3 dias. Cenoura: 3 dias. Abóbora: 4 dias. Banana: 5 dias. Laranja: 6 dias. Cacau: 7 dias.

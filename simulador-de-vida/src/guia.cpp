@@ -10,8 +10,8 @@
 #include "rede.h"
 #include "util.h"
 
-static const char* CATEGORIAS[7] = {"Móveis", "Pessoas", "Portas e porteiras", "Lugares", "Plantação", "Animais", "Objetos"};
-constexpr int NCAT = 7;
+static const char* CATEGORIAS[8] = {"Móveis", "Pessoas", "Portas e porteiras", "Lugares", "Plantação", "Animais", "Objetos", "Itens"};
+constexpr int NCAT = 8;
 
 // "a sala", "o corredor"
 static std::string com(const std::string& l) {
@@ -33,14 +33,23 @@ void Jogo::montarAlvos() {
         for (const auto& [id, r] : rede::remotos())  // outros jogadores no mesmo lugar
             if (r.mundo == mundoCanonico()) { alvos.push_back({r.nome + ", jogador", r.x, r.y, true}); alvos.back().jogador = id; }
     } else if (categoria == 6) {
-        for (const Objeto& o : mapa.objetos) alvos.push_back({o.nome + ", no " + mapa.nomeLugar(o.x, o.y), o.x, o.y, true});
+        for (size_t i = 0; i < mapa.objetos.size(); i++) {
+            const Objeto& o = mapa.objetos[i];
+            double r = i < pomar.size() && mundoAtual == "fazenda" ? pomar[i].renasce : 0;
+            if (r > 0) { int mn = std::max(1, (int)std::ceil(r / 60)); std::string nm = o.nome; nm[0] = (char)std::tolower((unsigned char)nm[0]); alvos.push_back({"Toco de " + nm + ", n" + com(mapa.nomeLugar(o.x, o.y)) + ": brota de novo em " + std::to_string(mn) + (mn == 1 ? " minuto" : " minutos"), o.x, o.y, true}); }
+            else alvos.push_back({o.nome + ", n" + com(mapa.nomeLugar(o.x, o.y)), o.x, o.y, true});
+        }
         if (!mapa.cidade)  // o que falta limpar na roça
             for (int yy = 585; yy <= 645; yy++)
                 for (int xx = 505; xx <= 575; xx++) {
                     Chao ch = mapa.em(xx, yy).chao;
                     if (ch == Chao::Mato) alvos.push_back({"Matagal, na roça: machado", xx, yy, true});
                     else if (ch == Chao::Pedras) alvos.push_back({"Pedras, na roça: picareta", xx, yy, true});
+                    else if (ch == Chao::TerraArada && !mapa.em(xx, yy).planta && mapa.em(xx, yy).obs == Obstaculo::Nada)
+                        alvos.push_back({"Terra pronta para plantar, na roça", xx, yy, true});
                 }
+    } else if (categoria == 7) {
+        for (const ItemChao& it : chao) alvos.push_back({maiuscula(nomeCoisa(it.coisa)) + ", no chão, n" + com(mapa.nomeLugar(it.x, it.y)), it.x, it.y, true});
     } else if (categoria == 5) {
         for (size_t i = 0; i < moveis.size(); i++)
             if (moveis[i].tipo == "vaca" || moveis[i].tipo == "vaca-leite") {

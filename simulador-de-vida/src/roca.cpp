@@ -83,6 +83,19 @@ bool Jogo::usarNaRoca(Coisa& c) {
     const std::string& t = c.tipo;
     bool semente = t.rfind("semente-", 0) == 0;
     if (t == "picareta") { usarPicareta(); return true; }
+    if (t == "adubo") {
+        int ax = x + DX[rumo], ay = y + DY[rumo];
+        int cel = ay * LADO + ax;
+        if (!mapa.valido(ax, ay) || !mapa.em(ax, ay).planta || !plantas.count(cel)) { fala::dizer("Adubo vai na planta: de frente para ela, Espaço."); return true; }
+        Planta& p = plantas[cel];
+        if (p.horas >= horasPara(p.tipo)) { fala::dizer("Essa já está pronta para colher: adubo agora não muda nada."); return true; }
+        p.horas = std::min((double)horasPara(p.tipo), p.horas + 24);
+        Coisa usado = c; c = {};
+        if (tirar(usado)) c = usado;
+        audio::tocar3D("cavar", ax + 0.5f, ay + 0.5f, 0.2f, 0.7f, 2);
+        fala::dizer("Você espalha o adubo em volta do pé e afofa a terra com os dedos. A planta ganha um dia de crescimento: " + estadoPlanta(p) + ".");
+        return true;
+    }
     if (t != "machado" && t != "regador" && !semente) return false;
     int fx = x + DX[rumo], fy = y + DY[rumo];
     if (!mapa.valido(fx, fy)) { fala::dizer("Não tem nada na sua frente."); return true; }
@@ -301,7 +314,12 @@ void Jogo::conversarCom(int i) {
 // Árvores do pomar (categoria Objetos do Ç): Espaço de mão vazia, de frente, descreve.
 void Jogo::olharArvore(const Objeto& o) {
     std::string t;
-    if (o.tipo == "macieira") t = "Macieira. Tronco fino e torto, casca lisa, folhas pequenas e serrilhadas. Cheira a fruta doce.";
+    if (o.tipo == "carvalho") t = "Carvalho. Tronco largo e áspero, de casca funda, e galhos grossos que se abrem para os lados. Embaixo, o chão está cheio de bolotas.";
+    else if (o.tipo == "betula") t = "Bétula. Tronco fino e branco, de casca lisa que se solta em tiras de papel; as folhas miúdas tremem com qualquer vento.";
+    else if (o.tipo == "ipe") t = "Ipê. Tronco duro e rachado, e lá em cima a copa cheia de flor, que vai caindo e forrando o chão.";
+    else if (o.tipo == "eucalipto") t = "Eucalipto. Alto e reto, de casca que descasca em lascas compridas; amassando a folha, sai um cheiro forte de remédio.";
+    else if (o.tipo == "cedro") t = "Cedro. Tronco grosso, de casca rachada e cheirosa; a madeira dele é das mais procuradas.";
+    else if (o.tipo == "macieira") t = "Macieira. Tronco fino e torto, casca lisa, folhas pequenas e serrilhadas. Cheira a fruta doce.";
     else if (o.tipo == "laranjeira") t = "Laranjeira. Folha grossa e brilhante, que solta cheiro de laranja quando você esfrega entre os dedos. Cuidado com os espinhos dos galhos.";
     else if (o.tipo == "cerejeira") t = "Cerejeira. Casca lisa, com riscos atravessados, e galhos finos que balançam com o vento.";
     else if (o.tipo == "bananeira") t = "Bananeira. O tronco é mole e úmido, feito de folhas enroladas; as folhas são enormes e rasgadas pelo vento.";

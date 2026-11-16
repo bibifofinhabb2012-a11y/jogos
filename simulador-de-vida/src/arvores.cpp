@@ -16,14 +16,21 @@ static std::string frutaDe(const std::string& arvore) {
     if (arvore == "laranjeira") return "laranja";
     if (arvore == "cerejeira") return "cereja";
     if (arvore == "bananeira") return "banana";
-    return "manga";
+    if (arvore == "mangueira") return "manga";
+    return "";  // carvalho, bétula, ipê, eucalipto, cedro: sem fruta
+}
+static std::string comArtigo(const Objeto& o) {  // "a macieira", "o ipê"
+    bool masc = o.tipo == "carvalho" || o.tipo == "ipe" || o.tipo == "eucalipto" || o.tipo == "cedro";
+    std::string n = o.nome; n[0] = (char)std::tolower((unsigned char)n[0]);
+    return (masc ? "o " : "a ") + n;
 }
 static std::string parteDe(const std::string& arvore) { return arvore == "bananeira" ? "cacho" : "galho"; }
 
 int Jogo::arvoreDaFrente() const {
     int fx = x + DX[rumo], fy = y + DY[rumo];
     for (size_t i = 0; i < mapa.objetos.size(); i++)
-        if (mapa.objetos[i].x == fx && mapa.objetos[i].y == fy) return (int)i;
+        if (mapa.objetos[i].x == fx && mapa.objetos[i].y == fy)
+            return (i < pomar.size() && pomar[i].renasce > 0) ? -1 : (int)i;  // derrubada: só o toco
     return -1;
 }
 
@@ -31,6 +38,7 @@ int Jogo::arvoreDaFrente() const {
 uint8_t& Jogo::frutasDa(int i) {
     if ((int)pomar.size() < (int)mapa.objetos.size()) pomar.resize(mapa.objetos.size());
     EstadoArvore& e = pomar[i];
+    if (frutaDe(mapa.objetos[i].tipo).empty()) { e.frutas = 0; return e.frutas; }
     if (e.dia != diaDoJogo()) {
         e.dia = diaDoJogo();
         e.frutas = 0;
@@ -47,6 +55,7 @@ bool Jogo::radarValido(int i) const {
 void Jogo::radarArvoreTecla(int lado) {
     int i = arvoreDaFrente();
     if (i < 0) { fala::dizer("O radar de árvore funciona de frente para uma árvore do pomar. Ache uma no Ç, em Objetos, e chegue com Alt O."); return; }
+    if (frutaDe(mapa.objetos[i].tipo).empty()) { fala::dizer(mapa.objetos[i].nome + " não dá fruta: o radar é para as árvores do pomar."); return; }
     if (mundoAtual != "fazenda" && !souMorador()) { fala::dizer("Essa árvore é de outra pessoa."); return; }
     if (!radarValido(i)) { radarArvore = i; radarX = x; radarY = y; radarRumo = rumo; radarItem = lado > 0 ? -1 : 0; frutaMirada = -1; }
     radarItem = (radarItem + lado + 7) % 7;  // 0 tronco, 1 a 6 galhos
@@ -83,6 +92,7 @@ bool Jogo::mirarFruta() {
 // Espaço de mão vazia de frente para uma árvore do pomar: colhe a fruta mirada, ou descreve.
 void Jogo::maoNaArvore(int i) {
     const Objeto& o = mapa.objetos[i];
+    if (frutaDe(o.tipo).empty()) { olharArvore(o); return; }
     if (radarValido(i) && frutaMirada >= 0 && (frutasDa(i) & (1 << frutaMirada))) {
         if (mundoAtual != "fazenda" && !souMorador()) { fala::dizer("Essa árvore é de outra pessoa."); return; }
         frutasDa(i) &= (uint8_t)~(1 << frutaMirada);
@@ -102,7 +112,10 @@ void Jogo::maoNaArvore(int i) {
 
 // Machado numa árvore: 5 golpes derrubam. As do pomar ficam.
 void Jogo::cortarArvore(int fx, int fy) {
-    if (mapa.objetoEm(fx, fy)) { fala::dizer("Essa é árvore de fruta do pomar. Melhor não cortar: ela dá fruta todo dia."); return; }
+    int oi = -1;
+    for (size_t k = 0; k < mapa.objetos.size(); k++) if (mapa.objetos[k].x == fx && mapa.objetos[k].y == fy) oi = (int)k;
+    if (oi >= 0 && mapa.objetos[oi].tipo == "bananeira") { fala::dizer("Bananeira não dá madeira: o tronco é mole, de folha enrolada, e o machado afunda sem cortar nada."); return; }
+    if (oi >= 0 && mundoAtual != "fazenda" && !souMorador()) { fala::dizer("Essa árvore é de outra pessoa."); return; }
     int cel = fy * LADO + fx;
     int& g = golpes[cel];
     g++;
@@ -111,11 +124,24 @@ void Jogo::cortarArvore(int fx, int fy) {
     if (g < 5) { fala::dizer(g == 1 ? "Você crava o machado no tronco: lasca voa. Mais uns golpes e ela cai." : (5 - g == 1 ? std::string("Mais um golpe. Falta 1.") : "Mais um golpe. Faltam " + std::to_string(5 - g) + ".")); return; }
     golpes.erase(cel);
     mapa.em(fx, fy).obs = Obstaculo::Nada;
-    cortadas.push_back(cel);
-    acaoNaFazenda("cortada " + std::to_string(cel));
     guardar({"lenha", 0}, 4);
     audio::tocar3D("arvore", fx + 0.5f, fy + 0.5f, 2.0f, 1.0f, 30);
-    fala::dizer("O tronco estala, range, e a árvore cai com um estrondo, sacudindo o chão. Você corta em pedaços: 4 toras de lenha, na mochila.");
+    if (oi >= 0) {  // árvore com nome: brota de novo; as frutas caem e se espalham pelo chão
+        const Objeto& o = mapa.objetos[oi];
+        int caidas = 0;
+        std::string fr = frutaDe(o.tipo);
+        if (!fr.empty()) { uint8_t f = frutasDa(oi); for (int b = 0; b < 6; b++) if ((f & (1 << b)) && espalhar({fr, 0}, fx, fy, 3)) caidas++; }
+        if ((int)pomar.size() <= oi) pomar.resize(oi + 1);
+        pomar[oi].frutas = 0; pomar[oi].renasce = 20 * 60;
+        if (radarArvore == oi) radarArvore = -1;
+        fala::dizer("O tronco estala, range, e " + comArtigo(o) + " cai com um estrondo, sacudindo o chão. Você corta em pedaços: 4 toras de lenha, na mochila." +
+                    (caidas ? " " + std::to_string(caidas) + (caidas == 1 ? " fruta caiu e rolou" : " frutas caíram e rolaram") + " pelo chão: no Ç, em Itens." : "") +
+                    " Daqui a 20 minutos brota de novo.");
+    } else {
+        cortadas.push_back(cel);
+        acaoNaFazenda("cortada " + std::to_string(cel));
+        fala::dizer("O tronco estala, range, e a árvore cai com um estrondo, sacudindo o chão. Você corta em pedaços: 4 toras de lenha, na mochila.");
+    }
     evento("cortou");
 }
 
@@ -136,4 +162,24 @@ void Jogo::usarPicareta() {
     fala::dizer("Você finca a picareta, alavanca e a pedra sai do chão. Terra limpa, pronta para plantar. A pedra vai para a mochila: o prefeito compra.");
     evento("limpou");
     if (categoria == 6) { montarAlvos(); itemAlvo = alvos.empty() ? 0 : (int)alvos.size() - 1; }
+}
+
+// Árvore derrubada brota de novo depois de 20 minutos de verdade (na fazenda da pessoa, esteja ela onde estiver).
+void Jogo::atualizarArvores(double seg) {
+    Mapa* pm = mundoAtual == "fazenda" ? &mapa : fazendaGuardada ? &fazendaGuardada->mapa : nullptr;
+    if (!pm) return;
+    Mapa& mp = *pm;
+    bool emCasa = mundoAtual == "fazenda";
+    for (size_t i = 0; i < pomar.size() && i < mp.objetos.size(); i++) {
+        EstadoArvore& e = pomar[i];
+        if (e.renasce <= 0) continue;
+        e.renasce -= seg;
+        if (e.renasce > 0) continue;
+        const Objeto& o = mp.objetos[i];
+        bool aqui = emCasa && x == o.x && y == o.y;
+        if (aqui || mp.em(o.x, o.y).movel >= 0) { e.renasce = 5; continue; }  // tem alguém em cima: espera
+        mp.em(o.x, o.y).obs = Obstaculo::Arvore;
+        e.dia = -1;
+        if (emCasa && std::max(std::abs(o.x - x), std::abs(o.y - y)) <= 30) fala::dizer("Ali perto, " + comArtigo(o) + " brotou e cresceu de novo.", false);
+    }
 }

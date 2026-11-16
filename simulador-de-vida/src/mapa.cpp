@@ -156,6 +156,26 @@ void Mapa::gerarFazenda() {
     for (int x = 498; x <= 502; x++) abrir(x, 5, Obstaculo::Porteira, Chao::Terra);
     for (int y = 198; y <= 202; y++) abrir(LADO - 6, y, Obstaculo::Porteira, Chao::Terra, false);
 
+    {   // árvores com nome pelo terreno, fora do pomar (sorteio fixo): achadas no Ç, em Objetos
+        static const std::pair<const char*, const char*> ESPECIES[] = {
+            {"carvalho", "Carvalho"}, {"betula", "Bétula"}, {"ipe", "Ipê"}, {"eucalipto", "Eucalipto"}, {"cedro", "Cedro"},
+        };
+        std::mt19937 sa(31);
+        std::uniform_int_distribution<int> ax(20, 980), ay(20, 980);
+        size_t antes = objetos.size();
+        for (int k = 0, tent = 0; k < 30 && tent < 20000; tent++) {
+            int x = ax(sa), y = ay(sa);
+            if (em(x, y).chao != Chao::Pasto || em(x, y).obs != Obstaculo::Nada || std::abs(x - 500) < 8) continue;
+            if (x >= 340 && x <= 660 && y >= 30 && y <= 380) continue;  // terreiro, pomar e horta
+            bool longe = std::all_of(objetos.begin() + (long)antes, objetos.end(), [&](const Objeto& o) { return std::max(std::abs(o.x - x), std::abs(o.y - y)) >= 40; });
+            if (!longe) continue;
+            const auto& [tipo, nome] = ESPECIES[k % 5];
+            em(x, y).obs = Obstaculo::Arvore;
+            objetos.push_back({tipo, nome, x, y});
+            k++;
+        }
+    }
+
     // do mais específico para o mais geral
     lugares = {
         {"box do chuveiro", 595, 198, 595, 198, true},

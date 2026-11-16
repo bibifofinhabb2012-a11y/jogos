@@ -56,6 +56,13 @@ std::string Jogo::nomeCoisa(const Coisa& c, bool comArtigo) const {
     else if (t == "gesso") n = "pacote de gesso em pó";
     else if (t == "saco-dormir") n = "saco de dormir";
     else if (t == "faca") n = "faca de abate";
+    else if (t == "leite") n = c.carga >= 4 ? "garrafa de leite, cheia" : "garrafa de leite, com " + goles(c.carga);
+    else if (t == "couro") n = "couro de vaca";
+    else if (t == "cinto") n = "cinto de couro";
+    else if (t == "bolsa") n = "bolsa de couro";
+    else if (t == "chapeu-couro") n = "chapéu de couro";
+    else if (t == "botas") n = "par de botas de couro";
+    else if (t == "sela") n = "sela de couro";
     else if (t == "carne") n = "pedaço de carne crua";
     else if (t == "carne-assada") n = "pedaço de carne assada";
     else if (t == "carteira") n = "carteira, com " + std::to_string(c.carga) + (c.carga == 1 ? " moeda" : " moedas");
@@ -100,7 +107,7 @@ std::string Jogo::nomeCoisa(const Coisa& c, bool comArtigo) const {
     if (!comArtigo) return n;
     static const char* MASCULINOS[] = {"antibiotico", "gesso", "saco-dormir", "chapeu", "machado", "regador", "arroz", "feijao", "po-cafe",
                                        "acucar", "farinha", "gas", "cigarro", "isqueiro", "cacau",
-                                       "carne", "carne-assada", "brigadeiro", "beijinho", "camafeu", "torta", "risole", "refrigerante", "salada", "maionese"};
+                                       "carne", "carne-assada", "couro", "cinto", "chapeu-couro", "botas", "brigadeiro", "beijinho", "camafeu", "torta", "risole", "refrigerante", "salada", "maionese"};
     bool fem = std::none_of(std::begin(MASCULINOS), std::end(MASCULINOS), [&](const char* m) { return t == m; });
     return std::string(fem ? "a " : "o ") + n;
 }
@@ -233,6 +240,7 @@ void Jogo::combinar() {
         } else fala::dizer("Tec. Não pegou. T de novo.");
         return;
     }
+    if (par("couro", "faca")) { menuCouro(); return; }
     if (par("isqueiro", "gas-isqueiro")) {
         Coisa& isq = d.tipo == "isqueiro" ? d : e;
         Coisa& lata = d.tipo == "gas-isqueiro" ? d : e;
@@ -271,6 +279,22 @@ void Jogo::usar(bool direita) {
     if (mundoAtual.rfind("visita:", 0) == 0 && !moradorDe(mundoAtual.substr(7)) && (t == "machado" || t == "regador" || t.rfind("semente-", 0) == 0)) { fala::dizer("Na roça dos outros, só o dono planta e colhe."); return; }
     if (t == "alianca") { usarAlianca(); return; }
     if (t == "faca") { usarFaca(); return; }
+    if ((t == "garrafa" || t == "garrafa-aberta") && ordenhar(c)) return;
+    if (t == "leite") {
+        if (sede > 97 && fome > 97) { fala::dizer("Você está sem fome e sem sede."); return; }
+        c.carga--;
+        sede = std::min(100.0, sede + 5); fome = std::min(100.0, fome + 5); intestino = std::min(100.0, intestino + 2);
+        audio::tocar("gole", 0.8f);
+        std::string resto = c.carga > 0 ? " Ainda tem " + goles(c.carga) + "." : " Acabou: a garrafa ficou vazia.";
+        if (c.carga <= 0) c = {"garrafa", 0};
+        fala::dizer("Você bebe um gole de leite, gordo e docinho." + resto);
+        return;
+    }
+    if (t == "couro") { fala::dizer("Um couro de vaca inteiro, ainda cheirando a curral. Com a faca na outra mão, T faz cinto, bolsa, chapéu, botas ou sela. Também vende na caixa de remessa."); return; }
+    if (t == "cinto" || t == "bolsa" || t == "chapeu-couro" || t == "botas" || t == "sela") {
+        fala::dizer(maiuscula(nomeCoisa(c, true)) + ", feit" + std::string(t == "bolsa" || t == "sela" ? "a" : "o") + " por você, com couro do seu curral. Vende na caixa de remessa.");
+        return;
+    }
     if (t == "carne") {
         int f = movelFrente();
         if (f >= 0 && moveis[f].tipo == "fogao") {
@@ -714,7 +738,7 @@ std::string Jogo::passagemPerto(int ox, int oy, int r) const {
 }
 
 void Jogo::ajuda() {
-    fala::dizer("Teclas. Seta para cima: andar para a frente; segure para continuar; com Control, correr. Seta para baixo: andar de costas. Setas para a esquerda e para a direita: andar de lado. Control mais seta para o lado: virar 45 graus. Shift mais seta para o lado: virar 90 graus. Shift mais seta para cima ou para baixo: dar meia-volta. R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na sua frente; em outra posição, levantar. Control mais R: deitar; de frente para a cama, deita nela e dorme. Shift mais R: agachar. Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você. Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral: faca de frente para uma vaca, abate (ela pode dar coice). Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho. Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta. Alt mais Espaço: liga e desliga o chuveiro, de dentro do box. B: onde você está. Shift mais B: onde você está, a que distância das divisas e o que tem à frente. Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação, animais. Shift mais Ç: categoria anterior. L: próximo item da categoria, do mais perto para o mais longe. K: item anterior. O: rastreia o item escolhido: um bip soa de onde ele está; O de novo desliga. Alt mais O: anda sozinho até o item, abrindo as portas; qualquer tecla para. Q: dia e hora. I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, uma letra pula para o próximo item com aquela inicial, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda, Esc fecha. 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia. 2: o mesmo para a mão direita. 3: diz o que tem nas duas mãos. T: combina o que está nas duas mãos (isqueiro e cigarro: tenta acender; isqueiro e latinha de gás: enche o isqueiro); com as duas vazias, bate palmas. U: fome, de 0 a 1000. S: sede: água no corpo, de 0 a 1000. E: energia, de 0 a 1000. H: saúde, de 0 a 1000. W: limpeza: se precisa de banho. V: intestino. Shift mais V: bexiga. Control mais Q, segurando: fazer cocô, sentando, até acabar. Shift mais Q, segurando: fazer xixi, de cócoras, até acabar. Dois-pontos: no jogo online, abre o campo de mensagem do chat; Enter envia, Esc cancela, Backspace apaga; o jogo fala cada letra que você digita. Tab: menu: tutorial, hospedar online, entrar em jogo online, jogadores, teleportar para o evento (quando tem casamento), conversar sobre a fazenda (depois de casar), ativar e desativar chat, histórico do chat, ativar e desativar voz, configurações de volume, sair; Tab de novo volta ao jogo; sozinho, o menu pausa o jogo, no online não. Nos menus: setas para cima e para baixo escolhem, Enter faz, Shift Enter pega, guarda ou vende tudo, setas para os lados mudam volume, uma letra pula, Esc volta. F2: repete a última fala. F1: esta ajuda. Esc duas vezes: salva e sai.");
+    fala::dizer("Teclas. Seta para cima: andar para a frente; segure para continuar; com Control, correr. Seta para baixo: andar de costas. Setas para a esquerda e para a direita: andar de lado. Control mais seta para o lado: virar 45 graus. Shift mais seta para o lado: virar 90 graus. Shift mais seta para cima ou para baixo: dar meia-volta. R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na sua frente; em outra posição, levantar. Control mais R: deitar; de frente para a cama, deita nela e dorme. Shift mais R: agachar. Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você. Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: faca de frente para uma vaca, abate (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho. Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta. Alt mais Espaço: liga e desliga o chuveiro, de dentro do box. B: onde você está. Shift mais B: onde você está, a que distância das divisas e o que tem à frente. Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação, animais. Shift mais Ç: categoria anterior. L: próximo item da categoria, do mais perto para o mais longe. K: item anterior. O: rastreia o item escolhido: um bip soa de onde ele está; O de novo desliga. Alt mais O: anda sozinho até o item, abrindo as portas; qualquer tecla para. Q: dia e hora. I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem o item, uma letra pula para o próximo item com aquela inicial, seta para a direita põe na mão direita, seta para a esquerda põe na mão esquerda, Esc fecha. 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia. 2: o mesmo para a mão direita. 3: diz o que tem nas duas mãos. T: combina o que está nas duas mãos (isqueiro e cigarro: tenta acender; isqueiro e latinha de gás: enche o isqueiro; couro e faca: faz cinto, bolsa, chapéu, botas ou sela); com as duas vazias, bate palmas. U: fome, de 0 a 1000. S: sede: água no corpo, de 0 a 1000. E: energia, de 0 a 1000. H: saúde, de 0 a 1000. W: limpeza: se precisa de banho. V: intestino. Shift mais V: bexiga. Control mais Q, segurando: fazer cocô, sentando, até acabar. Shift mais Q, segurando: fazer xixi, de cócoras, até acabar. Dois-pontos: no jogo online, abre o campo de mensagem do chat; Enter envia, Esc cancela, Backspace apaga; o jogo fala cada letra que você digita. Tab: menu: tutorial, hospedar online, entrar em jogo online, jogadores, teleportar para o evento (quando tem casamento), conversar sobre a fazenda (depois de casar), ativar e desativar chat, histórico do chat, ativar e desativar voz, configurações de volume, sair; Tab de novo volta ao jogo; sozinho, o menu pausa o jogo, no online não. Nos menus: setas para cima e para baixo escolhem, Enter faz, Shift Enter pega, guarda ou vende tudo, setas para os lados mudam volume, uma letra pula, Esc volta. F2: repete a última fala. F1: esta ajuda. Esc duas vezes: salva e sai.");
 }
 
 // ---------- teclas ----------
@@ -1050,14 +1074,15 @@ void Jogo::salvar(const std::string& arquivo) {
     if (!moraCom.empty()) f << "moracom " << moraCom << '\n';
     for (const Carta& c : cartas) f << "carta " << c.id << ' ' << (c.lida ? 1 : 0) << '\n';
     for (int c : limpos) f << "limpo " << c << '\n';
-    f << "vacas " << contarVacas() << '\n';
     for (const auto& [c, p] : plantas) f << "planta " << c << ' ' << p.tipo << ' ' << p.horas << ' ' << p.molhadaAte << '\n';
     for (size_t i = 0; i < moveis.size(); i++) {
+        if (ehVaca(moveis[i].tipo)) continue;  // as vacas vão nas linhas "bicho"
         f << "movel " << i << ' ' << moveis[i].x << ' ' << moveis[i].y << '\n';
         if (moveis[i].tipo == "fogao") f << "gas " << i << ' ' << moveis[i].gas << '\n';
         for (size_t p = 0; p < moveis[i].partes.size(); p++)
             for (const Pilha& q : moveis[i].partes[p]) f << "dentro " << i << ' ' << p << ' ' << q.coisa.tipo << ' ' << q.coisa.carga << ' ' << q.qtd << '\n';
     }
+    f << linhasBichos();
     for (auto [px, py] : mapa.passagens()) f << "porta " << px << ' ' << py << ' ' << (mapa.em(px, py).aberta ? 1 : 0) << '\n';
     for (const Pilha& p : mochila) f << "item " << p.coisa.tipo << ' ' << p.coisa.carga << ' ' << p.qtd << '\n';
     f << "maoD " << (maoDireita.tipo.empty() ? "-" : maoDireita.tipo) << ' ' << maoDireita.carga << '\n';
@@ -1082,6 +1107,7 @@ bool Jogo::carregar(const std::string& arquivo) {
         else if (k == "relogio") s >> minutos;
         else if (k == "corpo2") { int p = 0; s >> p >> intestino >> bexiga; if (!(s >> higiene)) higiene = 90; postura = (Postura)std::clamp(p, 0, 3); }
         else if (k == "vacas") { int n; s >> n; ajustarVacas(n); }
+        else if (k == "bichos" || k == "bicho") lerBicho(linha);
         else if (k == "movel") {
             size_t i; int mx, my; s >> i >> mx >> my;
             if (i < moveis.size() && mapa.valido(mx, my)) {

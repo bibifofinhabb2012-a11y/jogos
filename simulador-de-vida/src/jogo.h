@@ -29,6 +29,7 @@ struct Movel {
     std::vector<std::vector<Pilha>> partes;  // compartimentos: portas do guarda-roupa, a geladeira inteira
     int som = 0;                             // som contínuo (motor da geladeira, chama, chuveiro)
     double ciclo = 0;                        // motor da geladeira: liga e desliga sozinho
+    int ordenha = -1;                        // vaca de leite: dia do jogo da última ordenha
     double gas = 600;                        // fogão: segundos de verdade de chama que o botijão ainda tem
 };
 
@@ -52,6 +53,8 @@ struct Carta { std::string id; bool lida = false; };
 
 // Algo que dá para escolher com K e L e rastrear com O.
 // Lugares grandes têm retângulo (x0..x1, y0..y1): chegar é entrar nele.
+bool ehVaca(const std::string& t);  // vaca de corte ou de leite (vacas.cpp)
+
 struct Alvo { std::string nome; int x, y; bool chegarAoLado; int x0 = -1, y0 = 0, x1 = 0, y1 = 0; int jogador = -1; int movel = -1; };
 
 // Campo de escrita (chat, nome, endereço). O jogo fala cada letra, porque o leitor de tela não vê a janela.
@@ -233,9 +236,14 @@ private:
     void abrirRecipiente(int i);
     void atualizarMoveis(double dt);
     // vacas.cpp
-    int contarVacas() const;
-    bool poeVaca();
+    int contarVacas(const std::string& tipo) const;
+    bool poeVaca(const std::string& tipo, int vx = -1, int vy = -1);
     void ajustarVacas(int n);
+    std::string linhasBichos() const;
+    void lerBicho(const std::string& linha);
+    void coice(Movel& v, int minimo, int maximo, const std::string& susto);
+    bool ordenhar(Coisa& c);
+    void menuCouro();
     void nascerBezerro();
     void atualizarVacas(double seg);
     void carinhoVaca(int i);

@@ -34,13 +34,16 @@ void Jogo::montarAlvos() {
             if (r.mundo == mundoCanonico()) { alvos.push_back({r.nome + ", jogador", r.x, r.y, true}); alvos.back().jogador = id; }
     } else if (categoria == 5) {
         for (size_t i = 0; i < moveis.size(); i++)
-            if (moveis[i].tipo == "vaca") { alvos.push_back({"Vaca, no " + mapa.nomeLugar(moveis[i].x, moveis[i].y), moveis[i].x, moveis[i].y, true}); alvos.back().movel = (int)i; }
+            if (moveis[i].tipo == "vaca" || moveis[i].tipo == "vaca-leite") {
+                alvos.push_back({maiuscula(nomeMovel((int)i)) + ", no " + mapa.nomeLugar(moveis[i].x, moveis[i].y), moveis[i].x, moveis[i].y, true});
+                alvos.back().movel = (int)i;
+            }
     } else if (categoria == 4) {
         for (const auto& [c, p] : plantas)
             alvos.push_back({maiuscula(nomePlanta(p.tipo)) + ", " + estadoPlanta(p), c % LADO, c / LADO, true});
     } else if (categoria == 0) {
         for (size_t i = 0; i < moveis.size(); i++) {
-            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito" || moveis[i].tipo == "vaca") continue;
+            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito" || moveis[i].tipo == "vaca" || moveis[i].tipo == "vaca-leite") continue;
             std::string n = nomeMovel((int)i);
             std::string l = mapa.nomeLugar(moveis[i].x, moveis[i].y);
             alvos.push_back({maiuscula(n) + ", " + (l == "calçada da casa" ? "na casa" : l == "box do chuveiro" ? "no box" : "no " + l), moveis[i].x, moveis[i].y, true});
@@ -118,7 +121,7 @@ void Jogo::trocarItem(int lado) {
     itemAlvo = (itemAlvo + lado + (int)alvos.size()) % (int)alvos.size();
     audio::tocar("gota", 0.5f);
     Alvo& al = alvos[itemAlvo];
-    if (al.movel >= 0 && al.movel < (int)moveis.size() && moveis[al.movel].tipo == "vaca") { al.x = moveis[al.movel].x; al.y = moveis[al.movel].y; }
+    if (al.movel >= 0 && al.movel < (int)moveis.size() && (moveis[al.movel].tipo == "vaca" || moveis[al.movel].tipo == "vaca-leite")) { al.x = moveis[al.movel].x; al.y = moveis[al.movel].y; }
     fala::dizer(descreverAlvo(alvos[itemAlvo]));
     evento("item");
 }
@@ -137,8 +140,19 @@ void Jogo::rastrear() {
     if (categoria < 0 || alvos.empty()) { fala::dizer("Escolha primeiro o que procurar: Ç para a categoria, K e L para o item."); return; }
     rastreado = alvos[itemAlvo];
     int mv = rastreado.movel;  // animal anda: pega onde ele está agora
-    if (mv >= 0 && mv < (int)moveis.size() && moveis[mv].tipo == "vaca") { rastreado.x = moveis[mv].x; rastreado.y = moveis[mv].y; }
-    if (chegou(rastreado)) { audio::tocar("chegou", 0.8f); fala::dizer("Você já está em " + rastreado.nome + "."); evento("chegou"); return; }
+    if (mv >= 0 && mv < (int)moveis.size() && (moveis[mv].tipo == "vaca" || moveis[mv].tipo == "vaca-leite")) { rastreado.x = moveis[mv].x; rastreado.y = moveis[mv].y; }
+    if (chegou(rastreado)) {
+        bool virou = false;
+        if (rastreado.chegarAoLado && (rastreado.x != x || rastreado.y != y)) {  // fica de frente para a coisa
+            double ang = std::atan2((double)(rastreado.x - x), (double)(rastreado.y - y)) * 180 / 3.14159265;
+            int r = ((int)std::lround(ang / 45.0) % 8 + 8) % 8;
+            virou = r != rumo; rumo = r;
+        }
+        audio::tocar("chegou", 0.8f);
+        fala::dizer("Você já está em " + rastreado.nome + (virou ? ". Você vira de frente: " + relativo(rumo) + "." : "."));
+        evento("chegou");
+        return;
+    }
     rastreando = true; proximoBip = 0;
     fala::dizer("Rastreando: " + descreverAlvo(rastreado) + " Siga o bip. O de novo desliga; Alt O leva você até lá.");
     evento("rastrear");
@@ -181,7 +195,7 @@ void Jogo::irAteAlvo() {
     if (postura != Postura::EmPe) { postura = Postura::EmPe; sentadoEm = -1; }
     segurando = -1;
     esperaCaminho = 0;
-    fala::dizer("Indo até " + rastreado.nome + ", " + std::to_string(caminho.size()) + " passos. Qualquer tecla para.");
+    fala::dizer("Indo até " + rastreado.nome + ", " + std::to_string(caminho.size()) + (caminho.size() == 1 ? " passo." : " passos.") + " Qualquer tecla para.");
 }
 
 void Jogo::atualizarGuia(double dt) {

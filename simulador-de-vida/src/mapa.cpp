@@ -118,6 +118,10 @@ void Mapa::gerarFazenda() {
     retangulo(680, 150, 760, 230, Chao::Terra);
     contorno(680, 150, 760, 230, Obstaculo::CercaMadeira);
     abrir(680, 190, Obstaculo::Porteira, Chao::Terra, false);
+    // curral de leite, ao norte do de corte
+    retangulo(680, 240, 760, 320, Chao::Terra);
+    contorno(680, 240, 760, 320, Obstaculo::CercaMadeira);
+    abrir(680, 280, Obstaculo::Porteira, Chao::Terra, false);
     retangulo(620, 340, 634, 350, Chao::Terra);
     contorno(620, 340, 634, 350, Obstaculo::Tela);
     abrir(627, 340, Obstaculo::Porta, Chao::Terra, false);
@@ -145,7 +149,8 @@ void Mapa::gerarFazenda() {
         {"calçada da casa", 395, 101, 604, 313, false},
         {"galinheiro", 621, 341, 633, 349, true},
         {"paiol", 331, 331, 349, 349, true},
-        {"curral", 681, 151, 759, 229, false},
+        {"curral de corte", 681, 151, 759, 229, false},
+        {"curral de leite", 681, 241, 759, 319, false},
         {"roça", 510, 590, 570, 640, false},
         {"horta", 360, 30, 420, 75, false},
         {"pomar", 580, 30, 650, 75, false},

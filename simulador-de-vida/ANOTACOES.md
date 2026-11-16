@@ -75,3 +75,9 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Abate: faca na mão, Espaço; 40% de coice (80 a 220 pontos de saúde); senão 12 de carne crua. Carne assa no fogão aceso. Bezerro: 35% de chance por noite, até 5 vacas, só com a pessoa na própria fazenda.
 - Categoria do Ç: 5 = Animais (`Alvo::movel` acompanha a vaca).
 - Ainda não feito: tirar leite; vaca na fazenda de quem foi morar junto (lá só carinho).
+
+## Dois currais, leite e couro (novembro)
+- Curral de corte (681..759 × 151..229, tipo "vaca", 5) e curral de leite (681..759 × 241..319, porteira em 680,280, tipo "vaca-leite", 4). Tabela `Curral` em `vacas.cpp`.
+- Salvo: as vacas não têm mais linha `movel`; vão como `bichos` (marca: apaga as vacas de fábrica) e `bicho tipo x y diaOrdenha`. Salvo antigo com `vacas N` ainda funciona.
+- Ordenha: garrafa vazia (aberta ou tampada), uma vez por dia do jogo por vaca (`Movel::ordenha`), 10% de coice de 40 a 100. Vira `{"leite", 4}` (goles); bebida vazia volta a ser garrafa vazia.
+- Couro: o abate dá 1 `couro`; T com couro e faca abre `menuCouro` (cinto, bolsa, chapeu-couro, botas, sela; 1 couro cada). Preços em `correio.cpp`. O mercado da cidade ainda não existe: quando existir, vender lá também.

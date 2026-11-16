@@ -15,7 +15,7 @@ R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na 
 Control mais R: deitar; de frente para a cama, deita nela e dorme.
 Shift mais R: agachar.
 Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você.
-Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral: faca de frente para uma vaca, abate (ela pode dar coice). Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho.
+Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: faca de frente para uma vaca, abate (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho.
 Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta.
 Alt mais Espaço: liga e desliga o chuveiro, de dentro do box.
 B: onde você está.
@@ -31,7 +31,7 @@ I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem
 1: seleciona a mão esquerda e diz o que tem nela; apertado duas vezes, esvazia.
 2: o mesmo para a mão direita.
 3: diz o que tem nas duas mãos.
-T: combina o que está nas duas mãos (isqueiro e cigarro: tenta acender; isqueiro e latinha de gás: enche o isqueiro); com as duas vazias, bate palmas.
+T: combina o que está nas duas mãos (isqueiro e cigarro: tenta acender; isqueiro e latinha de gás: enche o isqueiro; couro e faca: faz cinto, bolsa, chapéu, botas ou sela); com as duas vazias, bate palmas.
 U: fome, de 0 a 1000.
 S: sede: água no corpo, de 0 a 1000.
 E: energia, de 0 a 1000.
@@ -84,14 +84,19 @@ CORPO E SAÚDE
 Fome (U), sede (S), energia (E) e saúde (H) vão de 0 a 1000. Fome, sede e energia caem com o tempo.
 Com fome ou sede zerada, a saúde cai; comendo, bebendo e descansando, ela volta devagar. Saúde em 0 é fim de jogo.
 
-VACAS E CARNE
-No curral, a leste da casa sede, tem 5 vacas. No Ç, a categoria Animais acha cada uma; O e Alt O levam até ela.
+VACAS: CURRAL DE CORTE E CURRAL DE LEITE
+A leste da casa sede ficam dois currais: o de corte, com 5 vacas, e ao norte dele o de leite, com 4.
+No Ç, a categoria Animais acha cada uma e diz de qual curral é; O e Alt O levam até ela.
 Perto de você, a vaca fica parada. Mão vazia e Espaço: carinho.
-Para abater: compre a faca de abate com seu Zé (15 moedas), segure de frente para a vaca e aperte Espaço.
+Curral de corte: compre a faca de abate com seu Zé (15 moedas), segure de frente para a vaca e aperte Espaço.
 A vaca pode se assustar e dar coice: tira de 80 a 220 pontos de saúde, e ela sai de perto. Tente de novo.
-Abatida, dá 12 pedaços de carne crua. Carne crua na mão, de frente para o fogão aceso, Espaço: assa um pedaço.
-Carne assada mata bem a fome. Carne crua e assada também se vendem na caixa de remessa.
-De vez em quando, à noite, nasce um bezerro, até o curral ter 5 vacas de novo.
+Abatida, dá 12 pedaços de carne crua e um couro. Carne crua na mão, de frente para o fogão aceso, Espaço: assa um pedaço.
+Curral de leite: garrafa vazia na mão (compra com seu Zé, ou esvazie uma de água), de frente para a vaca, Espaço.
+Cada vaca dá uma garrafa de leite por dia. Às vezes ela se incomoda e dá coice, mais fraco: de 40 a 100 pontos.
+Garrafa de leite na mão, Espaço: bebe um gole. Vaca de leite não se abate.
+Couro: couro numa mão e faca na outra, T abre o menu: cinto, bolsa, chapéu, par de botas ou sela. Cada um gasta um couro.
+Tudo isso se vende na caixa de remessa: carne crua 5, carne assada 7, leite 6, couro 12, cinto 25, chapéu 30,
+bolsa 35, botas 45 e sela 70 moedas. De vez em quando, à noite, nasce um bezerro em cada curral, até encher de novo.
 
 SEMENTES E TEMPO ATÉ COLHER (dias do jogo)
 Milho, feijão e arroz: 3 dias. Cenoura: 3 dias. Abóbora: 4 dias. Banana: 5 dias. Laranja: 6 dias. Cacau: 7 dias.

@@ -52,7 +52,7 @@ struct Carta { std::string id; bool lida = false; };
 
 // Algo que dá para escolher com K e L e rastrear com O.
 // Lugares grandes têm retângulo (x0..x1, y0..y1): chegar é entrar nele.
-struct Alvo { std::string nome; int x, y; bool chegarAoLado; int x0 = -1, y0 = 0, x1 = 0, y1 = 0; int jogador = -1; };
+struct Alvo { std::string nome; int x, y; bool chegarAoLado; int x0 = -1, y0 = 0, x1 = 0, y1 = 0; int jogador = -1; int movel = -1; };
 
 // Campo de escrita (chat, nome, endereço). O jogo fala cada letra, porque o leitor de tela não vê a janela.
 struct Campo { bool ativo = false; std::string titulo, texto; std::function<void(const std::string&)> ok; };
@@ -232,6 +232,14 @@ private:
     void dizerHigiene();
     void abrirRecipiente(int i);
     void atualizarMoveis(double dt);
+    // vacas.cpp
+    int contarVacas() const;
+    bool poeVaca();
+    void ajustarVacas(int n);
+    void nascerBezerro();
+    void atualizarVacas(double seg);
+    void carinhoVaca(int i);
+    void usarFaca();
     // menus (menu.cpp)
     void abrirMenu(Menu m);
     void fecharMenu();

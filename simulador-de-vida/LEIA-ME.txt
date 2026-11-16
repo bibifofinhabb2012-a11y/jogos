@@ -15,12 +15,12 @@ R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na 
 Control mais R: deitar; de frente para a cama, deita nela e dorme.
 Shift mais R: agachar.
 Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você.
-Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado).
+Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral: faca de frente para uma vaca, abate (ela pode dar coice). Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho.
 Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta.
 Alt mais Espaço: liga e desliga o chuveiro, de dentro do box.
 B: onde você está.
 Shift mais B: onde você está, a que distância das divisas e o que tem à frente.
-Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação.
+Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação, animais.
 Shift mais Ç: categoria anterior.
 L: próximo item da categoria, do mais perto para o mais longe.
 K: item anterior.
@@ -32,10 +32,10 @@ I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem
 2: o mesmo para a mão direita.
 3: diz o que tem nas duas mãos.
 T: combina o que está nas duas mãos (isqueiro e cigarro: tenta acender; isqueiro e latinha de gás: enche o isqueiro); com as duas vazias, bate palmas.
-U: fome.
-S: sede.
-E: energia.
-H: saúde.
+U: fome, de 0 a 1000.
+S: sede: água no corpo, de 0 a 1000.
+E: energia, de 0 a 1000.
+H: saúde, de 0 a 1000.
 W: limpeza: se precisa de banho.
 V: intestino.
 Shift mais V: bexiga.
@@ -79,6 +79,19 @@ Cigarro: isqueiro numa mão, cigarro na outra, T até acender. Aceso, ele fuma s
 Isqueiro sem gás: isqueiro numa mão, latinha na outra, T enche.
 Cerveja, vinho e uísque deixam bêbado. Mais de duas garrafas de cerveja: o personagem fica tonto e às vezes
 cambaleia para o lado errado. Da terceira em diante, vomita. Passa com o tempo.
+
+CORPO E SAÚDE
+Fome (U), sede (S), energia (E) e saúde (H) vão de 0 a 1000. Fome, sede e energia caem com o tempo.
+Com fome ou sede zerada, a saúde cai; comendo, bebendo e descansando, ela volta devagar. Saúde em 0 é fim de jogo.
+
+VACAS E CARNE
+No curral, a leste da casa sede, tem 5 vacas. No Ç, a categoria Animais acha cada uma; O e Alt O levam até ela.
+Perto de você, a vaca fica parada. Mão vazia e Espaço: carinho.
+Para abater: compre a faca de abate com seu Zé (15 moedas), segure de frente para a vaca e aperte Espaço.
+A vaca pode se assustar e dar coice: tira de 80 a 220 pontos de saúde, e ela sai de perto. Tente de novo.
+Abatida, dá 12 pedaços de carne crua. Carne crua na mão, de frente para o fogão aceso, Espaço: assa um pedaço.
+Carne assada mata bem a fome. Carne crua e assada também se vendem na caixa de remessa.
+De vez em quando, à noite, nasce um bezerro, até o curral ter 5 vacas de novo.
 
 SEMENTES E TEMPO ATÉ COLHER (dias do jogo)
 Milho, feijão e arroz: 3 dias. Cenoura: 3 dias. Abóbora: 4 dias. Banana: 5 dias. Laranja: 6 dias. Cacau: 7 dias.

@@ -10,8 +10,8 @@
 #include "rede.h"
 #include "util.h"
 
-static const char* CATEGORIAS[5] = {"Móveis", "Pessoas", "Portas e porteiras", "Lugares", "Plantação"};
-constexpr int NCAT = 5;
+static const char* CATEGORIAS[6] = {"Móveis", "Pessoas", "Portas e porteiras", "Lugares", "Plantação", "Animais"};
+constexpr int NCAT = 6;
 
 // "a sala", "o corredor"
 static std::string com(const std::string& l) {
@@ -32,12 +32,15 @@ void Jogo::montarAlvos() {
                                  moveis[i].x, moveis[i].y, true});
         for (const auto& [id, r] : rede::remotos())  // outros jogadores no mesmo lugar
             if (r.mundo == mundoCanonico()) { alvos.push_back({r.nome + ", jogador", r.x, r.y, true}); alvos.back().jogador = id; }
+    } else if (categoria == 5) {
+        for (size_t i = 0; i < moveis.size(); i++)
+            if (moveis[i].tipo == "vaca") { alvos.push_back({"Vaca, no " + mapa.nomeLugar(moveis[i].x, moveis[i].y), moveis[i].x, moveis[i].y, true}); alvos.back().movel = (int)i; }
     } else if (categoria == 4) {
         for (const auto& [c, p] : plantas)
             alvos.push_back({maiuscula(nomePlanta(p.tipo)) + ", " + estadoPlanta(p), c % LADO, c / LADO, true});
     } else if (categoria == 0) {
         for (size_t i = 0; i < moveis.size(); i++) {
-            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito") continue;
+            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito" || moveis[i].tipo == "vaca") continue;
             std::string n = nomeMovel((int)i);
             std::string l = mapa.nomeLugar(moveis[i].x, moveis[i].y);
             alvos.push_back({maiuscula(n) + ", " + (l == "calçada da casa" ? "na casa" : l == "box do chuveiro" ? "no box" : "no " + l), moveis[i].x, moveis[i].y, true});
@@ -114,6 +117,8 @@ void Jogo::trocarItem(int lado) {
     if (alvos.empty()) { fala::dizer("Nada nesta categoria."); return; }
     itemAlvo = (itemAlvo + lado + (int)alvos.size()) % (int)alvos.size();
     audio::tocar("gota", 0.5f);
+    Alvo& al = alvos[itemAlvo];
+    if (al.movel >= 0 && al.movel < (int)moveis.size() && moveis[al.movel].tipo == "vaca") { al.x = moveis[al.movel].x; al.y = moveis[al.movel].y; }
     fala::dizer(descreverAlvo(alvos[itemAlvo]));
     evento("item");
 }
@@ -131,6 +136,8 @@ void Jogo::rastrear() {
     if (rastreando) { rastreando = false; caminho.clear(); fala::dizer("Rastreio desligado."); return; }
     if (categoria < 0 || alvos.empty()) { fala::dizer("Escolha primeiro o que procurar: Ç para a categoria, K e L para o item."); return; }
     rastreado = alvos[itemAlvo];
+    int mv = rastreado.movel;  // animal anda: pega onde ele está agora
+    if (mv >= 0 && mv < (int)moveis.size() && moveis[mv].tipo == "vaca") { rastreado.x = moveis[mv].x; rastreado.y = moveis[mv].y; }
     if (chegou(rastreado)) { audio::tocar("chegou", 0.8f); fala::dizer("Você já está em " + rastreado.nome + "."); evento("chegou"); return; }
     rastreando = true; proximoBip = 0;
     fala::dizer("Rastreando: " + descreverAlvo(rastreado) + " Siga o bip. O de novo desliga; Alt O leva você até lá.");

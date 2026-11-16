@@ -28,6 +28,7 @@ static const TipoMovel TIPOS[] = {
     {"ze", "seu Zé", false, false, false, false},
     {"prefeito", "seu Manel do Bacanal, o prefeito", false, false, false, false},
     {"mesa-festa", "mesa de comes e bebes", true, false, false, false},
+    {"vaca", "vaca", true, false, false, false},
 };
 static const TipoMovel& tipoDe(const std::string& t) {
     for (const auto& k : TIPOS) if (t == k.tipo) return k;
@@ -59,6 +60,7 @@ void Jogo::criarMoveis() {
     moveis[r].partes = {{}};
     m("trator", 506, 97);   // estacionado no terreiro, na frente da casa, do lado da estrada
     ocupar();
+    for (int k = 0; k < 5; k++) poeVaca();  // vacas no fim da lista
 }
 
 void Jogo::ocupar() {
@@ -90,6 +92,7 @@ void Jogo::interagir(int i) {
     if (t == "trator") { menuTrator(); return; }
     if (t == "balcao" || t == "ze") { menuZe(); return; }
     if (t == "prefeito") { menuPrefeito(); return; }
+    if (t == "vaca") { carinhoVaca(i); return; }
     if (t == "mesa-festa") { menuMesaFesta(); return; }
     if (t == "mesa-bar") { fala::dizer("Uma mesa de bar, de lata, com marcas de copo e um cinzeiro."); return; }
     if (mundoAtual.rfind("visita:", 0) == 0 && !moradorDe(mundoAtual.substr(7))) { fala::dizer("Na casa dos outros, melhor não mexer."); return; }

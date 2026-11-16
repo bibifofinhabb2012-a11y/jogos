@@ -21,6 +21,8 @@ static int preco(const std::string& t) {
     if (t == "pedra") return 1;
     if (t == "adubo") return 2;
     if (t == "leite") return 6;
+    if (t == "carne") return 5;
+    if (t == "carne-assada") return 7;
     return 0;
 }
 

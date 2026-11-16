@@ -68,3 +68,10 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Casamento em `casamento.cpp`, por mensagens APP: pedido, resposta, evento-casamento, proposta-fazenda, fazenda-ok, fazenda-nao, acao, estado. Festa dura 30 min de verdade; mesa só funciona durante a festa, 5 de cada por jogador.
 - Morador (`moraCom`): só roça e portas (`acaoNaFazenda` manda a ação ao dono, que aplica e devolve o estado). A fazenda antiga do morador é apagada. Morador que abre o jogo sozinho começa na cidade.
 - Ainda não feito: fazer chocolate com cacau; o morador usar geladeira e guarda-roupa; divórcio.
+
+## Pontos de 0 a 1000 e vacas (novembro)
+- Fome, sede, energia e saúde continuam guardadas de 0 a 100 (double) no código e no salvo; só a fala multiplica por 10 (`porMil` em jogo.cpp). Assim nenhum limiar mudou.
+- `vacas.cpp`: vacas são móveis do tipo "vaca", sempre no fim da lista (não mexe no número dos outros móveis do salvo). Salvo e estado online têm a linha `vacas N` antes das linhas `movel`. Andam um passo a cada 6 a 20 s dentro do curral; ficam paradas a 2 passos da pessoa ou quando são o alvo do O; depois de coice, saem de perto.
+- Abate: faca na mão, Espaço; 40% de coice (80 a 220 pontos de saúde); senão 12 de carne crua. Carne assa no fogão aceso. Bezerro: 35% de chance por noite, até 5 vacas, só com a pessoa na própria fazenda.
+- Categoria do Ç: 5 = Animais (`Alvo::movel` acompanha a vaca).
+- Ainda não feito: tirar leite; vaca na fazenda de quem foi morar junto (lá só carinho).

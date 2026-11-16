@@ -83,3 +83,8 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Couro: o abate dá 1 `couro`; T com couro e faca abre `menuCouro` (cinto, bolsa, chapeu-couro, botas, sela; 1 couro cada). Preços em `correio.cpp`. O mercado da cidade ainda não existe: quando existir, vender lá também.
 - Ajuste: coice da vaca de corte de 60 a 130 pontos; a faca alcança a vaca de corte mais perto até 5 passos (`ALCANCE_FACA`). Outras formas de abate ficam para depois.
 - Panela (`"panela"`, 25 moedas no seu Zé): por enquanto só existe; vai servir para as receitas que ela vai criar.
+
+## Pulo, sono, chuveiro e saco de dormir (novembro)
+- `pulo.cpp`: Z segurado carrega (0,2 s por nível, até 10, bip mais agudo a cada nível); seta com Z segurado escolhe a direção; soltar pula. Tempo no ar pela gravidade (2·√(2h/9,8)); distância = metade da altura (mínimo 1), para antes de obstáculo. Dentro de casa, teto: altura 2 e 15 pontos de saúde. O ouvinte 3D sobe junto (`alturaNoAr`). Roteiro de teste: `apertar z`, `largar z`.
+- Dormindo, tecla não acorda (só U, S, E, H, V, W, Q, F1, F2, Esc respondem). Acorda com energia 100 (1000 na fala), de manhã na cama, ou por bexiga, intestino, fome ou sede. Dá para dormir com energia até 90 (900).
+- Chuveiro: Espaço de mão vazia de frente para ele (Alt Espaço continua funcionando).

@@ -118,7 +118,7 @@ void Jogo::interagir(int i) {
         return;
     }
     if (t == "vaso") { audio::tocar3D("descarga", mx, my, 0.4f, 0.9f, 3); fala::dizer("Você aperta a descarga."); return; }
-    if (t == "chuveiro") { fala::dizer("Chuveiro. Para ligar e desligar, aperte Alt Espaço de frente para ele."); return; }
+    if (t == "chuveiro") { chuveiro(); return; }
     if (t == "cama") { fala::dizer("Cama de casal, colchão de espuma. Para deitar e dormir, aperte Control R de frente para ela."); return; }
     if (t == "sofa" || t == "poltrona") { fala::dizer(maiuscula(nomeMovel(i, true)) + ". Para sentar, aperte R de frente para " + (t == "sofa" ? "ele." : "ela.")); return; }
     if (t == "mesa") { fala::dizer("Uma mesa de centro de madeira, baixinha, com marcas de copo."); return; }
@@ -170,7 +170,7 @@ void Jogo::sentarEm(int i, Postura p) {
     evento("sentar");
 }
 
-// Alt Espaço de frente para o chuveiro: liga e desliga.
+// Espaço com a mão vazia de frente para o chuveiro (de dentro do box): liga e desliga. Alt Espaço também.
 void Jogo::chuveiro() {
     int i = movelFrente();
     if (i < 0 || moveis[i].tipo != "chuveiro") { fala::dizer("Não tem chuveiro na sua frente."); return; }
@@ -297,7 +297,7 @@ void Jogo::atualizarMoveis(double dt) {
             higiene = std::min(100.0, higiene + 8 * dt);
             if (tomandoBanho >= 0 && higiene >= 100) {  // avisa uma vez por banho
                 tomandoBanho = -1;
-                fala::dizer("Pronto: banho tomado, da cabeça aos pés. Cheiro de sabonete. Pode desligar o chuveiro com Alt Espaço.");
+                fala::dizer("Pronto: banho tomado, da cabeça aos pés. Cheiro de sabonete. Pode desligar o chuveiro com Espaço, de mão vazia.");
                 evento("banho");
             }
         }

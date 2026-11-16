@@ -12,12 +12,12 @@ Control mais seta para o lado: virar 45 graus.
 Shift mais seta para o lado: virar 90 graus.
 Shift mais seta para cima ou para baixo: dar meia-volta.
 R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na sua frente; em outra posição, levantar.
-Control mais R: deitar; de frente para a cama, deita nela e dorme.
+Control mais R: deitar; de frente para a cama, deita nela e dorme. Dormindo, as teclas não acordam: acorda sozinho com a energia em 1000, ou de manhã na cama; U, S, E, H, V, W e Q continuam respondendo.
 Shift mais R: agachar.
 Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você.
-Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: com a faca, abate a vaca de corte mais perto, até 5 passos (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho.
+Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir e dormir (deitado, em qualquer lugar: fazenda, cidade, fazenda dos outros), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: com a faca, abate a vaca de corte mais perto, até 5 passos (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de dentro do box, de frente para o chuveiro, liga e desliga; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho.
 Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta.
-Alt mais Espaço: liga e desliga o chuveiro, de dentro do box.
+Z: pular: segure para pegar impulso, um bip por nível, até 10 de altura, e solte para pular; com Z segurado, uma seta escolhe a direção do pulo, e ele leva até 5 passos para lá; dentro de casa, o teto segura em 2.
 B: onde você está.
 Shift mais B: onde você está, a que distância das divisas e o que tem à frente.
 Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação, animais.
@@ -66,7 +66,7 @@ Barra numa mão e a outra vazia, T abre a barra, que fica na mesma mão. Garrafa
 Para andar, é preciso estar de pé. Na diagonal, não dá para raspar quina de parede.
 A casa tem sala (sofá, poltrona, mesa de centro), cozinha (pia, fogão a gás, geladeira com 10 garrafas de água),
 quarto com cama, guarda-roupa de três portas e banheiro da suíte, banheiro social e segundo quarto.
-Nos banheiros: pia, vaso e box com chuveiro. Abra a porta do box com Shift Enter, entre, e ligue o chuveiro com Alt Espaço.
+Nos banheiros: pia, vaso e box com chuveiro. Abra a porta do box com Shift Enter, entre, fique de frente para o chuveiro e aperte Espaço com a mão vazia: liga e desliga.
 
 CIDADE E TRATOR
 O trator fica estacionado no terreiro, na frente da casa sede, ao lado da estrada. De frente para ele, Espaço

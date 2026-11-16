@@ -9,7 +9,7 @@
 #include "mapa.h"
 #include "rede.h"
 
-enum class Tecla { Cima, Baixo, Esquerda, Direita, I, U, S, E, T, L, H, Q, R, B, V, K, O, W, Cedilha, Um, Dois, Tres, Enter, Espaco, Esc, Tab, F1, F2, Backspace, Letra };
+enum class Tecla { Cima, Baixo, Esquerda, Direita, I, U, S, E, T, L, H, Q, R, B, V, K, O, W, Cedilha, Um, Dois, Tres, Enter, Espaco, Esc, Tab, F1, F2, Backspace, Z, Letra };
 enum class Postura { EmPe, Sentado, Agachado, Deitado };
 
 // Uma coisa: o tipo e uma carga (goles numa garrafa, moedas na carteira).
@@ -235,6 +235,16 @@ private:
     void dizerHigiene();
     void abrirRecipiente(int i);
     void atualizarMoveis(double dt);
+    // pulo.cpp
+    bool carregandoPulo = false;
+    double cargaPulo = 0, noAr = 0, tempoNoAr = 0;
+    int nivelPulo = 0, dirPulo = -1, alturaPulo = 0, pousoX = 0, pousoY = 0;
+    std::string bateuEm;
+    void comecarPulo();
+    void direcaoPulo(Tecla t);
+    void pular();
+    void atualizarPulo(double seg);
+    float alturaNoAr() const;
     // vacas.cpp
     int contarVacas(const std::string& tipo) const;
     bool poeVaca(const std::string& tipo, int vx = -1, int vy = -1);

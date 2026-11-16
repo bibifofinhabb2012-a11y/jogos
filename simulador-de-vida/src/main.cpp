@@ -18,7 +18,7 @@ static bool traduzir(SDL_Keycode k, Tecla& t) {
     static const std::map<SDL_Keycode, Tecla> mapa = {
         {SDLK_UP, Tecla::Cima}, {SDLK_DOWN, Tecla::Baixo}, {SDLK_LEFT, Tecla::Esquerda}, {SDLK_RIGHT, Tecla::Direita},
         {SDLK_i, Tecla::I}, {SDLK_u, Tecla::U}, {SDLK_s, Tecla::S}, {SDLK_e, Tecla::E}, {SDLK_t, Tecla::T},
-        {SDLK_l, Tecla::L}, {SDLK_b, Tecla::B}, {SDLK_v, Tecla::V}, {SDLK_k, Tecla::K}, {SDLK_o, Tecla::O}, {SDLK_w, Tecla::W}, {SDLK_TAB, Tecla::Tab}, {231, Tecla::Cedilha}, {SDLK_3, Tecla::Tres}, {SDLK_KP_3, Tecla::Tres}, {SDLK_F2, Tecla::F2}, {SDLK_h, Tecla::H}, {SDLK_q, Tecla::Q}, {SDLK_r, Tecla::R},
+        {SDLK_l, Tecla::L}, {SDLK_b, Tecla::B}, {SDLK_v, Tecla::V}, {SDLK_k, Tecla::K}, {SDLK_o, Tecla::O}, {SDLK_w, Tecla::W}, {SDLK_TAB, Tecla::Tab}, {231, Tecla::Cedilha}, {SDLK_3, Tecla::Tres}, {SDLK_KP_3, Tecla::Tres}, {SDLK_F2, Tecla::F2}, {SDLK_h, Tecla::H}, {SDLK_q, Tecla::Q}, {SDLK_r, Tecla::R}, {SDLK_z, Tecla::Z},
         {SDLK_1, Tecla::Um}, {SDLK_KP_1, Tecla::Um}, {SDLK_2, Tecla::Dois}, {SDLK_KP_2, Tecla::Dois},
         {SDLK_RETURN, Tecla::Enter}, {SDLK_KP_ENTER, Tecla::Enter}, {SDLK_SPACE, Tecla::Espaco},
         {SDLK_ESCAPE, Tecla::Esc}, {SDLK_F1, Tecla::F1}, {SDLK_BACKSPACE, Tecla::Backspace},
@@ -38,7 +38,7 @@ static int rodarRoteiro(const char* arquivo) {
     static const std::map<std::string, Tecla> nomes = {
         {"cima", Tecla::Cima}, {"baixo", Tecla::Baixo}, {"esquerda", Tecla::Esquerda}, {"direita", Tecla::Direita},
         {"i", Tecla::I}, {"u", Tecla::U}, {"s", Tecla::S}, {"e", Tecla::E}, {"t", Tecla::T}, {"l", Tecla::L}, {"b", Tecla::B}, {"v", Tecla::V}, {"k", Tecla::K}, {"o", Tecla::O}, {"w", Tecla::W}, {"tab", Tecla::Tab}, {"ç", Tecla::Cedilha}, {"3", Tecla::Tres}, {"f2", Tecla::F2},
-        {"h", Tecla::H}, {"q", Tecla::Q}, {"r", Tecla::R}, {"1", Tecla::Um}, {"2", Tecla::Dois},
+        {"h", Tecla::H}, {"z", Tecla::Z}, {"q", Tecla::Q}, {"r", Tecla::R}, {"1", Tecla::Um}, {"2", Tecla::Dois},
         {"enter", Tecla::Enter}, {"espaco", Tecla::Espaco}, {"esc", Tecla::Esc}, {"f1", Tecla::F1},
     };
     fala::iniciar(true);
@@ -69,6 +69,13 @@ static int rodarRoteiro(const char* arquivo) {
                 for (double t = 0; t < seg; t += 0.05) jogo.atualizar(0.05);
                 jogo.soltar(tc);
             } else jogo.soltar(tc);
+        } else if (cmd == "apertar" || cmd == "largar") {  // aperta sem soltar, e solta depois (para Z com seta)
+            std::string n; s >> n;
+            auto it = nomes.find(n);
+            if (it == nomes.end()) { std::printf("tecla desconhecida: %s\n", n.c_str()); continue; }
+            if (cmd == "apertar") jogo.tecla(it->second, false, false, false, n.size() == 1 && n[0] >= 'a' && n[0] <= 'z' ? n[0] : 0);
+            else jogo.soltar(it->second);
+            jogo.atualizar(0.05);
         } else if (cmd == "digitar") {  // escreve num campo aberto, letra por letra
             std::string resto; std::getline(s >> std::ws, resto);
             for (size_t k = 0; k < resto.size();) {

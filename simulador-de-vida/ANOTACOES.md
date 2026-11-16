@@ -81,3 +81,5 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Salvo: as vacas não têm mais linha `movel`; vão como `bichos` (marca: apaga as vacas de fábrica) e `bicho tipo x y diaOrdenha`. Salvo antigo com `vacas N` ainda funciona.
 - Ordenha: garrafa vazia (aberta ou tampada), uma vez por dia do jogo por vaca (`Movel::ordenha`), 10% de coice de 40 a 100. Vira `{"leite", 4}` (goles); bebida vazia volta a ser garrafa vazia.
 - Couro: o abate dá 1 `couro`; T com couro e faca abre `menuCouro` (cinto, bolsa, chapeu-couro, botas, sela; 1 couro cada). Preços em `correio.cpp`. O mercado da cidade ainda não existe: quando existir, vender lá também.
+- Ajuste: coice da vaca de corte de 60 a 130 pontos; a faca alcança a vaca de corte mais perto até 5 passos (`ALCANCE_FACA`). Outras formas de abate ficam para depois.
+- Panela (`"panela"`, 25 moedas no seu Zé): por enquanto só existe; vai servir para as receitas que ela vai criar.

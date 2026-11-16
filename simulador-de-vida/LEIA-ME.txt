@@ -15,7 +15,7 @@ R: sentar, no chão ou no sofá, na poltrona, no vaso ou na cama que estiver na 
 Control mais R: deitar; de frente para a cama, deita nela e dorme.
 Shift mais R: agachar.
 Shift mais Enter: abrir ou fechar a porta, a porteira ou a porta do box encostada em você.
-Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: faca de frente para uma vaca, abate (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho.
+Espaço: usa o que está na mão selecionada: comer, beber, tomar café, olhar a bússola, entrar no saco de dormir (deitado), contar o dinheiro. Na roça: machado limpa o matagal da frente, semente planta na terra limpa, regador rega a planta da frente e enche na beira do córrego. No curral de corte: com a faca, abate a vaca de corte mais perto, até 5 passos (ela pode dar coice), e dá carne e couro. No curral de leite: garrafa vazia de frente para uma vaca, tira leite, uma vez por dia cada vaca. Garrafa de leite: bebe um gole. Na cozinha: carne crua de frente para o fogão aceso, assa. Com a mão vazia: de frente para um móvel, mexe nele; de frente para seu Tião, dona Nezinha, seu Zé (no balcão do bar) ou o prefeito, conversa e compra; de frente para o trator, escolhe para onde ir; de frente para uma planta pronta, colhe (o arroz se colhe com o machado); de frente para uma vaca, faz carinho.
 Control mais Espaço: segura o móvel da frente para arrastar; ande para empurrar ou puxar; de novo, solta.
 Alt mais Espaço: liga e desliga o chuveiro, de dentro do box.
 B: onde você está.
@@ -73,7 +73,7 @@ O trator fica estacionado no terreiro, na frente da casa sede, ao lado da estrad
 abre a escolha do destino: a cidade, ou, no online, a fazenda de outro jogador. Na cidade tem a praça,
 o bar do seu Zé (oeste da praça) e a prefeitura (leste). No balcão do bar, seu Zé vende pó de café,
 garrafa de água, garrafa vazia para leite, açúcar, farinha de trigo, botijão de gás, cerveja, maço de cigarro, isqueiro,
-latinha de gás para isqueiro e sementes (pacotes com 10).
+latinha de gás para isqueiro, faca de abate, panela (25 moedas, para as receitas que vêm por aí) e sementes (pacotes com 10).
 Botijão na mão, de frente para o fogão, Espaço: troca o gás. O botijão do fogão dura uns 25 minutos de verdade de chama acesa (10 horas do jogo); o primeiro dura 10 minutos.
 Cigarro: isqueiro numa mão, cigarro na outra, T até acender. Aceso, ele fuma sozinho até o fim.
 Isqueiro sem gás: isqueiro numa mão, latinha na outra, T enche.
@@ -88,8 +88,9 @@ VACAS: CURRAL DE CORTE E CURRAL DE LEITE
 A leste da casa sede ficam dois currais: o de corte, com 5 vacas, e ao norte dele o de leite, com 4.
 No Ç, a categoria Animais acha cada uma e diz de qual curral é; O e Alt O levam até ela.
 Perto de você, a vaca fica parada. Mão vazia e Espaço: carinho.
-Curral de corte: compre a faca de abate com seu Zé (15 moedas), segure de frente para a vaca e aperte Espaço.
-A vaca pode se assustar e dar coice: tira de 80 a 220 pontos de saúde, e ela sai de perto. Tente de novo.
+Curral de corte: compre a faca de abate com seu Zé (15 moedas), segure e aperte Espaço com uma vaca de corte
+a até 5 passos de você; o personagem vira para a mais perto e vai até ela.
+A vaca pode se assustar e dar coice: tira de 60 a 130 pontos de saúde, e ela sai de perto. Tente de novo.
 Abatida, dá 12 pedaços de carne crua e um couro. Carne crua na mão, de frente para o fogão aceso, Espaço: assa um pedaço.
 Curral de leite: garrafa vazia na mão (compra com seu Zé, ou esvazie uma de água), de frente para a vaca, Espaço.
 Cada vaca dá uma garrafa de leite por dia. Às vezes ela se incomoda e dá coice, mais fraco: de 40 a 100 pontos.

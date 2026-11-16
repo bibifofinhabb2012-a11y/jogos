@@ -115,19 +115,35 @@ void Jogo::coice(Movel& v, int minimo, int maximo, const std::string& susto) {
     v.ciclo = -1;
 }
 
+// A faca alcança a vaca de corte mais perto, até 5 passos; o personagem vira de frente para ela.
+static const int ALCANCE_FACA = 5;
+
 void Jogo::usarFaca() {
-    int i = movelFrente();
-    if (i < 0 || !ehVaca(moveis[i].tipo)) {
-        fala::dizer("Uma faca de abate, afiada. Para abater: de frente para uma vaca do curral de corte, Espaço. Cuidado com o coice. "
+    int i = -1, melhor = ALCANCE_FACA + 1;
+    for (size_t k = 0; k < moveis.size(); k++) {
+        if (moveis[k].tipo != "vaca") continue;
+        int d = std::max(std::abs(moveis[k].x - x), std::abs(moveis[k].y - y));
+        if (d < melhor) { melhor = d; i = (int)k; }
+    }
+    if (i < 0) {
+        int f = movelFrente();
+        if (f >= 0 && moveis[f].tipo == "vaca-leite") { fala::dizer("Essa é vaca de leite: não se abate. Ela dá leite todo dia; traga uma garrafa vazia."); return; }
+        fala::dizer("Nenhuma vaca de corte a até 5 passos. A faca de abate alcança a vaca de corte que estiver a até 5 passos de você. "
                     "Com o couro numa mão e a faca na outra, T faz objetos de couro.");
         return;
     }
-    if (moveis[i].tipo == "vaca-leite") { fala::dizer("Essa é vaca de leite: não se abate. Ela dá leite todo dia; traga uma garrafa vazia."); return; }
+    {   // vira de frente para a vaca
+        double ang = std::atan2((double)(moveis[i].x - x), (double)(moveis[i].y - y)) * 180 / 3.14159265;
+        rumo = ((int)std::lround(ang / 45.0) % 8 + 8) % 8;
+    }
     if (mundoAtual != "fazenda") { fala::dizer("A vaca não é sua. Quem abate é o dono."); return; }
     if (energia < 10) { fala::dizer("Sem força para segurar uma vaca. Descanse antes."); return; }
     Movel& v = moveis[i];
     energia = std::max(0.0, energia - 3);
-    if (acaso(0, 1) < 0.4) { coice(v, 80, 220, "A vaca se assusta com a faca, vira o corpo"); return; }
+    if (acaso(0, 1) < 0.4) {
+        coice(v, 60, 130, melhor <= 1 ? "A vaca se assusta com a faca, vira o corpo" : "A vaca se assusta com a faca, vem para cima de você, vira o corpo");
+        return;
+    }
     audio::tocar("faca", 0.8f);
     audio::tocar3D("baque", v.x + 0.5f, v.y + 0.5f, 0.3f, 1.0f, 15);
     mapa.em(v.x, v.y).movel = -1;
@@ -138,7 +154,8 @@ void Jogo::usarFaca() {
     higiene = std::max(0.0, higiene - 20);
     energia = std::max(0.0, energia - 7);
     int resta = contarVacas("vaca");
-    fala::dizer("Você segura a vaca firme pelo cabresto e faz o corte certeiro. Ela cai de lado, com um baque. "
+    fala::dizer(std::string(melhor <= 1 ? "" : "Você chega na vaca, a " + std::to_string(melhor) + " passos, ") +
+                std::string(melhor <= 1 ? "Você segura" : "segura") + " a vaca firme pelo cabresto e faz o corte certeiro. Ela cai de lado, com um baque. "
                 "Você tira o couro inteiro e corta a carne: 12 pedaços de carne crua e um couro de vaca, na mochila. A roupa ficou suja de sangue. " +
                 std::string(resta ? "No curral de corte " + std::string(resta == 1 ? "resta 1 vaca." : "restam " + std::to_string(resta) + " vacas.")
                               : "O curral de corte ficou vazio. De vez em quando nasce um bezerro."));

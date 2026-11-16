@@ -68,6 +68,8 @@ std::string Jogo::nomePlanta(int tipo, bool plural) const {
     return plural ? ESPECIES[tipo].plantas : ESPECIES[tipo].planta;
 }
 
+static bool plantaFem(const std::string& n) { return n.rfind("touceira", 0) == 0 || n.rfind("bananeira", 0) == 0; }
+
 std::string Jogo::estadoPlanta(const Planta& p) const {
     bool molhada = minutos < p.molhadaAte;
     if (p.horas >= horasPara(p.tipo)) return "pronto para colher";
@@ -75,7 +77,7 @@ std::string Jogo::estadoPlanta(const Planta& p) const {
     std::string falta = dias > 1.75 ? "faltam uns " + std::to_string((int)std::lround(dias)) + " dias"
                       : dias > 0.75 ? "falta mais ou menos um dia" : "falta menos de um dia";
     std::string fase = p.horas < 12 ? "a semente ainda está debaixo da terra" : p.horas < 36 ? "brotou, ainda pequeno" : "crescendo bem";
-    return fase + ", " + falta + (molhada ? "" : ". A terra está seca: precisa de água, senão não cresce");
+    return fase + ", " + falta + (molhada ? (plantaFem(nomePlanta(p.tipo)) ? ", regada" : ", regado") : ". A terra está seca: precisa de água, senão não cresce");
 }
 
 // Espaço com machado, semente ou regador na mão. true: era coisa de roça e já respondeu.
@@ -156,13 +158,21 @@ bool Jogo::usarNaRoca(Coisa& c) {
         return true;
     }
     if (k.planta) {
+        if (minutos < plantas[cel].molhadaAte) {
+            int h = std::max(1, (int)std::lround((plantas[cel].molhadaAte - minutos) / 60.0));
+            bool fe = plantaFem(nomePlanta(k.planta));
+            fala::dizer(std::string(fe ? "Essa " : "Esse ") + nomePlanta(k.planta) + (fe ? " já está regada" : " já está regado") + ": a terra ainda está molhada. Seca daqui a " + std::to_string(h) + (h == 1 ? " hora" : " horas") + " do jogo; aí rega de novo.");
+            return true;
+        }
         if (c.carga <= 0) { fala::dizer("O regador está vazio. Encha na beira do córrego."); return true; }
         c.carga--;
         plantas[cel].molhadaAte = minutos + 24 * 60;
         acaoNaFazenda("rega " + std::to_string(cel));
         energia -= 0.1;
         audio::tocar3D("regador", fx + 0.5f, fy + 0.5f, 0.3f, 0.9f, 2);
-        fala::dizer("Você rega o " + nomePlanta(k.planta) + ". A terra escurece, molhada." + (c.carga == 0 ? " O regador ficou vazio." : ""));
+        bool fe = plantaFem(nomePlanta(k.planta));
+        fala::dizer(std::string("Você rega ") + (fe ? "a " : "o ") + nomePlanta(k.planta) + ". A terra escurece, molhada. Pronto: " + (fe ? "regada" : "regado") + ", a terra fica molhada por um dia do jogo." +
+                    (c.carga == 0 ? " O regador ficou vazio." : " O regador ainda dá " + std::to_string(c.carga) + (c.carga == 1 ? " rega." : " regas.")));
         evento("regou");
         return true;
     }

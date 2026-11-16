@@ -45,6 +45,8 @@ void Jogo::montarAlvos() {
                     Chao ch = mapa.em(xx, yy).chao;
                     if (ch == Chao::Mato) alvos.push_back({"Matagal, na roça: machado", xx, yy, true});
                     else if (ch == Chao::Pedras) alvos.push_back({"Pedras, na roça: picareta", xx, yy, true});
+                    else if (mapa.em(xx, yy).planta && plantas.count(yy * LADO + xx))
+                        alvos.push_back({maiuscula(nomePlanta(mapa.em(xx, yy).planta)) + ", na roça: " + estadoPlanta(plantas[yy * LADO + xx]), xx, yy, true});
                     else if (ch == Chao::TerraArada && !mapa.em(xx, yy).planta && mapa.em(xx, yy).obs == Obstaculo::Nada)
                         alvos.push_back({"Terra pronta para plantar, na roça", xx, yy, true});
                 }

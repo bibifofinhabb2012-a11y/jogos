@@ -15541,5 +15541,33 @@
    "sliding"
   ],
   "descricao": "Sharpening a knife slowly.\r\n\r\nRecorded with a Tascam DR-40."
+ },
+ {
+  "grupo": "sv-fritura",
+  "busca": "frying meat sizzle pan",
+  "arquivo": "sons-candidatos/sv-fritura/234469.mp3",
+  "id": 234469,
+  "titulo": "Skillet sizzle.wav",
+  "autor": "beansqueso31",
+  "licenca": "http://creativecommons.org/publicdomain/zero/1.0/",
+  "link": "https://freesound.org/people/beansqueso31/sounds/234469/",
+  "duracao": 7.65,
+  "downloads": 1276,
+  "nota": 4.25,
+  "tags": [
+   "bacon",
+   "cook",
+   "cooking",
+   "eggs",
+   "food",
+   "fry",
+   "frying",
+   "kitchen",
+   "meat",
+   "oil",
+   "pan",
+   "sizzle"
+  ],
+  "descricao": "Cooking food on a skillet. "
  }
 ]

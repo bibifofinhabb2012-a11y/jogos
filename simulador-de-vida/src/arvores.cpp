@@ -8,6 +8,7 @@
 #include "jogo.h"
 #include "util.h"
 
+static int contaBits(unsigned v) { int n = 0; for (; v; v &= v - 1) n++; return n; }
 static const char* POSICAO[6] = {"baixo, à esquerda", "baixo, à direita", "do meio, à esquerda", "do meio, à direita", "alto, à esquerda", "alto, à direita"};
 
 static std::string frutaDe(const std::string& arvore) {
@@ -34,7 +35,7 @@ uint8_t& Jogo::frutasDa(int i) {
         e.dia = diaDoJogo();
         e.frutas = 0;
         int n = 1 + (int)acaso(0, 3.99);
-        while (__builtin_popcount(e.frutas) < n) e.frutas |= (uint8_t)(1 << (int)acaso(0, 5.99));
+        while (contaBits(e.frutas) < n) e.frutas |= (uint8_t)(1 << (int)acaso(0, 5.99));
     }
     return e.frutas;
 }
@@ -54,7 +55,7 @@ void Jogo::radarArvoreTecla(int lado) {
     int dir = (rumo + 2) % 8;  // para a direita de quem olha
     if (radarItem == 0) {
         audio::tocar3D("bip", o.x + 0.5f, o.y + 0.5f, 0.8f, 0.5f, 6, 0.7f);
-        fala::dizer("Tronco da " + o.tipo + ". " + std::to_string(__builtin_popcount(f)) + (__builtin_popcount(f) == 1 ? " fruta" : " frutas") + " hoje.");
+        fala::dizer("Tronco da " + o.tipo + ". " + std::to_string(contaBits(f)) + (contaBits(f) == 1 ? " fruta" : " frutas") + " hoje.");
         return;
     }
     int g = radarItem - 1;
@@ -88,14 +89,14 @@ void Jogo::maoNaArvore(int i) {
         std::string fr = frutaDe(o.tipo);
         guardar({fr, 0});
         audio::tocar("colher", 0.8f);
-        int resta = __builtin_popcount(frutasDa(i));
+        int resta = contaBits(frutasDa(i));
         fala::dizer("Você puxa " + nomeCoisa({fr, 0}, true) + " do " + parteDe(o.tipo) + ", que balança e volta. Na mochila. " +
                     (resta ? "Ainda " + std::string(resta == 1 ? "tem 1 fruta" : "tem " + std::to_string(resta) + " frutas") + " na árvore." : "A árvore ficou sem fruta: amanhã dá de novo."));
         frutaMirada = -1;
         return;
     }
     olharArvore(o);
-    int n = (mundoAtual == "fazenda" || souMorador()) ? __builtin_popcount(frutasDa(i)) : 0;
+    int n = (mundoAtual == "fazenda" || souMorador()) ? contaBits(frutasDa(i)) : 0;
     if (n) fala::dizer("Tem " + std::to_string(n) + (n == 1 ? " fruta" : " frutas") + " hoje. Alt K e Alt L procuram nos galhos; Alt O mira a fruta; Espaço pega.", false);
 }
 

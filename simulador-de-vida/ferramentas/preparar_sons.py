@@ -173,6 +173,7 @@ trecho("sv-coice", 264062, "coice", alvo=-14); u(264062)
 trecho("sv-baque", 504626, "baque", alvo=-16); u(504626)
 trecho("sv-faca", 336588, "faca", alvo=-20); u(336588)
 trecho("sv-fritura", 234469, "fritura", 0, 4.0, -20); u(234469)
+trecho("sv-leite", 565964, "leite", 0, 5.0, -20); u(565964)
 trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
 
 # sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial

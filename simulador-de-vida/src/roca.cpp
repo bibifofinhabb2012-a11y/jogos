@@ -278,3 +278,16 @@ void Jogo::conversarCom(int i) {
     }
     abrirMenu(m);
 }
+
+// Árvores do pomar (categoria Objetos do Ç): Espaço de mão vazia, de frente, descreve.
+void Jogo::olharArvore(const Objeto& o) {
+    std::string t;
+    if (o.tipo == "macieira") t = "Macieira. Tronco fino e torto, casca lisa, folhas pequenas e serrilhadas. Cheira a fruta doce.";
+    else if (o.tipo == "laranjeira") t = "Laranjeira. Folha grossa e brilhante, que solta cheiro de laranja quando você esfrega entre os dedos. Cuidado com os espinhos dos galhos.";
+    else if (o.tipo == "cerejeira") t = "Cerejeira. Casca lisa, com riscos atravessados, e galhos finos que balançam com o vento.";
+    else if (o.tipo == "bananeira") t = "Bananeira. O tronco é mole e úmido, feito de folhas enroladas; as folhas são enormes e rasgadas pelo vento.";
+    else if (o.tipo == "mangueira") t = "Mangueira. Tronco grosso, copa larga e escura: embaixo dela a sombra é fresca, e o chão está forrado de folhas secas.";
+    else t = o.nome + ".";
+    audio::tocar3D("passos-folhas", o.x + 0.5f, o.y + 0.5f, 1.5f, 0.5f, 3);
+    fala::dizer(t);
+}

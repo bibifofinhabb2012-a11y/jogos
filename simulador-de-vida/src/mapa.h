@@ -18,6 +18,9 @@ struct Celula {
     uint8_t planta = 0;   // 0 nada; 1 milho, 2 feijão, 3 arroz (o resto do estado fica no jogo)
 };
 
+// Objeto fixo do mapa, que se acha no Ç (categoria Objetos): por enquanto, as árvores do pomar.
+struct Objeto { std::string tipo, nome; int x, y; };
+
 struct Lugar {
     std::string nome;
     int x0, y0, x1, y1;  // retângulo, inclusive
@@ -49,6 +52,8 @@ public:
     std::vector<std::pair<int, int>> passagens() const;  // todas as portas e porteiras, para salvar
 
     const std::vector<Lugar>& listaLugares() const { return lugares; }
+    std::vector<Objeto> objetos;
+    const Objeto* objetoEm(int x, int y) const;
     static const char* nome(Chao ch);           // "grama", "piso de taco"...
     static const char* somPasso(Chao ch);       // nome do grupo de sons de passo
     static const char* nome(Obstaculo o);       // "cerca de arame farpado"...

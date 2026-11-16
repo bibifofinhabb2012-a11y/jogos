@@ -235,6 +235,7 @@ private:
     void dizerHigiene();
     void abrirRecipiente(int i);
     void atualizarMoveis(double dt);
+    void olharArvore(const Objeto& o);
     // pulo.cpp
     bool carregandoPulo = false;
     double cargaPulo = 0, noAr = 0, tempoNoAr = 0;

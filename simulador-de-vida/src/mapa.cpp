@@ -1,4 +1,5 @@
 #include "mapa.h"
+#include <algorithm>
 #include <cmath>
 #include <random>
 
@@ -54,8 +55,23 @@ void Mapa::gerarFazenda() {
     // horta e pomar, na frente da casa, dos lados da estrada
     retangulo(360, 30, 420, 75, Chao::TerraArada);
     retangulo(580, 30, 650, 75, Chao::Grama);
-    for (int y = 33; y <= 73; y += 7)
-        for (int x = 583; x <= 648; x += 7) em(x, y).obs = Obstaculo::Arvore;
+    {   // pomar: uma árvore de cada, espalhadas sem alinhar (sorteio fixo: igual em toda fazenda)
+        static const std::pair<const char*, const char*> ARVORES[] = {
+            {"macieira", "Macieira"}, {"laranjeira", "Laranjeira"}, {"cerejeira", "Cerejeira"}, {"bananeira", "Bananeira"}, {"mangueira", "Mangueira"},
+        };
+        std::mt19937 sp(2026);
+        std::uniform_int_distribution<int> ax(584, 646), ay(33, 72);
+        for (const auto& [tipo, nome] : ARVORES) {
+            for (int tent = 0; tent < 500; tent++) {
+                int x = ax(sp), y = ay(sp);
+                bool longe = std::all_of(objetos.begin(), objetos.end(), [&](const Objeto& o) { return std::max(std::abs(o.x - x), std::abs(o.y - y)) >= 8; });
+                if (!longe || em(x, y).obs != Obstaculo::Nada) continue;
+                em(x, y).obs = Obstaculo::Arvore;
+                objetos.push_back({tipo, nome, x, y});
+                break;
+            }
+        }
+    }
     // mata no noroeste: chão de folhas e árvores
     for (int y = 520; y <= 992; y++)
         for (int x = 6; x <= 300; x++) {
@@ -195,6 +211,11 @@ std::vector<std::pair<int, int>> Mapa::passagens() const {
     for (int y = 0; y < LADO; y++)
         for (int x = 0; x < LADO; x++) if (ehPassagem(x, y)) v.push_back({x, y});
     return v;
+}
+
+const Objeto* Mapa::objetoEm(int x, int y) const {
+    for (const Objeto& o : objetos) if (o.x == x && o.y == y) return &o;
+    return nullptr;
 }
 
 const Lugar* Mapa::lugar(int x, int y) const {

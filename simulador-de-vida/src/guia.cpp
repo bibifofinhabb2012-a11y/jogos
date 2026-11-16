@@ -10,8 +10,8 @@
 #include "rede.h"
 #include "util.h"
 
-static const char* CATEGORIAS[6] = {"Móveis", "Pessoas", "Portas e porteiras", "Lugares", "Plantação", "Animais"};
-constexpr int NCAT = 6;
+static const char* CATEGORIAS[7] = {"Móveis", "Pessoas", "Portas e porteiras", "Lugares", "Plantação", "Animais", "Objetos"};
+constexpr int NCAT = 7;
 
 // "a sala", "o corredor"
 static std::string com(const std::string& l) {
@@ -32,6 +32,8 @@ void Jogo::montarAlvos() {
                                  moveis[i].x, moveis[i].y, true});
         for (const auto& [id, r] : rede::remotos())  // outros jogadores no mesmo lugar
             if (r.mundo == mundoCanonico()) { alvos.push_back({r.nome + ", jogador", r.x, r.y, true}); alvos.back().jogador = id; }
+    } else if (categoria == 6) {
+        for (const Objeto& o : mapa.objetos) alvos.push_back({o.nome + ", no " + mapa.nomeLugar(o.x, o.y), o.x, o.y, true});
     } else if (categoria == 5) {
         for (size_t i = 0; i < moveis.size(); i++)
             if (moveis[i].tipo == "vaca" || moveis[i].tipo == "vaca-leite") {

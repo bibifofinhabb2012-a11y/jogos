@@ -33,5 +33,9 @@ bool existe(const std::string& nome);
 // A categoria sai do nome do som: passos-* são passos; vento, córrego, bichos e geladeira, ambiente;
 // gota, bip, chegou e menus, interface; o resto, efeitos.
 float volume(const std::string& categoria);
+float volumeSom(const std::string& nome);
+void definirVolumeSom(const std::string& nome, float v);
+std::vector<std::string> sons();                                 // nomes de todos os sons carregados
+void apelido(const std::string& novo, const std::string& de);   // outro nome para o mesmo som (volume separado)
 void definirVolume(const std::string& categoria, float v);
 }

@@ -88,6 +88,7 @@ void Jogo::atualizarTutorial(double dt) {
          "Casados, no Tab aparece Conversar sobre a fazenda: os dois escolhem em qual fazenda vão morar, e a outra deixa de existir.", [&] { return tem("enter"); }},
         {"Para terminar, volte para casa: Ç até Móveis, L ou K até o trator, Alt O, Espaço com a mão vazia, e Voltar para a minha fazenda.", [&] { return mundoAtual == "fazenda"; }},
     };
+    totalTutorial = (int)lista.size();
     if (passoTutorial >= (int)lista.size()) {
         passoTutorial = -1;
         audio::tocar("tutorial-ok", 0.8f);
@@ -102,6 +103,7 @@ void Jogo::atualizarTutorial(double dt) {
             eventos.clear();
             std::string t = lista[passoTutorial].texto;
             if (t.rfind("INFO", 0) == 0) t = t.substr(4) + " Enter para continuar.";
+            textoTutorial = t;
             fala::dizer(t, false);
         }
         return;
@@ -112,4 +114,21 @@ void Jogo::atualizarTutorial(double dt) {
         fala::dizer("Muito bem!", false);
         esperaTutorial = 0.8;
     }
+}
+
+// Alt S: pula para o próximo passo. Control S: volta um passo. Shift S: repete o passo.
+void Jogo::navegarTutorial(int acao) {
+    if (passoTutorial < 0) { fala::dizer("O tutorial não está ligado. Para começar: Tab, Tutorial."); return; }
+    if (acao == 0) { fala::dizer(textoTutorial.empty() ? "Espere a próxima instrução." : textoTutorial); return; }
+    if (acao > 0) {
+        passoTutorial++;
+        if (totalTutorial > 0 && passoTutorial >= totalTutorial) { esperaTutorial = 0; return; }  // o próximo quadro fecha o tutorial
+        fala::dizer("Próximo passo.");
+    } else {
+        if (passoTutorial == 0) { fala::dizer("Este já é o primeiro passo. " + textoTutorial); return; }
+        passoTutorial--;
+        fala::dizer("Passo anterior.");
+    }
+    eventos.clear();
+    esperaTutorial = 0.3;
 }

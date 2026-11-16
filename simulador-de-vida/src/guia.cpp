@@ -68,9 +68,24 @@ void Jogo::montarAlvos() {
             if (l == "sala" || l == "cozinha" || l == "varanda da casa") alvos.back().nome = maiuscula(n) + ", na " + l;
         }
     } else if (categoria == 2) {
+        // fora, só as portas que dão para fora; dentro de uma construção, só as dela
+        auto predio = [this](int px, int py) -> std::string {
+            const Lugar* maior = nullptr;
+            for (const Lugar& l : mapa.listaLugares())
+                if (l.dentro && px >= l.x0 && px <= l.x1 && py >= l.y0 && py <= l.y1 &&
+                    (!maior || (l.x1 - l.x0) * (l.y1 - l.y0) > (maior->x1 - maior->x0) * (maior->y1 - maior->y0))) maior = &l;
+            return maior ? maior->nome : "";
+        };
+        std::string aqui = predio(x, y);
         for (auto [px, py] : mapa.passagens()) {
             Obstaculo o = mapa.em(px, py).obs;
             if ((mapa.valido(px - 1, py) && mapa.em(px - 1, py).obs == o) || (mapa.valido(px, py - 1) && mapa.em(px, py - 1).obs == o)) continue;  // porteira larga: conta uma vez
+            bool serve = false;
+            for (int d = 0; d < 8 && !serve; d += 2) {
+                int qx = px + DX[d], qy = py + DY[d];
+                if (mapa.valido(qx, qy) && mapa.em(qx, qy).obs == Obstaculo::Nada && predio(qx, qy) == aqui) serve = true;
+            }
+            if (!serve) continue;
             // nomeia pelos lugares dos dois lados
             std::vector<std::string> lados;
             for (int d = 0; d < 8; d += 2) {

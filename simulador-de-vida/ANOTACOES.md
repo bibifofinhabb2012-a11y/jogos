@@ -108,3 +108,11 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Objetos também lista "terra pronta para plantar" (terra arada sem planta) na roça.
 - Menu de início (`menuInicio`, menu.cpp) quando há salvo; "Começar um jogo novo" no Tab (fora do online). `novo()` agora zera também casamento, viagem, fazenda guardada, chão, álcool, cigarro, tutorial. Roteiro: comando `inicio`.
 - Dormindo sem energia, bexiga e intestino não acordam mais (evitava acordar e desmaiar sem parar).
+
+## Ajustes de novembro (portas, volumes, tutorial, ritmo do corpo)
+- `passagemPerto` diz o lado da porta relativo a para onde a pessoa olha (`relativo`), não ao sentido do passo (andar de lado dava o lado errado).
+- Portas no Ç: fora, só as que têm um lado fora de construção; dentro, só as que têm um lado na mesma construção (a maior área "dentro" que contém o ponto).
+- Sons: `preparar_sons.py` ignora o alvo de cada chamada; mede o RMS só da parte que soa (40% das janelas mais fortes): toques a -20 dB, laços a -26 dB, limitador suave (tanh) para os secos. Volume por som: `audio::volumeSom`, menu "Volume de cada som", config `som nome valor`. `apelido("energia", "bip")`.
+- Tutorial: Alt S próximo, Control S anterior, Shift S repete (`navegarTutorial`).
+- Fome e sede caem na metade da velocidade de antes. Trabalho na roça gasta menos energia (machado 0,4; picareta 0,5; golpe na árvore 0,3; plantar 0,15; regar 0,1; colher 0,2, na escala de 0 a 100). Bip de energia a cada 5 (50 na fala).
+- Dona Nezinha enche a garrafa de café quantas vezes pedir.

@@ -111,7 +111,7 @@ bool Jogo::usarNaRoca(Coisa& c) {
             k.chao = Chao::TerraArada;
             limpos.push_back(cel);
             acaoNaFazenda("limpo " + std::to_string(cel));
-            energia -= 1.5; sede -= 0.5; higiene -= 0.5;
+            energia -= 0.4; sede -= 0.2; higiene -= 0.3;
             audio::tocar3D("machado", fx + 0.5f, fy + 0.5f, 0.5f, 0.9f, 2, (float)acaso(0.92, 1.08));
             int jaLimpos = (int)limpos.size();
             fala::dizer(jaLimpos == 1 ? "Você golpeia o matagal com o machado, puxa as raízes, e o chão aparece. Um quadrado de terra limpa, pronta para plantar."
@@ -137,7 +137,7 @@ bool Jogo::usarNaRoca(Coisa& c) {
         k.planta = (uint8_t)tipo;
         plantas[cel] = Planta{tipo, 0, 0};
         acaoNaFazenda("planta " + std::to_string(cel) + " " + std::to_string(tipo));
-        energia -= 0.5;
+        energia -= 0.15;
         audio::tocar3D("cavar", fx + 0.5f, fy + 0.5f, 0.2f, 0.9f, 2);
         std::string msg = "Você abre uma covinha com os dedos, põe a semente e cobre de terra. Plantado: " + nomePlanta(tipo) + ". Agora precisa de água.";
         if (tirar({t, 0})) msg += " Você pega outra semente no saco.";
@@ -160,7 +160,7 @@ bool Jogo::usarNaRoca(Coisa& c) {
         c.carga--;
         plantas[cel].molhadaAte = minutos + 24 * 60;
         acaoNaFazenda("rega " + std::to_string(cel));
-        energia -= 0.3;
+        energia -= 0.1;
         audio::tocar3D("regador", fx + 0.5f, fy + 0.5f, 0.3f, 0.9f, 2);
         fala::dizer("Você rega o " + nomePlanta(k.planta) + ". A terra escurece, molhada." + (c.carga == 0 ? " O regador ficou vazio." : ""));
         evento("regou");
@@ -189,7 +189,7 @@ void Jogo::colher(int cel, bool comMachado) {
         acaoNaFazenda("colhe " + std::to_string(cel) + " -1");
         resto = " Foi tudo para a mochila, e ainda sobraram 2 sementes para plantar de novo. A terra fica limpa para outra planta.";
     }
-    energia -= 0.5;
+    energia -= 0.2;
     audio::tocar3D(p.tipo == 3 ? "machado" : "colher", fx + 0.5f, fy + 0.5f, 0.5f, 0.9f, 2);
     fala::dizer(std::string(e.colheita) + resto);
     evento("colheu");
@@ -238,7 +238,7 @@ void Jogo::cenaChegada() {
     fala::dizer("Ela serve uma xícara de café, quente e doce. Você toma devagar, e o cansaço da viagem vai embora.", false);
     marcar(34.0, [this]() { audio::tocar("cafe", 0.8f); });
     marcar(37.0, [this]() { audio::tocar("gole", 0.8f); energia = std::min(100.0, energia + 15); sede = std::min(100.0, sede + 5); });
-    fala::dizer("E leva essa garrafa térmica pra roça, que capinar cansa. Quando acabar, volta aqui que eu encho de novo.", false);
+    fala::dizer("E leva essa garrafa térmica pra roça, que capinar cansa. Quando acabar, volta aqui que eu encho de novo, quantas vezes precisar.", false);
     marcar(40.0, [this]() { guardar({"garrafa-cafe", 8}); audio::tocar("mochila", 0.6f); diaCafe = diaDoJogo(); });
     fala::dizer("Ganhou, na mochila: 20 sementes de milho, 20 de feijão de corda, 20 de arroz, um machado, uma picareta, um regador e uma garrafa térmica de café com 8 goles. "
                 "Como fazer: com o machado na mão, Espaço de frente para o matagal limpa a terra; com a picareta, Espaço de frente para as pedras arranca. "
@@ -295,7 +295,6 @@ void Jogo::conversarCom(int i) {
                 fala::dizer("Dona Nezinha: " + l);
             }, nullptr, nullptr});
             v.push_back({"Pedir para encher a garrafa de café", [this]() {
-                if (diaCafe == diaDoJogo()) { fala::dizer("Dona Nezinha: Hoje já enchi, " + gen("menino", "menina") + "! Amanhã passo mais."); return; }
                 bool cheia = false;  // enche a que estiver na mão; senão, a da mochila; senão, dá outra
                 for (Coisa* g : {&maoDireita, &maoEsquerda}) if (!cheia && g->tipo == "garrafa-cafe") { g->carga = 8; cheia = true; }
                 for (size_t k = 0; k < mochila.size() && !cheia; k++)

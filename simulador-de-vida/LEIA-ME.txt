@@ -21,7 +21,7 @@ Control mais Espaço: segura o móvel da frente para arrastar; ande para empurra
 Z: pular: segure para pegar impulso, um bip por nível, até 10 de altura, e solte para pular; com Z segurado, uma seta escolhe a direção do pulo, e ele leva até 5 passos para lá; dentro de casa, o teto segura em 2.
 B: onde você está.
 Shift mais B: onde você está, a que distância das divisas e o que tem à frente.
-Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras, lugares, plantação, animais, objetos (árvores com nome, do pomar e do pasto; matagais, pedras e terra pronta da roça), itens (coisas no chão: frutas caídas, o que você largou, bosta de vaca).
+Ç: próxima categoria: móveis, pessoas (também os outros jogadores, no online), portas e porteiras (fora de casa, só as de fora; dentro, só as da casa), lugares, plantação, animais, objetos (árvores com nome, do pomar e do pasto; matagais, pedras e terra pronta da roça), itens (coisas no chão: frutas caídas, o que você largou, bosta de vaca).
 Shift mais Ç: categoria anterior.
 L: próximo item da categoria, do mais perto para o mais longe.
 K: item anterior.
@@ -36,6 +36,7 @@ I: abre e fecha a mochila; com ela aberta, setas para cima e para baixo escolhem
 T: combina o que está nas duas mãos (isqueiro e cigarro: tenta acender; isqueiro e latinha de gás: enche o isqueiro; bosta de vaca com a outra mão vazia: vira adubo; couro e faca: faz cinto, bolsa, chapéu, botas ou sela); com as duas vazias, bate palmas.
 U: fome, de 0 a 1000.
 S: sede: água no corpo, de 0 a 1000.
+Alt mais S, Control mais S, Shift mais S: no tutorial: pula para o próximo passo, volta um passo, repete a instrução.
 E: energia, de 0 a 1000.
 H: saúde, de 0 a 1000.
 W: limpeza: se precisa de banho.
@@ -122,6 +123,11 @@ COISAS NO CHÃO (categoria Itens do Ç)
 Frutas que caíram, o que você largou (Shift Espaço larga o que está na mão selecionada) e a bosta das vacas, que aparece
 de vez em quando nos currais. Espaço de mão vazia, de frente ou em cima, pega.
 Bosta de vaca numa mão e a outra vazia, T: vira adubo. Adubo na mão, de frente para uma planta, Espaço: ela ganha um dia.
+
+VOLUMES
+Os sons foram nivelados para tocar no mesmo volume. No Tab, Configurações, tem o volume de cada grupo (ambiente, passos,
+efeitos, navegação, voz) e "Volume de cada som, um por um": setas para os lados mudam e tocam o som; uma letra pula.
+Um bip curto toca a cada 50 pontos de energia que você perde, mais grave quanto mais cansado; ele também tem volume próprio.
 
 JOGO NOVO
 Ao abrir o jogo com um jogo salvo, o menu pergunta: continuar o jogo salvo ou começar um novo. No Tab também tem

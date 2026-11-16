@@ -119,7 +119,7 @@ void Jogo::cortarArvore(int fx, int fy) {
     int cel = fy * LADO + fx;
     int& g = golpes[cel];
     g++;
-    energia -= 1.0; sede -= 0.3; higiene -= 0.3;
+    energia -= 0.3; sede -= 0.15; higiene -= 0.2;
     audio::tocar3D("machado", fx + 0.5f, fy + 0.5f, 1.0f, 1.0f, 3, (float)acaso(0.85, 0.95));
     if (g < 5) { fala::dizer(g == 1 ? "Você crava o machado no tronco: lasca voa. Mais uns golpes e ela cai." : (5 - g == 1 ? std::string("Mais um golpe. Falta 1.") : "Mais um golpe. Faltam " + std::to_string(5 - g) + ".")); return; }
     golpes.erase(cel);
@@ -156,7 +156,7 @@ void Jogo::usarPicareta() {
     k.chao = Chao::TerraArada;
     limpos.push_back(cel);
     acaoNaFazenda("limpo " + std::to_string(cel));
-    energia -= 2.0; sede -= 0.6; higiene -= 0.6;
+    energia -= 0.5; sede -= 0.2; higiene -= 0.3;
     guardar({"pedra", 0});
     audio::tocar3D("picareta", fx + 0.5f, fy + 0.5f, 0.3f, 1.0f, 3, (float)acaso(0.92, 1.08));
     fala::dizer("Você finca a picareta, alavanca e a pedra sai do chão. Terra limpa, pronta para plantar. A pedra vai para a mochila: o prefeito compra.");

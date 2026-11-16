@@ -159,6 +159,10 @@ private:
     int passoTutorial = -1;
     std::vector<std::string> eventos;   // o que a pessoa acabou de fazer, para o tutorial conferir
     double esperaTutorial = 0;
+    std::string textoTutorial;  // a instrução do passo atual, para o Shift S repetir
+    int totalTutorial = 0;
+    double marcaEnergia = 100;  // a cada 50 pontos de energia perdidos, um bip (mais grave quanto menos energia)
+    void navegarTutorial(int acao);
     // roça
     std::map<int, Planta> plantas;     // chave: y * LADO + x
     std::vector<int> limpos;           // quadrados de matagal já limpos (para salvar)
@@ -269,6 +273,7 @@ private:
     bool espalhar(const Coisa& c, int cx, int cy, int raio);
     // menu de início
     void confirmarJogoNovo(bool doInicio);
+    void menuVolumeSons();
     // pulo.cpp
     bool carregandoPulo = false;
     double cargaPulo = 0, noAr = 0, tempoNoAr = 0;

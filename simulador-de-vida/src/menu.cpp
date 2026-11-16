@@ -3,6 +3,8 @@
 // setas para os lados ajustam (volume), uma letra pula para a opção com aquela inicial, Esc volta.
 #include <algorithm>
 #include <cctype>
+#include <cmath>
+#include <map>
 #include "audio.h"
 #include "fala.h"
 #include "jogo.h"
@@ -165,6 +167,7 @@ void Jogo::menuConfiguracoes() {
             {"voz", "Volume da voz dos outros jogadores"},
             {"musica", "Volume da música de fundo, que ainda não existe"},
         };
+        v.push_back({"Volume de cada som, um por um", [this]() { menuVolumeSons(); }, nullptr, nullptr});
         for (auto& c : cats) {
             std::string cat = c.cat;
             int pct = (int)std::lround(audio::volume(cat) * 100);
@@ -180,6 +183,60 @@ void Jogo::menuConfiguracoes() {
                     if (!arquivoConfig.empty()) salvarConfig(arquivoConfig);
                 }});
         }
+        return v;
+    };
+    abrirMenu(m);
+}
+
+// Volume de cada som, separado: setas para os lados mudam e tocam o som.
+static std::string nomeDoSom(const std::string& n) {
+    static const std::map<std::string, std::string> N = {
+        {"aplausos", "aplausos do casamento"}, {"arrastar", "arrastar móvel"}, {"arvore", "árvore caindo"}, {"aterrissar", "aterrissar do pulo"},
+        {"baque", "baque da vaca caindo"}, {"bar", "movimento do bar"}, {"beber", "beber água"}, {"bip", "bip do rastreio e do radar"},
+        {"energia", "bip da energia caindo"}, {"box", "porta do box"}, {"bussola", "bússola"}, {"cafe", "café"}, {"cama", "cama"},
+        {"carro", "caminhonete do pai"}, {"cavar", "cavar e plantar"}, {"cerca", "esbarrar na cerca"}, {"cerveja", "abrir cerveja"},
+        {"chama", "chama do fogão"}, {"chat", "mensagem do chat"}, {"chegou", "chegou no lugar"}, {"chuveiro", "chuveiro"}, {"cigarra", "cigarras"},
+        {"coco", "cocô"}, {"coice", "coice da vaca"}, {"colher", "colher"}, {"corrego", "córrego"}, {"descarga", "descarga"},
+        {"embalagem", "embalagem"}, {"faca", "faca"}, {"festa", "festa"}, {"fogao", "acender o fogão"}, {"fogao-desligar", "apagar o fogão"},
+        {"fritura", "fritura"}, {"galo", "galo"}, {"geladeira", "motor da geladeira"}, {"geladeira-porta", "porta da geladeira"},
+        {"gole", "gole"}, {"gota", "gota do Ç, do K e do L"}, {"grilos", "grilos"}, {"isqueiro", "isqueiro"}, {"leite", "ordenha"},
+        {"machado", "machado"}, {"mastigar", "mastigar"}, {"menu-abrir", "abrir menu"}, {"menu-fechar", "fechar menu"}, {"mochila", "mochila"},
+        {"moedas", "moedas"}, {"mugido", "mugido das vacas"}, {"palmas", "palmas"}, {"parede", "esbarrar na parede"}, {"passaros", "pássaros"},
+        {"passos-agua", "passos na água"}, {"passos-calcada", "passos na calçada"}, {"passos-cascalho", "passos no cascalho e nas pedras"},
+        {"passos-ceramica", "passos na cerâmica"}, {"passos-folhas", "passos nas folhas"}, {"passos-grama", "passos na grama"},
+        {"passos-madeira", "passos na madeira"}, {"passos-mato", "passos no mato"}, {"passos-terra", "passos na terra"}, {"peido", "pum"},
+        {"picareta", "picareta"}, {"porta", "porta"}, {"porta-abrir", "abrir porta"}, {"porta-fechar", "fechar porta"}, {"porteira", "porteira"},
+        {"regador", "regador"}, {"ruido", "ruído do sono"}, {"saco-dormir", "saco de dormir"}, {"sapos", "sapos"}, {"sementes", "sementes"},
+        {"sinos", "sinos"}, {"sofa", "sofá"}, {"tampa", "tampa"}, {"torneira", "torneira"}, {"tosse", "tosse"}, {"tragada", "tragada do cigarro"},
+        {"trator", "trator"}, {"tutorial-ok", "acerto do tutorial"}, {"vento", "vento"}, {"vomito", "vômito"}, {"xixi", "xixi"},
+    };
+    auto it = N.find(n);
+    if (it != N.end()) return it->second;
+    std::string r = n; for (char& c : r) if (c == '-') c = ' ';
+    return r;
+}
+
+void Jogo::menuVolumeSons() {
+    Menu m;
+    m.titulo = "Volume de cada som. Setas para os lados mudam e tocam o som; uma letra pula";
+    m.opcoes = [this]() {
+        std::vector<Opcao> v;
+        std::vector<std::pair<std::string, std::string>> lista;
+        for (const std::string& n : audio::sons()) lista.push_back({nomeDoSom(n), n});
+        std::sort(lista.begin(), lista.end());
+        for (const auto& [rotulo, n] : lista) {
+            int pct = (int)std::lround(audio::volumeSom(n) * 100);
+            v.push_back({maiuscula(rotulo) + ": " + std::to_string(pct) + " por cento",
+                [this, n]() { audio::tocar(n, 0.8f); }, nullptr,
+                [this, n](int lado) {
+                    float nv = std::clamp(audio::volumeSom(n) + 0.1f * lado, 0.0f, 2.0f);
+                    audio::definirVolumeSom(n, nv);
+                    audio::tocar(n, 0.8f);
+                    fala::dizer(std::to_string((int)std::lround(nv * 100)) + " por cento.");
+                    if (!arquivoConfig.empty()) salvarConfig(arquivoConfig);
+                }});
+        }
+        if (v.empty()) v.push_back({"Nenhum som carregado: o som do computador não abriu", [this]() {}, nullptr, nullptr});
         return v;
     };
     abrirMenu(m);

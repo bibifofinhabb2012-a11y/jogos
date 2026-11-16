@@ -14,12 +14,30 @@ def ler(caminho):
     raw = subprocess.run(["ffmpeg", "-v", "quiet", "-i", caminho, "-ac", "1", "-ar", str(TAXA), "-f", "s16le", "-"], capture_output=True).stdout
     return np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
 
+# Volume igual para todos: o "alvo" de cada chamada é ignorado; todos os toques vão para ALVO_TOQUE
+# e os sons contínuos para ALVO_LACO, medindo só a parte que soa (sem os silêncios do começo e do fim).
+ALVO_TOQUE = -20.0
+ALVO_LACO = -26.0
+
+def rms_ativo(x):
+    jan = max(1, int(0.05 * TAXA))
+    n = len(x) // jan
+    if n < 2: return np.sqrt(np.mean(x ** 2)) + 1e-9
+    r = np.sqrt(np.mean(x[:n * jan].reshape(n, jan) ** 2, axis=1))
+    r = np.sort(r)[::-1]
+    return np.mean(r[:max(1, int(np.ceil(n * 0.4)))]) + 1e-9  # os 40% de janelas mais fortes
+
+def limitar(x):
+    """Sons secos (palmas, porta) têm pico alto e corpo baixo: deixa o pico passar até 6 dB do teto
+    e arredonda com um limitador suave, para o corpo chegar perto do volume dos outros."""
+    pico = np.max(np.abs(x))
+    if pico > 1.9: x = x * 1.9 / pico
+    return 0.95 * np.tanh(x / 0.95)
+
 def gravar(x, nome, alvo_db=-20.0):
     x = x - np.mean(x)
-    rms = np.sqrt(np.mean(x ** 2)) + 1e-9
-    x = x * (10 ** (alvo_db / 20) / rms)
-    pico = np.max(np.abs(x))
-    if pico > 0.95: x = x * 0.95 / pico
+    x = x * (10 ** (ALVO_TOQUE / 20) / rms_ativo(x))
+    x = limitar(x)
     f = int(0.006 * TAXA)
     x[:f] *= np.linspace(0, 1, f); x[-f * 4:] *= np.linspace(1, 0, f * 4)
     pcm = (x * 32767).astype(np.int16).tobytes()
@@ -62,8 +80,7 @@ def laco(grupo, sid, nome, alvo=-22.0, dur=None):
         fim = x[-c:] * np.linspace(1, 0, c) + x[:c] * np.linspace(0, 1, c)
         x = np.concatenate([fim, x[c:-c]])
     x = x - np.mean(x)
-    rms = np.sqrt(np.mean(x ** 2)) + 1e-9
-    x = x * (10 ** (alvo / 20) / rms)
+    x = x * (10 ** (ALVO_LACO / 20) / rms_ativo(x))
     pico = np.max(np.abs(x))
     if pico > 0.95: x = x * 0.95 / pico
     pcm = (x * 32767).astype(np.int16).tobytes()

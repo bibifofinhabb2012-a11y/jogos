@@ -117,3 +117,4 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Fome e sede caem na metade da velocidade de antes. Trabalho na roça gasta menos energia (machado 0,4; picareta 0,5; golpe na árvore 0,3; plantar 0,15; regar 0,1; colher 0,2, na escala de 0 a 100). Bip de energia a cada 5 (50 na fala).
 - Dona Nezinha enche a garrafa de café quantas vezes pedir.
 - Objetos também lista os pés plantados na roça (com `estadoPlanta`, que agora diz "regado"); regar planta ainda molhada não gasta água.
+- Pulo: a distância agora é o número de toques na seta com Z segurado (até 10), não mais metade da altura. Passa por cima de planta (não de parede ou cerca); se o pouso cair em planta, volta para o último chão livre. Serve para sair de entre os pés plantados.

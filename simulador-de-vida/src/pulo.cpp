@@ -1,5 +1,6 @@
 // Pulo: segure Z para carregar (um bip por nível, até 10 de altura) e solte para pular.
-// Com Z apertado, uma seta escolhe a direção: o pulo leva para lá (metade da altura em passos, no mínimo 1).
+// Com Z apertado, uma seta escolhe a direção; cada toque a mais na mesma seta é um passo a mais (até 10).
+// Sem seta, pula no lugar. O pulo passa por cima das plantas da roça, mas não cai em cima delas.
 // Dentro de casa, o teto segura o pulo em 2 de altura.
 #include <algorithm>
 #include <cmath>
@@ -14,16 +15,19 @@ static const int ALTURA_MAX = 10;
 void Jogo::comecarPulo() {
     if (carregandoPulo || noAr > 0) return;
     if (postura != Postura::EmPe) { fala::dizer("Para pular, fique de pé: aperte R."); return; }
-    carregandoPulo = true; cargaPulo = 0; nivelPulo = 1; dirPulo = -1;
+    carregandoPulo = true; cargaPulo = 0; nivelPulo = 1; dirPulo = -1; passosPulo = 0;
     andandoFrente = andandoTras = false; andandoLado = 0;
     audio::tocar("bip", 0.4f, 0.75f);
 }
 
 void Jogo::direcaoPulo(Tecla t) {
     int rel = t == Tecla::Cima ? 0 : t == Tecla::Direita ? 2 : t == Tecla::Baixo ? 4 : 6;
-    dirPulo = (rumo + rel) % 8;
-    audio::tocar("gota", 0.5f);
-    fala::dizer(rel == 0 ? "Para a frente." : rel == 2 ? "Para a direita." : rel == 4 ? "Para trás." : "Para a esquerda.");
+    int d = (rumo + rel) % 8;
+    if (d != dirPulo) { dirPulo = d; passosPulo = 1; }
+    else passosPulo = std::min(10, passosPulo + 1);
+    audio::tocar("gota", 0.5f, 0.9f + 0.05f * passosPulo);
+    fala::dizer(std::string(rel == 0 ? "Para a frente" : rel == 2 ? "Para a direita" : rel == 4 ? "Para trás" : "Para a esquerda") +
+                ", " + std::to_string(passosPulo) + (passosPulo == 1 ? " passo." : " passos."));
 }
 
 void Jogo::pular() {
@@ -37,18 +41,24 @@ void Jogo::pular() {
     alturaPulo = h;
     tempoNoAr = noAr = 2.0 * std::sqrt(2.0 * h / 9.8);  // subir e descer, com a gravidade de verdade
     pousoX = x; pousoY = y; bateuEm.clear();
+    plantaNoPouso.clear();
     if (dirPulo >= 0) {
-        int dist = std::max(1, (h + 1) / 2);
+        int dist = std::max(1, passosPulo);
         int d = dirPulo;
+        // planta não segura o pulo: passa por cima; só não dá para cair em cima dela
+        auto livre = [this](int px, int py) { return mapa.valido(px, py) && (mapa.passa(px, py) || (mapa.em(px, py).planta && mapa.em(px, py).obs == Obstaculo::Nada && mapa.em(px, py).movel < 0)); };
+        int cx = x, cy = y;
         for (int k = 0; k < dist; k++) {
-            int nx = pousoX + DX[d], ny = pousoY + DY[d];
-            bool quina = d % 2 == 1 && (!mapa.passa(pousoX + DX[d], pousoY) || !mapa.passa(pousoX, pousoY + DY[d]));
-            if (!mapa.passa(nx, ny) || quina) {
+            int nx = cx + DX[d], ny = cy + DY[d];
+            bool quina = d % 2 == 1 && (!livre(cx + DX[d], cy) || !livre(cx, cy + DY[d]));
+            if (!livre(nx, ny) || quina) {
                 int i = mapa.valido(nx, ny) ? mapa.em(nx, ny).movel : -1;
                 bateuEm = i >= 0 ? nomeMovel(i, true) : quina ? "a quina" : !mapa.valido(nx, ny) ? "o fim do mapa" : "a " + std::string(Mapa::nome(mapa.em(nx, ny).obs));
                 break;
             }
-            pousoX = nx; pousoY = ny;
+            cx = nx; cy = ny;
+            if (mapa.passa(cx, cy)) { pousoX = cx; pousoY = cy; plantaNoPouso.clear(); }
+            else plantaNoPouso = nomePlanta(mapa.em(cx, cy).planta);  // caiu em planta: volta para o último chão livre
         }
     }
     energia = std::max(0.0, energia - 0.3 * h);
@@ -86,6 +96,8 @@ void Jogo::atualizarPulo(double seg) {
         const char* para = rel == 0 ? "à frente" : rel == 2 ? "à direita" : rel == 4 ? "para trás" : rel == 6 ? "à esquerda" : "na diagonal";
         msg += " Você cai " + std::to_string(andou) + (andou == 1 ? " passo " : " passos ") + para + ".";
     }
+    if (!plantaNoPouso.empty())
+        msg += " Não dá para cair em cima do " + plantaNoPouso + ": você cai antes dele. Aperte a seta mais vezes para pular mais longe.";
     if (!bateuEm.empty()) {
         audio::tocar("parede", 0.6f);
         msg += (andou == 0 ? " Você bate em " : " Parou ao bater em ") + bateuEm + (andou == 0 ? " e cai no mesmo lugar." : ".");

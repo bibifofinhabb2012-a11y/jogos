@@ -277,8 +277,8 @@ private:
     // pulo.cpp
     bool carregandoPulo = false;
     double cargaPulo = 0, noAr = 0, tempoNoAr = 0;
-    int nivelPulo = 0, dirPulo = -1, alturaPulo = 0, pousoX = 0, pousoY = 0;
-    std::string bateuEm;
+    int nivelPulo = 0, dirPulo = -1, alturaPulo = 0, pousoX = 0, pousoY = 0, passosPulo = 0;
+    std::string bateuEm, plantaNoPouso;
     void comecarPulo();
     void direcaoPulo(Tecla t);
     void pular();

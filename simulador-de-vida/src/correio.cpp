@@ -18,6 +18,14 @@ static int preco(const std::string& t) {
     if (t == "abobora") return 8;
     if (t == "cenoura") return 3;
     if (t == "cacau") return 10;
+    if (t == "cebola") return 3;
+    if (t == "alho") return 4;
+    if (t == "cebolinha" || t == "salsinha" || t == "coentro" || t == "couve" || t == "batata" || t == "tomate" || t == "morango") return 2;
+    if (t == "alface" || t == "pimentao" || t == "beterraba") return 3;
+    if (t == "pimenta" || t == "quiabo") return 1;
+    if (t == "mandioca" || t == "cana") return 4;
+    if (t == "trigo") return 5;
+    if (t == "cafe") return 6;
     if (t == "pedra") return 1;
     if (t == "lenha") return 3;
     if (t == "maca") return 3;

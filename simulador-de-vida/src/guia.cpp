@@ -50,6 +50,11 @@ void Jogo::montarAlvos() {
                     else if (ch == Chao::TerraArada && !mapa.em(xx, yy).planta && mapa.em(xx, yy).obs == Obstaculo::Nada)
                         alvos.push_back({"Terra pronta para plantar, na roça", xx, yy, true});
                 }
+        if (!mapa.cidade)  // pés plantados na horta (a terra dela já vem pronta, então só as plantas)
+            for (int yy = 30; yy <= 75; yy++)
+                for (int xx = 360; xx <= 420; xx++)
+                    if (mapa.em(xx, yy).planta && plantas.count(yy * LADO + xx))
+                        alvos.push_back({maiuscula(nomePlanta(mapa.em(xx, yy).planta)) + ", na horta: " + estadoPlanta(plantas[yy * LADO + xx]), xx, yy, true});
     } else if (categoria == 7) {
         for (const ItemChao& it : chao) alvos.push_back({maiuscula(nomeCoisa(it.coisa)) + ", no chão, n" + com(mapa.nomeLugar(it.x, it.y)), it.x, it.y, true});
     } else if (categoria == 5) {
@@ -168,7 +173,7 @@ void Jogo::trocarItem(int lado) {
     audio::tocar("gota", 0.5f);
     Alvo& al = alvos[itemAlvo];
     if ((categoria == 4 || categoria == 6) && mapa.valido(al.x, al.y) && mapa.em(al.x, al.y).planta && plantas.count(al.y * LADO + al.x))  // estado de agora (regou depois do Ç)
-        al.nome = maiuscula(nomePlanta(mapa.em(al.x, al.y).planta)) + (categoria == 6 ? ", na roça: " : ", ") + estadoPlanta(plantas[al.y * LADO + al.x]);
+        al.nome = maiuscula(nomePlanta(mapa.em(al.x, al.y).planta)) + (categoria == 6 ? (al.y <= 75 ? ", na horta: " : ", na roça: ") : ", ") + estadoPlanta(plantas[al.y * LADO + al.x]);
     if (al.movel >= 0 && al.movel < (int)moveis.size() && (moveis[al.movel].tipo == "vaca" || moveis[al.movel].tipo == "vaca-leite")) { al.x = moveis[al.movel].x; al.y = moveis[al.movel].y; }
     fala::dizer(descreverAlvo(alvos[itemAlvo]));
     evento("item");

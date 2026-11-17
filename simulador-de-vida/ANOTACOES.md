@@ -121,3 +121,9 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Lista de portas: guarda em `predioAlvos` onde foi feita; se a pessoa entrou ou saiu de construção depois do Ç, o L refaz a lista. Planta na lista (Plantação e Objetos) tem o estado recalculado a cada L (antes ficava o de quando apertou Ç: "seca" mesmo depois de regar).
 - Pisar em terra arada sem planta, na roça, avisa "Terra pronta para plantar". Regador: 20 regas.
 - A terra regada fica molhada 24 horas do jogo (1 hora de verdade, ou uma noite na cama): depois disso seca de verdade.
+
+## Horta, trigo, cana e café (novembro)
+- `ESPECIES` agora vai até 26 (o tamanho sai da tabela): cebola, alho, cebolinha, salsinha, coentro, alface, couve, tomate, pimentão, pimenta, batata, beterraba, mandioca, quiabo, morango, trigo, cana, café. O id do produto é o mesmo do tipo (ex.: "tomate"), base para as receitas.
+- Seu Zé: menu separado "Comprar sementes e mudas" (`SEMENTES` em mundo.cpp); o "Comprar" ficou só com o resto (o tutorial usa as posições dele).
+- Alho, mandioca, cana, batata e morango têm nome de muda/dente/maniva no lugar de "semente" (`nomeProduto`).
+- A horta (360..420 × 30..75) já é terra arada; os pés plantados nela entram em Objetos.

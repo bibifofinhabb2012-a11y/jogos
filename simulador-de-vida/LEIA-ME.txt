@@ -135,6 +135,16 @@ JOGO NOVO
 Ao abrir o jogo com um jogo salvo, o menu pergunta: continuar o jogo salvo ou começar um novo. No Tab também tem
 "Começar um jogo novo" (fora do online). Começar de novo apaga o jogo salvo; o jogo pede confirmação.
 
+SEMENTES DO SEU ZÉ
+No balcão, "Comprar sementes e mudas" tem: milho, feijão, arroz, laranja, banana, abóbora, cenoura, cacau, trigo, cana-de-açúcar,
+café, e da horta: cebola, alho (dentes), cebolinha verde, salsinha, coentro, alface, couve, tomate, pimentão, pimenta,
+batata (batata-semente), beterraba, mandioca (manivas), quiabo e morango (mudas).
+A horta, na frente da casa, à esquerda de quem vem da porteira, já tem a terra pronta: é só plantar. Os pés plantados nela
+aparecem em Objetos. Cebolinha, salsinha, coentro, couve, tomate, pimentão, pimenta, quiabo, morango, cana e café rebrotam
+depois de colher. Tempo até colher: cebolinha, salsinha, coentro e alface 2 dias; couve, beterraba, quiabo e morango 3;
+cebola, tomate, pimentão, pimenta, batata e trigo 4; alho 5; mandioca, cana e café 7.
+Tomate, morango e alface também se comem crus. O resto fica para as receitas, que vêm por aí.
+
 SEMENTES E TEMPO ATÉ COLHER (dias do jogo)
 Milho, feijão e arroz: 3 dias. Cenoura: 3 dias. Abóbora: 4 dias. Banana: 5 dias. Laranja: 6 dias. Cacau: 7 dias.
 Laranja, banana e cacau são pés que ficam: depois de colher, dão de novo em 2 dias, sem plantar outra vez.

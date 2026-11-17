@@ -15,7 +15,7 @@ struct Especie {
     double horas; int qtd; bool perene;
     const char* colheita;
 };
-static const Especie ESPECIES[9] = {
+static const Especie ESPECIES[] = {
     {"", "", "", "", "", 0, 0, false, ""},
     {"milho", "pé de milho", "pés de milho", "espiga de milho", "espigas de milho", 72, 3, false,
      "Você quebra as espigas do pé de milho, uma, duas, três, com aquele estalo da palha."},
@@ -33,8 +33,46 @@ static const Especie ESPECIES[9] = {
      "Você segura as folhas rente à terra e puxa: as cenouras saem laranjinhas, com terra grudada."},
     {"cacau", "pé de cacau", "pés de cacau", "fruto de cacau", "frutos de cacau", 168, 4, true,
      "Você corta os frutos de cacau do tronco, grandes e amarelos, que vão virar chocolate."},
+    // horta e tempero
+    {"cebola", "pé de cebola", "pés de cebola", "cebola", "cebolas", 96, 3, false,
+     "Você puxa as cebolas pela rama seca: saem redondas, com a casca fina estalando."},
+    {"alho", "pé de alho", "pés de alho", "cabeça de alho", "cabeças de alho", 120, 3, false,
+     "Você afrouxa a terra com os dedos e arranca as cabeças de alho, com cheiro forte."},
+    {"cebolinha", "pé de cebolinha verde", "pés de cebolinha verde", "maço de cebolinha verde", "maços de cebolinha verde", 48, 3, true,
+     "Você corta a cebolinha rente, deixando a raiz: ela rebrota."},
+    {"salsinha", "pé de salsinha", "pés de salsinha", "maço de salsinha", "maços de salsinha", 48, 3, true,
+     "Você corta os galhinhos de salsinha, cheirosos; o pé continua ali e rebrota."},
+    {"coentro", "pé de coentro", "pés de coentro", "maço de coentro", "maços de coentro", 48, 3, true,
+     "Você corta o coentro, de cheiro forte; o pé rebrota."},
+    {"alface", "pé de alface", "pés de alface", "alface", "alfaces", 48, 1, false,
+     "Você arranca o pé de alface inteiro, de folha crespa e fresquinha."},
+    {"couve", "pé de couve", "pés de couve", "maço de couve", "maços de couve", 72, 3, true,
+     "Você quebra as folhas grandes de couve de baixo para cima; o pé continua dando."},
+    {"tomate", "pé de tomate", "pés de tomate", "tomate", "tomates", 96, 6, true,
+     "Você torce os tomates vermelhos do pé, que solta aquele cheiro verde nas mãos."},
+    {"pimentao", "pé de pimentão", "pés de pimentão", "pimentão", "pimentões", 96, 4, true,
+     "Você quebra os pimentões do talo, brilhantes e firmes."},
+    {"pimenta", "pé de pimenta", "pés de pimenta", "pimenta", "pimentas", 96, 8, true,
+     "Você colhe as pimentinhas uma por uma, com cuidado para não coçar o olho depois."},
+    {"batata", "pé de batata", "pés de batata", "batata", "batatas", 96, 6, false,
+     "Você cava em volta do pé e as batatas aparecem, cheias de terra."},
+    {"beterraba", "pé de beterraba", "pés de beterraba", "beterraba", "beterrabas", 72, 4, false,
+     "Você puxa as beterrabas pelas folhas: saem roxas, sujando os dedos."},
+    {"mandioca", "pé de mandioca", "pés de mandioca", "raiz de mandioca", "raízes de mandioca", 168, 4, false,
+     "Você balança o pé de mandioca e arranca: as raízes saem grossas, compridas, de casca marrom."},
+    {"quiabo", "pé de quiabo", "pés de quiabo", "quiabo", "quiabos", 72, 6, true,
+     "Você quebra os quiabos verdinhos da ponta do pé, que melam um pouco os dedos."},
+    {"morango", "pé de morango", "pés de morango", "morango", "morangos", 72, 6, true,
+     "Você procura embaixo das folhas e tira os morangos vermelhos, cheirosos."},
+    // grãos, cana e café
+    {"trigo", "pé de trigo", "pés de trigo", "feixe de trigo", "feixes de trigo", 96, 3, false,
+     "Você corta o trigo dourado e amarra em feixes: dá farinha depois de moído."},
+    {"cana", "pé de cana-de-açúcar", "pés de cana-de-açúcar", "cana-de-açúcar", "canas-de-açúcar", 168, 5, true,
+     "Você corta as canas rente ao chão, compridas e pesadas, que vão virar açúcar e garapa. A touceira rebrota."},
+    {"cafe", "pé de café", "pés de café", "punhado de café em grão", "punhados de café em grão", 168, 4, true,
+     "Você derriça os grãos vermelhos de café do galho para a mão. Secos e torrados, viram pó de café."},
 };
-constexpr int NESPECIES = 8;
+constexpr int NESPECIES = (int)(sizeof(ESPECIES) / sizeof(ESPECIES[0])) - 1;
 static double horasPara(int tipo) { return tipo >= 1 && tipo <= NESPECIES ? ESPECIES[tipo].horas : 72; }
 std::string nomeProduto(const std::string& t, bool plural) {
     for (int k = 1; k <= NESPECIES; k++) {
@@ -43,6 +81,12 @@ std::string nomeProduto(const std::string& t, bool plural) {
             std::string p = ESPECIES[k].planta;
             const std::string pe = "pé de ";
             p = p.rfind(pe, 0) == 0 ? p.substr(pe.size()) : p == "bananeira" ? "banana" : p == "touceira de arroz" ? "arroz" : p;
+            std::string id = ESPECIES[k].id;  // o que não se planta de semente
+            if (id == "alho") return plural ? "dentes de alho para plantar" : "dente de alho para plantar";
+            if (id == "mandioca") return plural ? "manivas de mandioca" : "maniva de mandioca";
+            if (id == "cana") return plural ? "mudas de cana-de-açúcar" : "muda de cana-de-açúcar";
+            if (id == "batata") return plural ? "batatas-semente" : "batata-semente";
+            if (id == "morango") return plural ? "mudas de morango" : "muda de morango";
             return (plural ? "sementes de " : "semente de ") + p;
         }
     }

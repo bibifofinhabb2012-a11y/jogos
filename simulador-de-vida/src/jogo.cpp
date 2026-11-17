@@ -371,16 +371,17 @@ void Jogo::usar(bool direita) {
     }
     if (t == "vinho") { c = {}; audio::tocar("gole", 0.8f); sede = std::min(100.0, sede + 4); beberAlcool(1, "Você bebe a taça de vinho, devagar, sentindo o gosto de uva."); return; }
     if (t == "uisque") { c = {}; audio::tocar("gole", 0.8f); beberAlcool(1.5, "A dose de uísque desce queimando, e você faz careta."); return; }
-    if (t == "laranja" || t == "banana" || t == "cenoura" || t == "maca" || t == "cereja" || t == "manga") {
+    if (t == "laranja" || t == "banana" || t == "cenoura" || t == "maca" || t == "cereja" || t == "manga" || t == "tomate" || t == "morango" || t == "alface") {
         if (fome > 95) { fala::dizer("Você está sem fome."); return; }
-        double f = t == "banana" || t == "manga" ? 12 : t == "cereja" ? 3 : 8;
+        double f = t == "banana" || t == "manga" ? 12 : t == "cereja" || t == "morango" ? 3 : t == "tomate" || t == "alface" ? 5 : 8;
         fome = std::min(100.0, fome + f); if (t == "laranja" || t == "manga") sede = std::min(100.0, sede + 8); if (t == "maca") sede = std::min(100.0, sede + 4);
         intestino = std::min(100.0, intestino + 5);
         Coisa usada = c; c = {};
         if (tirar(usada)) c = usada;  // pega outra da mochila, se tiver
         audio::tocar("mastigar", 0.8f);
         fala::dizer(t == "laranja" ? "Você descasca a laranja com a unha e chupa os gomos, docinhos." : t == "banana" ? "Você descasca a banana e come em três mordidas." : t == "maca" ? "Você esfrega a maçã na roupa e morde: estala, doce e azedinha." :
-                    t == "cereja" ? "Você põe a cereja inteira na boca, morde e cospe o caroço." : t == "manga" ? "Você morde a casca da manga, puxa, e chupa até o caroço, com o caldo escorrendo no queixo." :
+                    t == "cereja" ? "Você põe a cereja inteira na boca, morde e cospe o caroço." : t == "tomate" ? "Você morde o tomate como fruta: estoura, azedinho, e escorre no queixo." :
+                    t == "morango" ? "Você come o morango numa mordida, doce e azedinho." : t == "alface" ? "Você mastiga as folhas de alface, crocantes, sem tempero mesmo." : t == "manga" ? "Você morde a casca da manga, puxa, e chupa até o caroço, com o caldo escorrendo no queixo." :
                     "Você limpa a cenoura na roupa e come, crocante.");
         return;
     }

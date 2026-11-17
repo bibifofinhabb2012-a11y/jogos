@@ -136,6 +136,8 @@ static const Produto PRODUTOS[] = {
     {"Latinha de gás para isqueiro, dá 5 cargas", {"gas-isqueiro", 5}, 8, 1},
     {"Faca de abate, para as vacas do curral de corte e para trabalhar o couro", {"faca", 0}, 15, 1},
     {"Panela de alumínio, para cozinhar", {"panela", 0}, 25, 1},
+};
+static const Produto SEMENTES[] = {
     {"Sementes de milho, pacote com 10", {"semente-milho", 0}, 4, 10},
     {"Sementes de feijão de corda, pacote com 10", {"semente-feijao", 0}, 4, 10},
     {"Sementes de arroz, pacote com 10", {"semente-arroz", 0}, 4, 10},
@@ -144,6 +146,24 @@ static const Produto PRODUTOS[] = {
     {"Sementes de abóbora, pacote com 10", {"semente-abobora", 0}, 8, 10},
     {"Sementes de cenoura, pacote com 10", {"semente-cenoura", 0}, 6, 10},
     {"Sementes de cacau, pacote com 10, para fazer chocolate", {"semente-cacau", 0}, 20, 10},
+    {"Sementes de trigo, pacote com 10, para farinha", {"semente-trigo", 0}, 6, 10},
+    {"Mudas de cana-de-açúcar, feixe com 10, para açúcar e garapa", {"semente-cana", 0}, 10, 10},
+    {"Sementes de café, pacote com 10", {"semente-cafe", 0}, 15, 10},
+    {"Sementes de cebola, pacote com 10", {"semente-cebola", 0}, 4, 10},
+    {"Dentes de alho para plantar, 10", {"semente-alho", 0}, 5, 10},
+    {"Sementes de cebolinha verde, pacote com 10", {"semente-cebolinha", 0}, 3, 10},
+    {"Sementes de salsinha, pacote com 10", {"semente-salsinha", 0}, 3, 10},
+    {"Sementes de coentro, pacote com 10", {"semente-coentro", 0}, 3, 10},
+    {"Sementes de alface, pacote com 10", {"semente-alface", 0}, 3, 10},
+    {"Sementes de couve, pacote com 10", {"semente-couve", 0}, 3, 10},
+    {"Sementes de tomate, pacote com 10", {"semente-tomate", 0}, 5, 10},
+    {"Sementes de pimentão, pacote com 10", {"semente-pimentao", 0}, 5, 10},
+    {"Sementes de pimenta, pacote com 10", {"semente-pimenta", 0}, 4, 10},
+    {"Batatas-semente, 10", {"semente-batata", 0}, 6, 10},
+    {"Sementes de beterraba, pacote com 10", {"semente-beterraba", 0}, 4, 10},
+    {"Manivas de mandioca, feixe com 10", {"semente-mandioca", 0}, 6, 10},
+    {"Sementes de quiabo, pacote com 10", {"semente-quiabo", 0}, 3, 10},
+    {"Mudas de morango, 10", {"semente-morango", 0}, 8, 10},
 };
 
 void Jogo::menuZe() {
@@ -162,11 +182,11 @@ void Jogo::menuZe() {
             auto p = l.find("FREGUES"); if (p != std::string::npos) l.replace(p, 7, gen("freguês", "freguesa"));
             fala::dizer("Seu Zé: " + l);
         }, nullptr, nullptr});
-        v.push_back({"Comprar", [this]() {
-            Menu c; c.titulo = "O que o seu Zé vende";
-            c.opcoes = [this]() {
+        auto loja = [this](const char* titulo, const Produto* lista, size_t n) {
+            Menu c; c.titulo = titulo;
+            c.opcoes = [this, lista, n]() {
                 std::vector<Opcao> v2;
-                for (const Produto& p : PRODUTOS)
+                for (size_t i = 0; i < n; i++) { const Produto& p = lista[i];
                     v2.push_back({std::string(p.nome) + ": " + std::to_string(p.preco) + (p.preco == 1 ? " moeda" : " moedas"), [this, p]() {
                         int* m = carteira();
                         if (!m) { fala::dizer("Você está sem a carteira."); return; }
@@ -176,10 +196,14 @@ void Jogo::menuZe() {
                         audio::tocar("moedas", 0.7f);
                         fala::dizer("Comprado. Restam " + std::to_string(*m) + " moedas.");
                         evento("comprou");
-                    }, nullptr, nullptr});
+                    }, nullptr, nullptr}); }
                 return v2;
             };
             abrirMenu(c);
+        };
+        v.push_back({"Comprar", [loja]() { loja("O que o seu Zé vende", PRODUTOS, sizeof(PRODUTOS) / sizeof(PRODUTOS[0])); }, nullptr, nullptr});
+        v.push_back({"Comprar sementes e mudas: roça, horta, trigo, cana e café", [loja]() {
+            loja("Sementes e mudas do seu Zé. Na horta, na frente da casa, a terra já está pronta", SEMENTES, sizeof(SEMENTES) / sizeof(SEMENTES[0]));
         }, nullptr, nullptr});
         return v;
     };

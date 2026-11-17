@@ -29,6 +29,11 @@ static const TipoMovel TIPOS[] = {
     {"prefeito", "seu Manel do Bacanal, o prefeito", false, false, false, false},
     {"mesa-festa", "mesa de comes e bebes", true, false, false, false},
     {"vaca", "vaca de corte", true, false, false, false},
+    {"moedor", "moedor de café", false, false, false, false},
+    {"cafeteira", "cafeteira expresso", true, false, false, false},
+    {"prensa", "prensa de queijo", true, false, false, false},
+    {"moenda", "moenda de cana", true, false, false, false},
+    {"moinho", "moinho de trigo", false, false, false, false},
     {"vaca-leite", "vaca de leite", true, false, false, false},
 };
 static const TipoMovel& tipoDe(const std::string& t) {
@@ -60,6 +65,9 @@ void Jogo::criarMoveis() {
     int r = m("remessa", 505, 8);
     moveis[r].partes = {{}};
     m("trator", 506, 97);   // estacionado no terreiro, na frente da casa, do lado da estrada
+    // cozinha: moedor de café, cafeteira expresso e prensa de queijo, na bancada depois da geladeira; paiol: moenda de cana e moinho de trigo
+    m("moedor", 450, 161); m("cafeteira", 455, 161); m("prensa", 462, 161);
+    m("moenda", 334, 345); m("moinho", 346, 345);
     ocupar();
     for (int k = 0; k < 5; k++) poeVaca("vaca");  // vacas no fim da lista
     for (int k = 0; k < 4; k++) poeVaca("vaca-leite");
@@ -95,6 +103,11 @@ void Jogo::interagir(int i) {
     if (t == "balcao" || t == "ze") { menuZe(); return; }
     if (t == "prefeito") { menuPrefeito(); return; }
     if (t == "vaca" || t == "vaca-leite") { carinhoVaca(i); return; }
+    if (t == "cafeteira") { menuCafeteira(i); return; }
+    if (t == "prensa") { prensaPronta(i); return; }
+    if (t == "moedor") { fala::dizer("Moedor de café, de manivela, com funil em cima e gavetinha embaixo. Café torrado na mão, Espaço: mói 3 punhados num pacote de pó."); return; }
+    if (t == "moenda") { fala::dizer("Moenda de cana, de ferro, com dois rolos e a roda de girar. Cana-de-açúcar na mão, Espaço: sai garapa."); return; }
+    if (t == "moinho") { fala::dizer("Moinho de trigo, de pedra, com funil e manivela. Feixe de trigo na mão, Espaço: 2 feixes dão um saco de farinha."); return; }
     if (t == "mesa-festa") { menuMesaFesta(); return; }
     if (t == "mesa-bar") { fala::dizer("Uma mesa de bar, de lata, com marcas de copo e um cinzeiro."); return; }
     if (mundoAtual.rfind("visita:", 0) == 0 && !moradorDe(mundoAtual.substr(7))) { fala::dizer("Na casa dos outros, melhor não mexer."); return; }
@@ -189,7 +202,7 @@ void Jogo::chuveiro() {
 // Geladeira e guarda-roupa abrem um menu com o que tem dentro.
 static bool vaiNaGeladeira(const std::string& t) {
     static const char* OK[] = {"barra", "barra-aberta", "garrafa", "garrafa-aberta", "leite", "comida", "cerveja", "bolo", "brigadeiro", "beijinho", "camafeu",
-                               "empada", "torta", "risole", "coxinha", "refrigerante", "vinho", "uisque", "salada", "maionese", "laranja", "banana", "cenoura", "abobora", "maca", "cereja", "manga", "carne", "carne-assada",
+                               "empada", "torta", "risole", "coxinha", "refrigerante", "vinho", "uisque", "salada", "maionese", "laranja", "banana", "cenoura", "abobora", "maca", "cereja", "manga", "carne", "carne-assada", "queijo", "garapa", "expresso", "cappuccino",
                                "cebola", "alho", "cebolinha", "salsinha", "coentro", "alface", "couve", "tomate", "pimentao", "pimenta", "batata",
                                "beterraba", "mandioca", "quiabo", "morango", "trigo", "cana", "cafe", "leite"};
     for (const char* o : OK) if (t == o) return true;

@@ -96,5 +96,10 @@ O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tuto
 "Metallic pickaxe 4/4", de TechspiredMinds. freesound.org/s/728759. CC BY 4.0.
 "Metallic pickaxe 2/4", de TechspiredMinds. freesound.org/s/728757. CC BY 4.0.
 "Big Tree Fall in Forest", de Kinoton. freesound.org/s/494071. CC0.
+"grinding coffee 5", de casadalenha. freesound.org/s/723041. CC BY 4.0.
+"Espresso Machine_Brew Basket.WAV", de connorgrail. freesound.org/s/578411. CC0.
+"Steaming Milk (Low)", de sokworks. freesound.org/s/868483. CC0.
+"Turn crank_Squeak_Old_Metal_Machine_Loop.wav", de AslakHostaker. freesound.org/s/395041. CC0.
+"Creaking Wood 5.wav", de Greg_Surr. freesound.org/s/590156. CC0.
 "sitting down", de soundmast123. freesound.org/s/556591. CC BY 3.0.
 "Metal_Rattling_Small.wav", de GiocoSound. freesound.org/s/421154. CC0.

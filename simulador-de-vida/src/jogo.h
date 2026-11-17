@@ -30,7 +30,9 @@ struct Movel {
     int som = 0;                             // som contínuo (motor da geladeira, chama, chuveiro)
     double ciclo = 0;                        // motor da geladeira: liga e desliga sozinho
     int ordenha = -1;                        // vaca de leite: dia do jogo da última ordenha
-    double gas = 600;                        // fogão: segundos de verdade de chama que o botijão ainda tem
+    double gas = 600;
+    int carga = 0;                           // cafeteira: doses de pó no compartimento
+    double pronto = 0;                       // prensa: minuto do jogo em que o queijo fica pronto (0: vazia)                        // fogão: segundos de verdade de chama que o botijão ainda tem
 };
 
 // Opção de menu. ativar: Enter. tudo: Shift Enter. ajustar: setas para os lados.
@@ -274,6 +276,12 @@ private:
     // menu de início
     void confirmarJogoNovo(bool doInicio);
     void menuVolumeSons();
+    // maquinas.cpp
+    int contarTipo(const std::string& tipo, int carga = -1) const;
+    void gastarTipo(const std::string& tipo, int n, int carga = -1, const Coisa& troca = {});
+    bool usarMaquina(Coisa& c);
+    void prensaPronta(int i);
+    void menuCafeteira(int i);
     std::string predioDe(int px, int py) const;
     std::string predioAlvos;  // onde a pessoa estava quando a lista de portas foi feita
     // pulo.cpp

@@ -26,6 +26,9 @@ static int preco(const std::string& t) {
     if (t == "mandioca" || t == "cana") return 4;
     if (t == "trigo") return 5;
     if (t == "cafe") return 6;
+    if (t == "cafe-torrado") return 9;
+    if (t == "garapa") return 3;
+    if (t == "queijo") return 18;
     if (t == "pedra") return 1;
     if (t == "lenha") return 3;
     if (t == "maca") return 3;

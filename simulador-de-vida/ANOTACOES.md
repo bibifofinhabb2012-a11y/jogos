@@ -127,3 +127,10 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Seu Zé: menu separado "Comprar sementes e mudas" (`SEMENTES` em mundo.cpp); o "Comprar" ficou só com o resto (o tutorial usa as posições dele).
 - Alho, mandioca, cana, batata e morango têm nome de muda/dente/maniva no lugar de "semente" (`nomeProduto`).
 - A horta (360..420 × 30..75) já é terra arada; os pés plantados nela entram em Objetos.
+
+## Máquinas da cozinha e do paiol (novembro)
+- `maquinas.cpp`: moedor (450,161), cafeteira (455,161), prensa (462,161) na cozinha; moenda (334,345) e moinho (346,345) no paiol. Entram na lista de móveis antes das vacas.
+- `Movel::carga` (doses de pó da cafeteira, até 30) e `Movel::pronto` (minuto do queijo na prensa), salvos na linha `maq i carga pronto`.
+- Torrar café e ferver garapa precisam de panela (em qualquer lugar da mochila ou na mão) e do fogão aceso. Proporções: 3 torrados = 1 pó; 1 cana = 2 garapas; 3 garapas = 1 açúcar; 2 trigos = 1 farinha; 2 leites cheios = 1 queijo (12 h).
+- `contarTipo` e `gastarTipo` contam e gastam pelo tipo, na mochila e nas mãos.
+- Ainda para fazer: receitas com farinha, açúcar, queijo e as verduras (forno, panela no fogão).

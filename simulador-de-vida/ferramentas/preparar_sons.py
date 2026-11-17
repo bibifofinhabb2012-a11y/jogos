@@ -197,6 +197,12 @@ trecho("sv-picareta", 728758, "picareta-1", alvo=-16); u(728758)
 trecho("sv-picareta", 728759, "picareta-2", alvo=-16); u(728759)
 trecho("sv-picareta", 728757, "picareta-3", alvo=-16); u(728757)
 trecho("sv-arvore", 494071, "arvore", 0, 7.0, -16); u(494071)
+# cozinha e paiol
+trecho("sv-moedor", 723041, "moedor", 0, 5.0); u(723041)
+trecho("sv-expresso2", 578411, "expresso", 0, 7.0); u(578411)
+trecho("sv-vapor2", 868483, "vaporizador", 0, 6.0); u(868483)
+trecho("sv-moenda3", 395041, "moenda", 0, 6.0); u(395041)
+trecho("sv-prensa", 590156, "prensa"); u(590156)
 trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
 
 # sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial

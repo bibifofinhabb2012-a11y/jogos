@@ -49,6 +49,11 @@ inline std::string plural(const Coisa& c, int qtd, const std::string& singular) 
     if (t == "faca") return "facas de abate";
     if (t == "panela") return "panelas de alumínio";
     if (t == "picareta") return "picaretas";
+    if (t == "cafe-torrado") return "punhados de café torrado";
+    if (t == "garapa") return "copos de garapa";
+    if (t == "queijo") return "queijos minas";
+    if (t == "expresso") return "xícaras de café expresso";
+    if (t == "cappuccino") return "xícaras de café com leite vaporizado";
     if (t == "bosta") return "bostas de vaca secas";
     if (t == "adubo") return "punhados de adubo";
     if (t == "lenha") return "toras de lenha";

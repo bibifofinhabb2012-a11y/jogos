@@ -71,14 +71,9 @@ void Jogo::montarAlvos() {
         }
     } else if (categoria == 2) {
         // fora, só as portas que dão para fora; dentro de uma construção, só as dela
-        auto predio = [this](int px, int py) -> std::string {
-            const Lugar* maior = nullptr;
-            for (const Lugar& l : mapa.listaLugares())
-                if (l.dentro && px >= l.x0 && px <= l.x1 && py >= l.y0 && py <= l.y1 &&
-                    (!maior || (l.x1 - l.x0) * (l.y1 - l.y0) > (maior->x1 - maior->x0) * (maior->y1 - maior->y0))) maior = &l;
-            return maior ? maior->nome : "";
-        };
+        auto predio = [this](int px, int py) { return predioDe(px, py); };
         std::string aqui = predio(x, y);
+        predioAlvos = aqui;
         for (auto [px, py] : mapa.passagens()) {
             Obstaculo o = mapa.em(px, py).obs;
             if ((mapa.valido(px - 1, py) && mapa.em(px - 1, py).obs == o) || (mapa.valido(px, py - 1) && mapa.em(px, py - 1).obs == o)) continue;  // porteira larga: conta uma vez
@@ -150,12 +145,30 @@ void Jogo::trocarCategoria(int lado) {
     evento("categoria");
 }
 
+// A construção em que o ponto está (a maior área "dentro" que o contém), ou "" ao ar livre.
+std::string Jogo::predioDe(int px, int py) const {
+    const Lugar* maior = nullptr;
+    for (const Lugar& l : mapa.listaLugares())
+        if (l.dentro && px >= l.x0 && px <= l.x1 && py >= l.y0 && py <= l.y1 &&
+            (!maior || (l.x1 - l.x0) * (l.y1 - l.y0) > (maior->x1 - maior->x0) * (maior->y1 - maior->y0))) maior = &l;
+    return maior ? maior->nome : "";
+}
+
 void Jogo::trocarItem(int lado) {
     if (categoria < 0) { fala::dizer("Escolha primeiro uma categoria com Ç."); return; }
+    if (categoria == 2 && predioDe(x, y) != predioAlvos) {  // entrou ou saiu de casa desde o Ç: refaz a lista de portas
+        montarAlvos();
+        if (alvos.empty()) { fala::dizer("Nenhuma porta por aqui."); return; }
+        audio::tocar("gota", 0.5f);
+        fala::dizer(std::string(predioAlvos.empty() ? "Lista das portas de fora. " : "Lista das portas de dentro. ") + descreverAlvo(alvos[0]));
+        return;
+    }
     if (alvos.empty()) { fala::dizer("Nada nesta categoria."); return; }
     itemAlvo = (itemAlvo + lado + (int)alvos.size()) % (int)alvos.size();
     audio::tocar("gota", 0.5f);
     Alvo& al = alvos[itemAlvo];
+    if ((categoria == 4 || categoria == 6) && mapa.valido(al.x, al.y) && mapa.em(al.x, al.y).planta && plantas.count(al.y * LADO + al.x))  // estado de agora (regou depois do Ç)
+        al.nome = maiuscula(nomePlanta(mapa.em(al.x, al.y).planta)) + (categoria == 6 ? ", na roça: " : ", ") + estadoPlanta(plantas[al.y * LADO + al.x]);
     if (al.movel >= 0 && al.movel < (int)moveis.size() && (moveis[al.movel].tipo == "vaca" || moveis[al.movel].tipo == "vaca-leite")) { al.x = moveis[al.movel].x; al.y = moveis[al.movel].y; }
     fala::dizer(descreverAlvo(alvos[itemAlvo]));
     evento("item");

@@ -151,9 +151,9 @@ bool Jogo::usarNaRoca(Coisa& c) {
     // regador
     int ax, ay;
     if (!k.planta && mapa.aguaMaisPerto(x, y, 3, ax, ay)) {
-        c.carga = 10;
+        c.carga = 20;
         audio::tocar3D("passos-agua", ax + 0.5f, ay + 0.5f, 0, 1.0f, 3);
-        fala::dizer("Você mergulha o regador no córrego até borbulhar. Cheio: dá para 10 regas.");
+        fala::dizer("Você mergulha o regador no córrego até borbulhar. Cheio: dá para 20 regas.");
         evento("encheu");
         return true;
     }

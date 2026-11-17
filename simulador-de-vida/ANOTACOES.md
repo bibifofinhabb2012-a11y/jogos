@@ -118,3 +118,6 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Dona Nezinha enche a garrafa de café quantas vezes pedir.
 - Objetos também lista os pés plantados na roça (com `estadoPlanta`, que agora diz "regado"); regar planta ainda molhada não gasta água.
 - Pulo: a distância agora é o número de toques na seta com Z segurado (até 10), não mais metade da altura. Passa por cima de planta (não de parede ou cerca); se o pouso cair em planta, volta para o último chão livre. Serve para sair de entre os pés plantados.
+- Lista de portas: guarda em `predioAlvos` onde foi feita; se a pessoa entrou ou saiu de construção depois do Ç, o L refaz a lista. Planta na lista (Plantação e Objetos) tem o estado recalculado a cada L (antes ficava o de quando apertou Ç: "seca" mesmo depois de regar).
+- Pisar em terra arada sem planta, na roça, avisa "Terra pronta para plantar". Regador: 20 regas.
+- A terra regada fica molhada 24 horas do jogo (1 hora de verdade, ou uma noite na cama): depois disso seca de verdade.

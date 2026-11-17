@@ -274,6 +274,8 @@ private:
     // menu de início
     void confirmarJogoNovo(bool doInicio);
     void menuVolumeSons();
+    std::string predioDe(int px, int py) const;
+    std::string predioAlvos;  // onde a pessoa estava quando a lista de portas foi feita
     // pulo.cpp
     bool carregandoPulo = false;
     double cargaPulo = 0, noAr = 0, tempoNoAr = 0;

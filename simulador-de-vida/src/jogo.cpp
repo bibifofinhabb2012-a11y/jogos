@@ -746,6 +746,7 @@ void Jogo::passoPara(int r) {
     if (o == Obstaculo::Nada) {  // no vão da porta não anuncia lugar: a parede fica no meio de dois
         if (l != lugarAtual) { lugarAtual = l; fala::dizer(maiuscula(l) + "."); }
         anunciarPortas();
+        if (mapa.em(x, y).chao == Chao::TerraArada && !mapa.em(x, y).planta && mapa.nomeLugar(x, y).rfind("roça", 0) == 0) fala::dizer("Terra pronta para plantar.", false);
     }
 }
 

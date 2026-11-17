@@ -110,7 +110,7 @@ arranca, e a pedra vai para a mochila. Depois, plante na terra limpa. No Ç, em 
 que faltam, do mais perto para o mais longe; Alt O leva até eles. O machado também derruba árvore: 5 golpes, 4 toras de lenha.
 Derrubada, a árvore some; as árvores com nome (pomar e pasto) brotam de novo 20 minutos depois, de verdade.
 A bananeira não se corta: não dá madeira.
-Quando você limpa um quadrado, ele aparece em Objetos como terra pronta para plantar.
+Quando você limpa um quadrado, ele aparece em Objetos como terra pronta para plantar. Pisando nele, o jogo avisa: "Terra pronta para plantar".
 Os pés que você plantou também aparecem em Objetos, com o estado: quanto falta, e se está regado ou com a terra seca.
 Regar avisa que ficou regado; regar de novo uma planta ainda molhada não gasta água: o jogo avisa quanto falta para secar.
 O pomar fica na frente da casa, à direita de quem sai pela porteira principal: macieira, laranjeira, cerejeira,

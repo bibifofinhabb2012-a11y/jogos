@@ -1,0 +1,117 @@
+versao 2
+pos 370 186 0
+corpo 59.2982 38.2694 88.1317 100
+relogio 2036.4
+corpo2 3 97.35 23.4573 0
+historia 1 1
+genero h
+coleta 2760
+carta manel1 0
+obra chiqueiro
+obra coelheira
+galinhas 1
+chao ovo 0 621 349
+chao bosta 0 729 306
+chao ovo 0 633 348
+chao bosta 0 708 207
+chao ovo 0 631 346
+chao bosta 0 744 260
+chao bosta 0 726 303
+chao bosta 0 725 196
+chao ovo 0 632 346
+chao bosta 0 741 203
+chao ovo 0 629 344
+chao bosta 0 726 303
+chao bosta 0 728 317
+chao bosta 0 751 173
+chao ovo 0 628 341
+chao ovo 0 621 343
+chao ovo 0 630 341
+chao bosta 0 735 307
+chao bosta 0 740 199
+chao ovo 0 621 341
+movel 0 470 150
+movel 1 462 146
+movel 2 470 146
+movel 3 420 161
+movel 4 430 161
+gas 4 600
+movel 5 440 161
+dentro 5 0 garrafa 4 10
+movel 6 460 305
+movel 7 440 306
+dentro 7 1 camisa 0 1
+dentro 7 1 calca 0 1
+dentro 7 1 chapeu 0 1
+movel 8 520 161
+movel 9 530 161
+movel 10 595 199
+movel 11 412 231
+movel 12 418 231
+movel 13 403 250
+movel 14 370 187
+movel 15 372 200
+movel 16 502 108
+movel 17 505 8
+movel 18 506 97
+movel 19 450 161
+movel 20 455 161
+movel 21 462 161
+movel 22 334 345
+movel 23 346 345
+bichos
+bicho vaca 737 153 -1 0
+bicho vaca 741 197 -1 0
+bicho vaca 699 193 -1 0
+bicho vaca 757 182 -1 0
+bicho vaca 731 190 -1 0
+bicho vaca-leite 740 261 -1 0
+bicho vaca-leite 736 308 -1 0
+bicho vaca-leite 710 305 -1 0
+bicho vaca-leite 684 302 -1 0
+bicho galinha 625 342 1 1
+bicho galinha 621 342 2 -2
+bicho galinha 621 346 2 -5
+bicho galinha 628 342 2 -8
+bicho galinha 622 341 2 -11
+porta 498 5 1
+porta 499 5 1
+porta 500 5 1
+porta 501 5 1
+porta 502 5 1
+porta 500 109 0
+porta 500 160 1
+porta 506 180 1
+porta 370 190 1
+porta 680 190 0
+porta 494 195 1
+porta 595 197 0
+porta 994 198 0
+porta 994 199 0
+porta 994 200 0
+porta 994 201 0
+porta 994 202 0
+porta 426 241 1
+porta 615 245 0
+porta 403 248 0
+porta 506 254 1
+porta 494 269 1
+porta 680 280 0
+porta 500 308 0
+porta 340 330 0
+porta 627 340 0
+porta 648 340 0
+item barra 0 100
+item garrafa 4 10
+item antibiotico 0 50
+item atadura 0 10
+item gesso 0 10
+item saco-dormir 0 1
+item carteira 100 1
+item bussola 0 1
+item picareta 0 1
+item lenha 0 5
+item faca 0 1
+item panela 0 1
+maoD - 0
+maoE - 0

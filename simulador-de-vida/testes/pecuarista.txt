@@ -1,0 +1,25 @@
+carregar testes/salvos/com-obras.txt
+esperar 10
+ir 505 97 2
+tecla 2
+tecla 2
+tecla espaco
+tecla enter
+esperar 100
+ir 550 194 0
+tecla espaco
+tecla baixo
+tecla enter
+tecla baixo
+tecla enter
+tecla baixo
+tecla enter
+tecla esc
+ir 502 31 4
+tecla espaco
+tecla enter
+esperar 100
+esperar 20
+tecla shift ç
+tecla shift ç
+tecla shift ç

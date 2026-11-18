@@ -15,7 +15,7 @@ constexpr int NCAT = 8;
 
 // "a sala", "o corredor"
 static std::string com(const std::string& l) {
-    static const char* fem[] = {"sala", "cozinha", "casinha de seu Tião e dona Nezinha", "casa da sede", "roça", "prefeitura", "praça da cidade", "rua da cidade", "varanda da casa", "calçada da casa", "horta", "mata", "estrada da fazenda", "estrada para a cidade", "ponte do córrego"};
+    static const char* fem[] = {"sala", "cozinha", "casinha de seu Tião e dona Nezinha", "casa da sede", "casa do pecuarista", "roça", "prefeitura", "praça da cidade", "rua da cidade", "varanda da casa", "calçada da casa", "horta", "mata", "estrada da fazenda", "estrada para a cidade", "ponte do córrego"};
     for (const char* f : fem) if (l == f) return "a " + l;
     return "o " + l;
 }
@@ -27,8 +27,8 @@ void Jogo::montarAlvos() {
     alvos.clear();
     if (categoria == 1) {
         for (size_t i = 0; i < moveis.size(); i++)
-            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito")
-                alvos.push_back({maiuscula(nomeMovel((int)i)) + (moveis[i].tipo == "tiao" ? ", o caseiro" : moveis[i].tipo == "nezinha" ? ", a esposa dele" : moveis[i].tipo == "ze" ? ", no balcão do bar" : ", na prefeitura"),
+            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito" || moveis[i].tipo == "pecuarista")
+                alvos.push_back({maiuscula(nomeMovel((int)i)) + (moveis[i].tipo == "tiao" ? ", o caseiro" : moveis[i].tipo == "nezinha" ? ", a esposa dele" : moveis[i].tipo == "ze" ? ", no balcão do bar" : moveis[i].tipo == "pecuarista" ? ", na casa do pecuarista" : ", na prefeitura"),
                                  moveis[i].x, moveis[i].y, true});
         for (const auto& [id, r] : rede::remotos())  // outros jogadores no mesmo lugar
             if (r.mundo == mundoCanonico()) { alvos.push_back({r.nome + ", jogador", r.x, r.y, true}); alvos.back().jogador = id; }
@@ -59,8 +59,9 @@ void Jogo::montarAlvos() {
         for (const ItemChao& it : chao) alvos.push_back({maiuscula(nomeCoisa(it.coisa)) + ", no chão, n" + com(mapa.nomeLugar(it.x, it.y)), it.x, it.y, true});
     } else if (categoria == 5) {
         for (size_t i = 0; i < moveis.size(); i++)
-            if (moveis[i].tipo == "vaca" || moveis[i].tipo == "vaca-leite") {
-                alvos.push_back({maiuscula(nomeMovel((int)i)) + ", no " + mapa.nomeLugar(moveis[i].x, moveis[i].y), moveis[i].x, moveis[i].y, true});
+            if (ehBicho(moveis[i].tipo)) {
+                std::string extra = moveis[i].tipo == "galinha" ? (idadeDe(moveis[i]) >= 15 ? ", velha" : "") : "";
+                alvos.push_back({maiuscula(nomeMovel((int)i)) + extra + ", n" + com(mapa.nomeLugar(moveis[i].x, moveis[i].y)), moveis[i].x, moveis[i].y, true});
                 alvos.back().movel = (int)i;
             }
     } else if (categoria == 4) {
@@ -68,7 +69,7 @@ void Jogo::montarAlvos() {
             alvos.push_back({maiuscula(nomePlanta(p.tipo)) + ", " + estadoPlanta(p), c % LADO, c / LADO, true});
     } else if (categoria == 0) {
         for (size_t i = 0; i < moveis.size(); i++) {
-            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito" || moveis[i].tipo == "vaca" || moveis[i].tipo == "vaca-leite") continue;
+            if (moveis[i].tipo == "tiao" || moveis[i].tipo == "nezinha" || moveis[i].tipo == "ze" || moveis[i].tipo == "prefeito" || moveis[i].tipo == "pecuarista" || ehBicho(moveis[i].tipo)) continue;
             std::string n = nomeMovel((int)i);
             std::string l = mapa.nomeLugar(moveis[i].x, moveis[i].y);
             alvos.push_back({maiuscula(n) + ", " + (l == "calçada da casa" ? "na casa" : l == "box do chuveiro" ? "no box" : "no " + l), moveis[i].x, moveis[i].y, true});
@@ -174,7 +175,7 @@ void Jogo::trocarItem(int lado) {
     Alvo& al = alvos[itemAlvo];
     if ((categoria == 4 || categoria == 6) && mapa.valido(al.x, al.y) && mapa.em(al.x, al.y).planta && plantas.count(al.y * LADO + al.x))  // estado de agora (regou depois do Ç)
         al.nome = maiuscula(nomePlanta(mapa.em(al.x, al.y).planta)) + (categoria == 6 ? (al.y <= 75 ? ", na horta: " : ", na roça: ") : ", ") + estadoPlanta(plantas[al.y * LADO + al.x]);
-    if (al.movel >= 0 && al.movel < (int)moveis.size() && (moveis[al.movel].tipo == "vaca" || moveis[al.movel].tipo == "vaca-leite")) { al.x = moveis[al.movel].x; al.y = moveis[al.movel].y; }
+    if (al.movel >= 0 && al.movel < (int)moveis.size() && ehBicho(moveis[al.movel].tipo)) { al.x = moveis[al.movel].x; al.y = moveis[al.movel].y; }
     fala::dizer(descreverAlvo(alvos[itemAlvo]));
     evento("item");
 }
@@ -193,7 +194,7 @@ void Jogo::rastrear() {
     if (categoria < 0 || alvos.empty()) { fala::dizer("Escolha primeiro o que procurar: Ç para a categoria, K e L para o item."); return; }
     rastreado = alvos[itemAlvo];
     int mv = rastreado.movel;  // animal anda: pega onde ele está agora
-    if (mv >= 0 && mv < (int)moveis.size() && (moveis[mv].tipo == "vaca" || moveis[mv].tipo == "vaca-leite")) { rastreado.x = moveis[mv].x; rastreado.y = moveis[mv].y; }
+    if (mv >= 0 && mv < (int)moveis.size() && ehBicho(moveis[mv].tipo)) { rastreado.x = moveis[mv].x; rastreado.y = moveis[mv].y; }
     if (chegou(rastreado)) {
         bool virou = false;
         if (rastreado.chegarAoLado && (rastreado.x != x || rastreado.y != y)) {  // fica de frente para a coisa

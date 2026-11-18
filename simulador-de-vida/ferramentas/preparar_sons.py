@@ -203,6 +203,14 @@ trecho("sv-expresso2", 578411, "expresso", 0, 7.0); u(578411)
 trecho("sv-vapor2", 868483, "vaporizador", 0, 6.0); u(868483)
 trecho("sv-moenda3", 395041, "moenda", 0, 6.0); u(395041)
 trecho("sv-prensa", 590156, "prensa"); u(590156)
+# bichos pequenos e obras
+trecho("sv-galinha", 668804, "galinha-1"); u(668804)
+trecho("sv-galinha", 668805, "galinha-2"); u(668805)
+trecho("sv-galinha", 572955, "galinha-3"); u(572955)
+trecho("sv-porco", 620082, "porco-1"); u(620082)
+trecho("sv-porco", 620083, "porco-2"); u(620083)
+trecho("sv-martelo", 707525, "martelo"); u(707525)
+trecho("sv-serra", 258055, "serra", 0, 4.0); u(258055)
 trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
 
 # sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial

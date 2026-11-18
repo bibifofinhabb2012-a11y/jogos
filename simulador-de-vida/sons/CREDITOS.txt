@@ -101,5 +101,12 @@ O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tuto
 "Steaming Milk (Low)", de sokworks. freesound.org/s/868483. CC0.
 "Turn crank_Squeak_Old_Metal_Machine_Loop.wav", de AslakHostaker. freesound.org/s/395041. CC0.
 "Creaking Wood 5.wav", de Greg_Surr. freesound.org/s/590156. CC0.
+"Chicken clucking 2", de MBPL. freesound.org/s/668804. CC0.
+"Chicken clucking 1", de MBPL. freesound.org/s/668805. CC0.
+"Chicken Cluck Soft", de DrinkingWindGames. freesound.org/s/572955. CC BY 4.0.
+"Pig_Grunt_08.flac", de wwstudioswastaken. freesound.org/s/620082. CC0.
+"Pig_Grunt_07.flac", de wwstudioswastaken. freesound.org/s/620083. CC0.
+"Hammer hitting nail.wav", de LiezelDippenaar. freesound.org/s/707525. CC0.
+"Hand Saw 01", de Jagadamba. freesound.org/s/258055. CC BY 4.0.
 "sitting down", de soundmast123. freesound.org/s/556591. CC BY 3.0.
 "Metal_Rattling_Small.wav", de GiocoSound. freesound.org/s/421154. CC0.

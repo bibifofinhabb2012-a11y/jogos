@@ -22,5 +22,9 @@ confere portas-e-terra.txt "Lista das portas de dentro" "Terra pronta para plant
 confere objetos-roca.txt "Terra pronta para plantar, na roça, aqui"
 confere porteira.txt "5 metros à frente" "5 metros atrás"
 confere arvore-pomar.txt "Bananeira não dá madeira" "a macieira cai com um estrondo" "Toco de macieira"
+confere obras.txt "está pronto: chiqueiro" "está pronto: galinheiro de luxo"
+confere pecuarista.txt "3 bichos novos no lugar deles"
+confere galinha.txt "Você segura a galinha velha pelas asas"
+confere remedio.txt "Abaixo de 500: precisa de remédio ou atadura" "mais 250 pontos de saúde"
 echo; [ $falhas -eq 0 ] && echo "Tudo certo." || echo "$falhas falha(s)."
 exit $falhas

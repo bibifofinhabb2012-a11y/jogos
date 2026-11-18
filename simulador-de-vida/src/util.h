@@ -29,6 +29,9 @@ inline std::string plural(const Coisa& c, int qtd, const std::string& singular) 
     if (t == "barra-aberta") return "barras de ração abertas";
     if (t == "antibiotico") return "comprimidos de antibiótico";
     if (t == "atadura") return "ataduras";
+    if (t == "remedio") return "comprimidos para dor";
+    if (t == "ovo") return "ovos";
+    if (t == "ovo-frito") return "ovos fritos";
     if (t == "gesso") return "pacotes de gesso em pó";
     if (t == "camisa") return "camisas";
     if (t == "calca") return "calças";

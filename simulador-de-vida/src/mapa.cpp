@@ -29,7 +29,12 @@ void Mapa::gerarCidade() {
     retangulo(520, 130, 580, 165, Chao::Taco);
     contorno(520, 130, 580, 165, Obstaculo::Parede);
     abrir(550, 130, Obstaculo::Porta, Chao::Taco);
+    // casa do pecuarista, atrás da prefeitura, porta para o sul
+    retangulo(520, 175, 580, 210, Chao::Cimento);
+    contorno(520, 175, 580, 210, Obstaculo::Parede);
+    abrir(550, 175, Obstaculo::Porta, Chao::Cimento);
     lugares = {
+        {"casa do pecuarista", 521, 176, 579, 209, true},
         {"bar do seu Zé", 431, 131, 479, 159, true},
         {"prefeitura", 521, 131, 579, 164, true},
         {"salão de festas", 431, 176, 479, 209, true},
@@ -240,6 +245,22 @@ std::vector<std::pair<int, int>> Mapa::passagens() const {
     return v;
 }
 
+// Obras que a pessoa faz com madeira, no terreiro, a leste da casa (área sem árvore).
+void Mapa::construir(const std::string& obra) {
+    for (const Lugar& l : lugares) if ((obra == "chiqueiro" && l.nome == "chiqueiro") || (obra == "coelheira" && l.nome == "galinheiro de luxo")) return;  // já feito
+    if (obra == "chiqueiro") {
+        retangulo(615, 230, 645, 260, Chao::Terra);
+        contorno(615, 230, 645, 260, Obstaculo::CercaMadeira);
+        abrir(615, 245, Obstaculo::Porteira, Chao::Terra, false);
+        lugares.insert(lugares.begin(), {"chiqueiro", 616, 231, 644, 259, false});
+    } else if (obra == "coelheira") {
+        retangulo(640, 340, 656, 352, Chao::Madeira);
+        contorno(640, 340, 656, 352, Obstaculo::Parede);
+        abrir(648, 340, Obstaculo::Porta, Chao::Madeira, false);
+        lugares.insert(lugares.begin(), {"galinheiro de luxo", 641, 341, 655, 351, true});
+    }
+}
+
 const Objeto* Mapa::objetoEm(int x, int y) const {
     for (const Objeto& o : objetos) if (o.x == x && o.y == y) return &o;
     return nullptr;
@@ -319,7 +340,7 @@ const char* Mapa::nome(Obstaculo o) {
     switch (o) {
         case Obstaculo::Nada: return "";
         case Obstaculo::Cerca: return "cerca de arame farpado";
-        case Obstaculo::CercaMadeira: return "cerca de madeira do curral";
+        case Obstaculo::CercaMadeira: return "cerca de madeira";
         case Obstaculo::Tela: return "tela do galinheiro";
         case Obstaculo::Parede: return "parede";
         case Obstaculo::Arvore: return "árvore";

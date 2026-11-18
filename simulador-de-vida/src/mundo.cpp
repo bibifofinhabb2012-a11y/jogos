@@ -35,6 +35,7 @@ void Jogo::criarMoveisCidade() {
     m("mesa-bar", 445, 140); m("mesa-bar", 465, 140); m("mesa-bar", 455, 136);
     m("prefeito", 550, 155); m("mesa", 550, 153);
     m("mesa-festa", 455, 195);
+    m("pecuarista", 550, 195);
     ocupar();
 }
 
@@ -136,6 +137,7 @@ static const Produto PRODUTOS[] = {
     {"Latinha de gás para isqueiro, dá 5 cargas", {"gas-isqueiro", 5}, 8, 1},
     {"Faca de abate, para as vacas do curral de corte e para trabalhar o couro", {"faca", 0}, 15, 1},
     {"Panela de alumínio, para cozinhar", {"panela", 0}, 25, 1},
+    {"Comprimido para dor, para quando se machuca feio", {"remedio", 0}, 8, 1},
 };
 static const Produto SEMENTES[] = {
     {"Sementes de milho, pacote com 10", {"semente-milho", 0}, 4, 10},
@@ -229,7 +231,8 @@ std::string Jogo::estadoFazenda() {
     for (int c : limpos) f << "limpo " << c << '\n';
     for (int c : cortadas) f << "cortada " << c << '\n';
     for (const auto& [c, p] : plantas) f << "planta " << c << ' ' << p.tipo << ' ' << p.horas << ' ' << p.molhadaAte << '\n';
-    for (size_t i = 0; i < moveis.size(); i++) if (!ehVaca(moveis[i].tipo)) f << "movel " << i << ' ' << moveis[i].x << ' ' << moveis[i].y << '\n';
+    for (const std::string& o : obras) f << "obra " << o << '\n';
+    for (size_t i = 0; i < moveis.size(); i++) if (!ehBicho(moveis[i].tipo)) f << "movel " << i << ' ' << moveis[i].x << ' ' << moveis[i].y << '\n';
     f << linhasBichos();
     for (auto [px, py] : mapa.passagens()) f << "porta " << px << ' ' << py << ' ' << (mapa.em(px, py).aberta ? 1 : 0) << '\n';
     if (fora) trocarComGuardada();
@@ -250,6 +253,7 @@ void Jogo::aplicarEstado(const std::string& texto) {
         else if (k == "cortada") { int c; s >> c; if (c >= 0 && c < LADO * LADO && !mapa.objetoEm(c % LADO, c / LADO)) mapa.em(c % LADO, c / LADO).obs = Obstaculo::Nada; }
         else if (k == "vacas") { int n; s >> n; ajustarVacas(n); }
         else if (k == "bichos" || k == "bicho") lerBicho(linha);
+        else if (k == "obra") { std::string o; s >> o; mapa.construir(o); }
         else if (k == "movel") { size_t i; int mx, my; s >> i >> mx >> my; if (i < moveis.size() && mapa.valido(mx, my)) { moveis[i].x = mx; moveis[i].y = my; } }
         else if (k == "porta") { int px, py, a; s >> px >> py >> a; if (mapa.ehPassagem(px, py)) mapa.em(px, py).aberta = a != 0; }
     }

@@ -1,0 +1,21 @@
+carregar testes/salvos/com-lenha.txt
+esperar 10
+tecla l
+tecla l
+tecla l
+tecla l
+tecla l
+ir 370 186 0
+tecla espaco
+tecla baixo
+tecla enter
+tecla enter
+tecla esc
+tecla esc
+tecla espaco
+tecla baixo
+tecla enter
+tecla baixo
+tecla enter
+tecla esc
+tecla esc

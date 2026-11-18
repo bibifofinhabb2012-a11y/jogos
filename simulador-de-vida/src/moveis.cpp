@@ -35,6 +35,10 @@ static const TipoMovel TIPOS[] = {
     {"moenda", "moenda de cana", true, false, false, false},
     {"moinho", "moinho de trigo", false, false, false, false},
     {"vaca-leite", "vaca de leite", true, false, false, false},
+    {"galinha", "galinha", true, false, false, false},
+    {"porco", "porco", false, false, false, false},
+    {"coelho", "coelho", false, false, false, false},
+    {"pecuarista", "seu Juca, o pecuarista", false, false, false, false},
 };
 static const TipoMovel& tipoDe(const std::string& t) {
     for (const auto& k : TIPOS) if (t == k.tipo) return k;
@@ -71,6 +75,7 @@ void Jogo::criarMoveis() {
     ocupar();
     for (int k = 0; k < 5; k++) poeVaca("vaca");  // vacas no fim da lista
     for (int k = 0; k < 4; k++) poeVaca("vaca-leite");
+    for (int k = 0; k < 5; k++) if (poeVaca("galinha")) moveis.back().carga = diaDoJogo() - k * 3;  // idades diferentes: a mais velha fica velha logo
 }
 
 void Jogo::ocupar() {
@@ -102,7 +107,8 @@ void Jogo::interagir(int i) {
     if (t == "trator") { menuTrator(); return; }
     if (t == "balcao" || t == "ze") { menuZe(); return; }
     if (t == "prefeito") { menuPrefeito(); return; }
-    if (t == "vaca" || t == "vaca-leite") { carinhoVaca(i); return; }
+    if (ehBicho(t)) { carinhoVaca(i); return; }
+    if (t == "pecuarista") { menuPecuarista(); return; }
     if (t == "cafeteira") { menuCafeteira(i); return; }
     if (t == "prensa") { prensaPronta(i); return; }
     if (t == "moedor") { fala::dizer("Moedor de café, de manivela, com funil em cima e gavetinha embaixo. Café torrado na mão, Espaço: mói 3 punhados num pacote de pó."); return; }
@@ -202,7 +208,7 @@ void Jogo::chuveiro() {
 // Geladeira e guarda-roupa abrem um menu com o que tem dentro.
 static bool vaiNaGeladeira(const std::string& t) {
     static const char* OK[] = {"barra", "barra-aberta", "garrafa", "garrafa-aberta", "leite", "comida", "cerveja", "bolo", "brigadeiro", "beijinho", "camafeu",
-                               "empada", "torta", "risole", "coxinha", "refrigerante", "vinho", "uisque", "salada", "maionese", "laranja", "banana", "cenoura", "abobora", "maca", "cereja", "manga", "carne", "carne-assada", "queijo", "garapa", "expresso", "cappuccino",
+                               "empada", "torta", "risole", "coxinha", "refrigerante", "vinho", "uisque", "salada", "maionese", "laranja", "banana", "cenoura", "abobora", "maca", "cereja", "manga", "carne", "carne-assada", "queijo", "garapa", "expresso", "cappuccino", "ovo", "ovo-frito",
                                "cebola", "alho", "cebolinha", "salsinha", "coentro", "alface", "couve", "tomate", "pimentao", "pimenta", "batata",
                                "beterraba", "mandioca", "quiabo", "morango", "trigo", "cana", "cafe", "leite"};
     for (const char* o : OK) if (t == o) return true;

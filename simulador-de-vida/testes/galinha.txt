@@ -1,0 +1,15 @@
+carregar testes/salvos/galinha-velha.txt
+esperar 10
+ir 627 339 0
+tecla shift b
+tecla 2
+tecla espaco
+tecla shift b
+tecla shift ç
+tecla shift ç
+tecla shift ç
+tecla l
+tecla l
+tecla l
+tecla l
+tecla l

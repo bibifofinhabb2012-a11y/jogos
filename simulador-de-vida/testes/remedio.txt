@@ -1,0 +1,11 @@
+carregar testes/salvos/machucado.txt
+esperar 10
+tecla e
+tecla r
+esperar 600
+tecla e
+tecla r
+tecla h
+tecla 2
+tecla espaco
+tecla h

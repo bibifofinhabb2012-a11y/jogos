@@ -54,6 +54,7 @@ public:
     const std::vector<Lugar>& listaLugares() const { return lugares; }
     std::vector<Objeto> objetos;
     const Objeto* objetoEm(int x, int y) const;
+    void construir(const std::string& obra);  // chiqueiro, coelheira (galinheiro de luxo): feitos com madeira
     static const char* nome(Chao ch);           // "grama", "piso de taco"...
     static const char* somPasso(Chao ch);       // nome do grupo de sons de passo
     static const char* nome(Obstaculo o);       // "cerca de arame farpado"...

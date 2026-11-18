@@ -41,6 +41,16 @@ bool Jogo::usarMaquina(Coisa& c) {
     if (f < 0) return false;
     Movel& m = moveis[f];
     const std::string& t = c.tipo;
+    if (m.tipo == "fogao" && t == "ovo") {
+        if (!m.ligado) { fala::dizer("O fogão está apagado. Acenda com Espaço, de mão vazia, e tente de novo."); return true; }
+        if (!temCoisa("panela")) { fala::dizer("Precisa de uma panela: seu Zé vende, por 25 moedas."); return true; }
+        Coisa usado = c; c = {};
+        if (tirar(usado)) c = usado;
+        guardar({"ovo-frito", 0});
+        audio::tocar("fritura", 0.7f);
+        fala::dizer("Você quebra o ovo na beira da panela e ele cai chiando no óleo quente: a clara borbulha e fica branca, a gema mole no meio. Um ovo frito, na mochila.");
+        return true;
+    }
     if (m.tipo == "fogao" && (t == "cafe" || t == "garapa")) {
         if (!m.ligado) { fala::dizer("O fogão está apagado. Acenda com Espaço, de mão vazia, e tente de novo."); return true; }
         if (!temCoisa("panela")) { fala::dizer("Precisa de uma panela: seu Zé vende, por 25 moedas."); return true; }

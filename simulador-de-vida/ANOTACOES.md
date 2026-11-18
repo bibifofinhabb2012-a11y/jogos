@@ -145,3 +145,12 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Torrar café e ferver garapa precisam de panela (em qualquer lugar da mochila ou na mão) e do fogão aceso. Proporções: 3 torrados = 1 pó; 1 cana = 2 garapas; 3 garapas = 1 açúcar; 2 trigos = 1 farinha; 2 leites cheios = 1 queijo (12 h).
 - `contarTipo` e `gastarTipo` contam e gastam pelo tipo, na mochila e nas mãos.
 - Ainda para fazer: receitas com farinha, açúcar, queijo e as verduras (forno, panela no fogão).
+
+## Descanso, saúde, galinhas, pecuarista e obras (novembro)
+- Acordado e sentado: energia +8/h (chão) ou +11/h (móvel), contra -3,5/h; deitado +6/h. Saúde volta +1/h em pé, +2/h parado, só com saúde ≥ 50 (500); abaixo disso aviso uma vez e precisa de `remedio` (comprimido para dor, seu Zé, +25) ou atadura (+10).
+- `vacas.cpp` virou o arquivo de todos os bichos: tabela `Curral` com galinheiro (galinha), chiqueiro (porco) e coelheira (coelho). `ehBicho` (todos) separado de `ehVaca` (só vacas). Linha do salvo: `bicho tipo x y ordenha carga`; para galinha, `ordenha` = dia do último ovo e `carga` = dia em que chegou (idade = dia atual - carga; velha com 15). Ovo cai no chão (`chao`), um por dia, só galinha nova.
+- Salvo antigo sem a linha `galinhas 1`: as 5 galinhas são criadas ao carregar.
+- Faca: alvo mais perto até 5 passos entre vaca de corte, porco e galinha velha; porco e galinha em `abaterPequeno` (sem coice). Coelho não se abate.
+- Cidade: casa do pecuarista (520..580 × 175..210, porta 550,175), seu Juca (`menuPecuarista`, obras.cpp). Compras vão para `entregas` (salvas), entregues por `receberEntregas` quando a pessoa está na própria fazenda e o cercado existe.
+- Obras (`obras`, salvas como `obra nome`, também no estado online): `Mapa::construir` desenha o chiqueiro (615..645 × 230..260, porteira 615,245) e o galinheiro de luxo (`coelheira`, 640..656 × 340..352, porta 648,340). Pedidas no menu do seu Tião, gastam lenha (20 e 15).
+- Sons: galinha, porco, martelo, serra; coelho é apelido de passos nas folhas.

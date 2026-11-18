@@ -3,6 +3,7 @@
 #pragma once
 #include <functional>
 #include <map>
+#include <set>
 #include <memory>
 #include <string>
 #include <vector>
@@ -55,7 +56,8 @@ struct Carta { std::string id; bool lida = false; };
 
 // Algo que dá para escolher com K e L e rastrear com O.
 // Lugares grandes têm retângulo (x0..x1, y0..y1): chegar é entrar nele.
-bool ehVaca(const std::string& t);  // vaca de corte ou de leite (vacas.cpp)
+bool ehVaca(const std::string& t);   // vaca de corte ou de leite (vacas.cpp)
+bool ehBicho(const std::string& t);  // qualquer bicho que anda no cercado: vacas, galinha, porco, coelho
 
 struct Alvo { std::string nome; int x, y; bool chegarAoLado; int x0 = -1, y0 = 0, x1 = 0, y1 = 0; int jogador = -1; int movel = -1; };
 
@@ -163,7 +165,9 @@ private:
     double esperaTutorial = 0;
     std::string textoTutorial;  // a instrução do passo atual, para o Shift S repetir
     int totalTutorial = 0;
-    double marcaEnergia = 100;  // a cada 50 pontos de energia perdidos, um bip (mais grave quanto menos energia)
+    double marcaEnergia = 100;
+    bool avisouMachucado = false;
+    bool temGalinhas = false;  // o salvo já é da versão com galinhas (salvo antigo: elas chegam ao carregar)  // a cada 50 pontos de energia perdidos, um bip (mais grave quanto menos energia)
     void navegarTutorial(int acao);
     // roça
     std::map<int, Planta> plantas;     // chave: y * LADO + x
@@ -276,6 +280,15 @@ private:
     // menu de início
     void confirmarJogoNovo(bool doInicio);
     void menuVolumeSons();
+    // bichos pequenos, pecuarista e obras
+    int idadeDe(const Movel& m) const;
+    void abaterPequeno(int i, int dist);
+    std::vector<std::string> entregas;     // bichos comprados que ainda não chegaram na fazenda
+    std::set<std::string> obras;           // construído com madeira: "chiqueiro", "coelheira"
+    void receberEntregas();
+    void menuPecuarista();
+    void menuObras();
+    void construir(const std::string& obra);
     // maquinas.cpp
     int contarTipo(const std::string& tipo, int carga = -1) const;
     void gastarTipo(const std::string& tipo, int n, int carga = -1, const Coisa& troca = {});

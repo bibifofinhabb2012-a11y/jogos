@@ -12,8 +12,16 @@
 struct Curral { const char* tipo; int x0, y0, x1, y1, maximo; };
 static const Curral CORTE = {"vaca", 683, 153, 757, 227, 5};        // dentro da cerca do curral de corte
 static const Curral LEITE = {"vaca-leite", 683, 243, 757, 317, 4};  // dentro da cerca do curral de leite
-static const Curral& curralDe(const std::string& t) { return t == "vaca-leite" ? LEITE : CORTE; }
+static const Curral GALINHEIRO = {"galinha", 621, 341, 633, 349, 20};
+static const Curral CHIQUEIRO = {"porco", 616, 231, 644, 259, 10};     // construído com madeira (Mapa::construir)
+static const Curral COELHEIRA = {"coelho", 641, 341, 655, 351, 12};    // galinheiro de luxo, construído com madeira
+static const Curral& curralDe(const std::string& t) {
+    return t == "vaca-leite" ? LEITE : t == "galinha" ? GALINHEIRO : t == "porco" ? CHIQUEIRO : t == "coelho" ? COELHEIRA : CORTE;
+}
 bool ehVaca(const std::string& t) { return t == "vaca" || t == "vaca-leite"; }
+bool ehBicho(const std::string& t) { return ehVaca(t) || t == "galinha" || t == "porco" || t == "coelho"; }
+static const int VELHICE = 15;  // dias: galinha velha para de botar e pode ser abatida
+int Jogo::idadeDe(const Movel& m) const { return diaDoJogo() - m.carga; }
 
 int Jogo::contarVacas(const std::string& tipo) const {
     return (int)std::count_if(moveis.begin(), moveis.end(), [&](const Movel& m) { return m.tipo == tipo; });
@@ -45,7 +53,7 @@ std::string Jogo::linhasBichos() const {
     std::ostringstream f;
     f << "bichos\n";  // marca: a lista abaixo substitui as vacas de fábrica
     for (const Movel& m : moveis)
-        if (ehVaca(m.tipo)) f << "bicho " << m.tipo << ' ' << m.x << ' ' << m.y << ' ' << m.ordenha << '\n';
+        if (ehBicho(m.tipo)) f << "bicho " << m.tipo << ' ' << m.x << ' ' << m.y << ' ' << m.ordenha << ' ' << m.carga << '\n';
     return f.str();
 }
 
@@ -53,13 +61,13 @@ void Jogo::lerBicho(const std::string& linha) {
     std::istringstream s(linha);
     std::string k, tipo; s >> k;
     if (k == "bichos") {
-        moveis.erase(std::remove_if(moveis.begin(), moveis.end(), [](const Movel& m) { return ehVaca(m.tipo); }), moveis.end());
+        moveis.erase(std::remove_if(moveis.begin(), moveis.end(), [](const Movel& m) { return ehBicho(m.tipo); }), moveis.end());
         ocupar();
         return;
     }
-    int bx, by, o = -1; s >> tipo >> bx >> by >> o;
-    if (!ehVaca(tipo) || !mapa.valido(bx, by) || mapa.em(bx, by).movel >= 0) return;
-    if (poeVaca(tipo, bx, by)) moveis.back().ordenha = o;
+    int bx, by, o = -1, cg = 0; s >> tipo >> bx >> by >> o; s >> cg;
+    if (!ehBicho(tipo) || !mapa.valido(bx, by) || mapa.em(bx, by).movel >= 0) return;
+    if (poeVaca(tipo, bx, by)) { moveis.back().ordenha = o; moveis.back().carga = cg; }
 }
 
 void Jogo::nascerBezerro() {
@@ -74,26 +82,43 @@ void Jogo::nascerBezerro() {
 
 void Jogo::atualizarVacas(double seg) {
     if (mundoAtual != "fazenda") return;
+    if (!entregas.empty()) receberEntregas();
     for (size_t i = 0; i < moveis.size(); i++) {
         Movel& v = moveis[i];
-        if (!ehVaca(v.tipo)) continue;
+        if (!ehBicho(v.tipo)) continue;
         const Curral& c = curralDe(v.tipo);
-        // de vez em quando, uma bosta no chão do curral (em média uma a cada 40 minutos de verdade por vaca), até 25 no chão
-        if (acaso(0, 1) < seg / 2400.0 && std::count_if(chao.begin(), chao.end(), [](const ItemChao& it) { return it.coisa.tipo == "bosta"; }) < 25) {
-            int d = (int)acaso(0, 7.99), bx = v.x + DX[d], by = v.y + DY[d];
-            if (mapa.passa(bx, by) && bx >= c.x0 && bx <= c.x1 && by >= c.y0 && by <= c.y1 && !(bx == x && by == y)) {
-                chao.push_back({{"bosta", 0}, bx, by});
-                audio::tocar3D("coco", v.x + 0.5f, v.y + 0.5f, 0.6f, 0.35f, 6);
+        if (ehVaca(v.tipo)) {
+            // de vez em quando, uma bosta no chão do curral (em média uma a cada 40 minutos de verdade por vaca), até 25 no chão
+            if (acaso(0, 1) < seg / 2400.0 && std::count_if(chao.begin(), chao.end(), [](const ItemChao& it) { return it.coisa.tipo == "bosta"; }) < 25) {
+                int d = (int)acaso(0, 7.99), bx = v.x + DX[d], by = v.y + DY[d];
+                if (mapa.passa(bx, by) && bx >= c.x0 && bx <= c.x1 && by >= c.y0 && by <= c.y1 && !(bx == x && by == y)) {
+                    chao.push_back({{"bosta", 0}, bx, by});
+                    audio::tocar3D("coco", v.x + 0.5f, v.y + 0.5f, 0.6f, 0.35f, 6);
+                }
+            }
+        }
+        if (v.tipo == "galinha" && idadeDe(v) < VELHICE && v.ordenha != diaDoJogo() && acaso(0, 1) < seg / 300.0) {
+            // um ovo por dia, no chão do galinheiro, do lado dela
+            for (int t = 0; t < 8; t++) {
+                int d = (int)acaso(0, 7.99), ox = v.x + DX[d], oy = v.y + DY[d];
+                if (!mapa.passa(ox, oy) || ox < c.x0 || ox > c.x1 || oy < c.y0 || oy > c.y1) continue;
+                chao.push_back({{"ovo", 0}, ox, oy});
+                v.ordenha = diaDoJogo();
+                audio::tocar3D("galinha", v.x + 0.5f, v.y + 0.5f, 0.3f, 0.9f, 15, 1.15f);
+                break;
             }
         }
         bool fugir = v.ciclo < -0.5;  // acabou de dar coice: sai de perto
         v.ciclo -= seg;
         if (v.ciclo > 0) continue;
-        v.ciclo = acaso(6, 20);
-        // com gente do lado, a vaca fica parada, para dar tempo de pegar a faca, a garrafa ou fazer carinho
+        v.ciclo = v.tipo == "galinha" || v.tipo == "coelho" ? acaso(3, 10) : acaso(6, 20);
+        // com gente do lado, o bicho fica parado, para dar tempo de pegar a faca, a garrafa ou fazer carinho
         if (!fugir && std::max(std::abs(v.x - x), std::abs(v.y - y)) <= 2) continue;
-        if (!fugir && rastreando && rastreado.x == v.x && rastreado.y == v.y) continue;  // a que você está seguindo com O espera
-        if (acaso(0, 1) < 0.3) audio::tocar3D("mugido", v.x + 0.5f, v.y + 0.5f, 1.2f, 0.9f, 25, (float)acaso(0.9, 1.1));
+        if (!fugir && rastreando && rastreado.x == v.x && rastreado.y == v.y) continue;  // o que você está seguindo com O espera
+        if (acaso(0, 1) < 0.3) {
+            const char* som = ehVaca(v.tipo) ? "mugido" : v.tipo == "galinha" ? "galinha" : v.tipo == "porco" ? "porco" : "coelho";
+            audio::tocar3D(som, v.x + 0.5f, v.y + 0.5f, ehVaca(v.tipo) ? 1.2f : 0.3f, 0.8f, ehVaca(v.tipo) ? 25 : 12, (float)acaso(0.9, 1.1));
+        }
         int d = (int)acaso(0, 7.99);
         int nx = v.x + DX[d], ny = v.y + DY[d];
         if (nx < c.x0 || nx > c.x1 || ny < c.y0 || ny > c.y1 || !mapa.passa(nx, ny) || (nx == x && ny == y)) continue;
@@ -104,6 +129,19 @@ void Jogo::atualizarVacas(double seg) {
 }
 
 void Jogo::carinhoVaca(int i) {
+    const std::string& t = moveis[i].tipo;
+    if (t == "galinha") {
+        int id = idadeDe(moveis[i]);
+        audio::tocar3D("galinha", moveis[i].x + 0.5f, moveis[i].y + 0.3f, 0.3f, 0.8f, 10);
+        fala::dizer("A galinha cacareja, desconfiada, e deixa você passar a mão nas penas. " +
+                    std::string(id >= VELHICE ? "Já está velha: não bota mais. Se quiser, com a faca, vira carne." :
+                                "Tem " + std::to_string(std::max(0, id)) + (id == 1 ? " dia" : " dias") + " de casa e bota um ovo por dia; fica velha com " + std::to_string(VELHICE) + "."));
+        return;
+    }
+    if (t == "porco") { audio::tocar3D("porco", moveis[i].x + 0.5f, moveis[i].y + 0.5f, 0.4f, 0.8f, 10);
+        fala::dizer("O porco fuça a sua mão, ronca e se encosta na sua perna, pesado e quente de barro."); return; }
+    if (t == "coelho") { audio::tocar3D("coelho", moveis[i].x + 0.5f, moveis[i].y + 0.5f, 0.2f, 0.8f, 6);
+        fala::dizer("O coelho fica quietinho, de orelha em pé, e você alisa o pelo macio dele. O narizinho não para de mexer."); return; }
     audio::tocar3D("mugido", moveis[i].x + 0.5f, moveis[i].y + 0.5f, 1.2f, 0.8f, 25);
     bool leite = moveis[i].tipo == "vaca-leite";
     fala::dizer(leite ? "Você passa a mão no pescoço da vaca de leite, malhada e mansa. Ela vira a cabeça e cheira a sua mão."
@@ -128,15 +166,23 @@ static const int ALCANCE_FACA = 5;
 
 void Jogo::usarFaca() {
     int i = -1, melhor = ALCANCE_FACA + 1;
+    auto abativel = [this](const Movel& m) { return m.tipo == "vaca" || m.tipo == "porco" || (m.tipo == "galinha" && idadeDe(m) >= VELHICE); };
+    int fr = movelFrente();
+    if (fr >= 0 && moveis[fr].tipo == "galinha" && !abativel(moveis[fr])) {
+        fala::dizer("Essa galinha ainda é nova e bota ovo todo dia. Abata só as velhas, com " + std::to_string(VELHICE) + " dias de casa ou mais: faltam " +
+                    std::to_string(VELHICE - idadeDe(moveis[fr])) + " dias para essa.");
+        return;
+    }
+    if (fr >= 0 && moveis[fr].tipo == "coelho") { fala::dizer("O coelho é de estimação: não se abate."); return; }
     for (size_t k = 0; k < moveis.size(); k++) {
-        if (moveis[k].tipo != "vaca") continue;
+        if (!abativel(moveis[k])) continue;
         int d = std::max(std::abs(moveis[k].x - x), std::abs(moveis[k].y - y));
         if (d < melhor) { melhor = d; i = (int)k; }
     }
     if (i < 0) {
         int f = movelFrente();
         if (f >= 0 && moveis[f].tipo == "vaca-leite") { fala::dizer("Essa é vaca de leite: não se abate. Ela dá leite todo dia; traga uma garrafa vazia."); return; }
-        fala::dizer("Nenhuma vaca de corte a até 5 passos. A faca de abate alcança a vaca de corte que estiver a até 5 passos de você. "
+        fala::dizer("Nenhum bicho para abate a até 5 passos. A faca alcança, a até 5 passos de você, a vaca de corte, o porco ou a galinha velha. "
                     "Com o couro numa mão e a faca na outra, T faz objetos de couro.");
         return;
     }
@@ -144,9 +190,10 @@ void Jogo::usarFaca() {
         double ang = std::atan2((double)(moveis[i].x - x), (double)(moveis[i].y - y)) * 180 / 3.14159265;
         rumo = ((int)std::lround(ang / 45.0) % 8 + 8) % 8;
     }
-    if (mundoAtual != "fazenda") { fala::dizer("A vaca não é sua. Quem abate é o dono."); return; }
-    if (energia < 10) { fala::dizer("Sem força para segurar uma vaca. Descanse antes."); return; }
+    if (mundoAtual != "fazenda") { fala::dizer("O bicho não é seu. Quem abate é o dono."); return; }
     Movel& v = moveis[i];
+    if (v.tipo != "vaca") { abaterPequeno(i, melhor); return; }
+    if (energia < 10) { fala::dizer("Sem força para segurar uma vaca. Descanse antes."); return; }
     energia = std::max(0.0, energia - 3);
     if (acaso(0, 1) < 0.4) {
         coice(v, 60, 130, melhor <= 1 ? "A vaca se assusta com a faca, vira o corpo" : "A vaca se assusta com a faca, vem para cima de você, vira o corpo");
@@ -218,4 +265,38 @@ void Jogo::menuCouro() {
         return v;
     };
     abrirMenu(m);
+}
+
+// Porco e galinha velha: sem coice; dão carne.
+void Jogo::abaterPequeno(int i, int dist) {
+    Movel v = moveis[i];
+    bool porco = v.tipo == "porco";
+    audio::tocar("faca", 0.8f);
+    audio::tocar3D(porco ? "porco" : "galinha", v.x + 0.5f, v.y + 0.5f, 0.3f, 1.0f, 10, 1.3f);
+    mapa.em(v.x, v.y).movel = -1;
+    moveis.erase(moveis.begin() + i);
+    ocupar();
+    guardar({"carne", 0}, porco ? 8 : 2);
+    higiene = std::max(0.0, higiene - (porco ? 15 : 5));
+    energia = std::max(0.0, energia - (porco ? 4 : 1));
+    std::string perto = dist <= 1 ? "" : "Você chega no bicho, a " + std::to_string(dist) + " passos. ";
+    fala::dizer(perto + (porco ? "O porco grita e esperneia, mas você segura firme e faz o corte. Limpa, raspa e corta: 8 pedaços de carne crua, na mochila."
+                              : "Você segura a galinha velha pelas asas, faz o corte, depena e limpa: 2 pedaços de carne crua, na mochila."));
+}
+
+// Bichos comprados no pecuarista chegam de caminhonete quando a pessoa está na própria fazenda.
+void Jogo::receberEntregas() {
+    std::vector<std::string> sobra;
+    int chegaram = 0;
+    for (const std::string& t : entregas) {
+        if ((t == "porco" && !obras.count("chiqueiro")) || (t == "coelho" && !obras.count("coelheira"))) { sobra.push_back(t); continue; }
+        if (poeVaca(t)) { moveis.back().carga = diaDoJogo(); moveis.back().ordenha = -1; chegaram++; }
+        else sobra.push_back(t);
+    }
+    entregas = sobra;
+    if (chegaram) {
+        audio::tocar("carro", 0.6f);
+        fala::dizer("A caminhonete do pecuarista para na porteira e ele descarrega: " + std::to_string(chegaram) + (chegaram == 1 ? " bicho novo" : " bichos novos") +
+                    " no lugar deles. No Ç, em Animais.", false);
+    }
 }

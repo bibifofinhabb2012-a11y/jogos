@@ -2,6 +2,16 @@
 
 Audiogame de sobrevivência em 3D para computador (Windows), em C++. Quem pede e testa é cega e joga com NVDA. Leia também o `CLAUDE.md` da raiz.
 
+## Para continuar numa sessão nova
+1. Leia este arquivo inteiro: as seções do fim (por mês e assunto) são as mais novas e valem mais que as do começo.
+2. Compile no Linux (seção Compilar) e rode `bash testes/rodar.sh /tmp/sv-build/simulador-de-vida` de dentro de `simulador-de-vida/`: tem que dar "Tudo certo".
+3. A cada pedido: mude o código, atualize `ferramentas/ajuda.py` (e rode) se mexeu em tecla, escreva aqui o que mudou, rode os testes, faça commit e push na `main`, espere o fluxo do Windows, monte o zip (seção Download) e mande o link.
+4. Sons novos: fluxo do Freesound (seção Sons), depois `preparar_sons.py`, e confira que nenhum som usado no código ficou faltando.
+
+## Testes guardados
+`testes/*.txt` são roteiros; `testes/salvos/` tem jogos salvos prontos para eles (caminhos relativos a `simulador-de-vida/`). `testes/rodar.sh` roda todos e confere frases: tutorial inteiro, máquinas da cozinha e do paiol, pulo por cima das plantas, faca, portas dentro e fora, terra pronta, lado da porteira, derrubar árvore do pomar. O tutorial e a faca têm sorte no meio (cigarro, coice): se falhar uma vez, rode de novo. Mudou a ordem das categorias do Ç, dos menus ou das posições? Ajuste os roteiros.
+Comandos de roteiro: `tecla [shift|ctrl|alt] nome`, `segurar nome segundos`, `apertar nome` e `largar nome` (Z com seta), `esperar n` (n vezes 0,1 s), `horas n`, `ir x y rumo` (teleporte; rumo 0 norte = y maior, 2 leste, 4 sul), `salvar arq`, `carregar arq`, `inicio` (menu de jogo salvo), `digitar texto`, `real n`. Cuidado: apertar 1 ou 2 duas vezes em menos de 0,6 s esvazia a mão.
+
 ## A história
 Aos 18 anos, o pai larga a pessoa na porteira da fazenda dele, parada há anos, numa cidadezinha do interior de Minas: "acabou a mamata". Sem aprender a coletar, plantar e cuidar de bicho, não sobrevive. Não suponha o gênero de quem joga nos textos.
 
@@ -21,12 +31,12 @@ Aos 18 anos, o pai larga a pessoa na porteira da fazenda dele, parada há anos, 
 Do Freesound, pelo fluxo "Buscar sons no Freesound" (grupos com prefixo `sv-` na branch `sons-candidatos`). `ferramentas/preparar_sons.py <pasta sons-candidatos>` corta os passos um a um, nivela e grava em `sons/`, com `sons/CREDITOS.txt`. Passos foram conferidos com o classificador do Meu Bebê nas gravações inteiras.
 
 ## Teclas
-A lista completa (a mesma do F1) fica em `ferramentas/ajuda.py`, que reescreve `Jogo::ajuda()` e o LEIA-ME. Mexeu em tecla, atualize lá e rode. Pedidos dela que definem teclas: 1 esquerda, 2 direita, 3 as duas; Espaço usa a mão selecionada; T combina; I mochila (letra pula, Esc fecha); U, S, E, W, V, Shift V; R senta e levanta, Control R deita, Shift R agacha; Control Q e Shift Q segurando para cocô e xixi; Shift Enter portas e box; Control Espaço arrasta móvel; Alt Espaço chuveiro; Ç e Shift Ç categorias, K e L itens, O rastreia, Alt O vai sozinho; Tab menu. Escolhas de Claude: Shift B olha em volta, Control seta para cima corre, Q hora, H saúde, F2 repete, F1 ajuda, Esc duas vezes sai.
+A lista completa (a mesma do F1) fica em `ferramentas/ajuda.py`, que reescreve `Jogo::ajuda()` e o LEIA-ME. Mexeu em tecla, atualize lá e rode. Pedidos dela que definem teclas: 1 esquerda, 2 direita, 3 as duas; Espaço usa a mão selecionada (de mão vazia, mexe no que está na frente, inclusive o chuveiro); Shift Espaço larga no chão; T combina; I mochila (letra pula, Esc fecha); U, S, E, H, W, V, Shift V; R senta e levanta, Control R deita, Shift R agacha; Control Q e Shift Q segurando para cocô e xixi; Shift Enter portas e box; Control Espaço arrasta móvel; Z segurado pula (seta com Z: direção, um passo por toque); Ç e Shift Ç categorias, K e L itens, O rastreia, Alt O vai sozinho (ou mira a fruta, no radar); Alt K e Alt L radar de árvore; Alt S, Control S e Shift S navegam o tutorial; Tab menu. Escolhas de Claude: Shift B olha em volta, Control seta para cima corre, Q hora, H saúde, F2 repete, F1 ajuda, Esc duas vezes sai.
 
 ## História, gente e roça (versão de novembro)
 - Pai se chama Alceu; manda ir à casa do Tião. Seu Tião (caseiro) e dona Nezinha moram na casinha (x 355 a 385, y 190 a 210, porta em (370, 190)). Tião fica em (370, 187); Nezinha começa dentro, em (372, 200), e vem até (372, 187) na cena. Os dois são entradas em `moveis` com tipo "tiao" e "nezinha" (categoria Pessoas do Ç, não arrastáveis).
 - A cena (`cenaChegada`, em `roca.cpp`) dispara a 3 metros do Tião, uma vez (`cenaTiao`, salvo em "historia"). As falas são as que ela escreveu, com o sotaque dela ("Aôôôba!", "tu tá um homem", "se aprochegue"). Ela escreveu o personagem como homem ("menino do Alceu"); mantive o texto dela nas falas dos dois. Fora dessas falas, o jogo segue sem gênero.
-- Roça: x 510 a 570, y 590 até 3 quadrados antes do córrego; chão `Mato` vira `TerraArada` com o machado (lista `limpos`). Plantas em `plantas` (chave y*LADO+x) e em `Celula::planta`; crescem só com a terra molhada (rega vale 24 horas do jogo); prontas com 72 horas. Colheita: milho 3 espigas, feijão 4 punhados, arroz 3 feixes (com machado), e 2 sementes de volta. O prefeito compra pela caixa de remessa.
+- Roça: x 510 a 570, y 590 até 3 quadrados antes do córrego; chão `Mato` vira `TerraArada` com o machado (lista `limpos`). Plantas em `plantas` (chave y*LADO+x) e em `Celula::planta`; crescem só com a terra molhada (rega vale 24 horas do jogo); o tempo de cada espécie está na tabela `ESPECIES` (atualizado nas seções novas, junto com pedras, picareta e horta). Colheita: milho 3 espigas, feijão 4 punhados, arroz 3 feixes (com machado), e 2 sementes de volta. O prefeito compra pela caixa de remessa.
 - Lugares grandes (casa da sede, casinha, roça) viram alvo com retângulo: chegar é entrar.
 - Roteiros de teste aceitam `ir x y rumo` (teleporte só de teste), `salvar arquivo` e `carregar arquivo`.
 
@@ -38,15 +48,16 @@ A lista completa (a mesma do F1) fica em `ferramentas/ajuda.py`, que reescreve `
 - Cama: dorme até as 6 da manhã seguinte (`acordarEm`), com energia cheia; só acorda antes por bexiga ou intestino no limite.
 
 ## Organização do código
-- `jogo.cpp`: corpo, mochila, mãos, teclas, andar, salvar. `moveis.cpp`: móveis (tabela TIPOS), arrastar, sentar e deitar, chuveiro, geladeira e guarda-roupa (menus de recipiente). `menu.cpp`: sistema de menus (pilha de `Menu` com opções geradas na hora), menu do Tab e configurações. `guia.cpp`: categorias, K e L, rastreio com bip 3D, caminho por busca em largura (sem cortar quina). `roca.cpp`: Tião e Nezinha, cena, roça. `correio.cpp`: gênero, cartas, remessa, coleta do prefeito. `tutorial.cpp`: lista de passos com texto e condição; eventos vêm de `evento("nome")`.
-- Volume por categoria em `audio.cpp` (`categoriaDe` decide pelo nome do som); salvo em `config.txt`, ao lado do `salvo.txt`.
+- `jogo.cpp`: corpo, mochila, mãos, teclas, andar, salvar. `moveis.cpp`: móveis (tabela TIPOS), arrastar, sentar e deitar, chuveiro, geladeira e guarda-roupa (menus de recipiente). `menu.cpp`: sistema de menus (pilha de `Menu` com opções geradas na hora), menu do Tab e configurações. `guia.cpp`: categorias, K e L, rastreio com bip 3D, caminho por busca em largura (sem cortar quina). `roca.cpp`: Tião e Nezinha, cena, roça. `correio.cpp`: gênero, cartas, remessa, coleta do prefeito. `tutorial.cpp`: lista de passos com texto e condição; eventos vêm de `evento("nome")`. Depois vieram: `mundo.cpp` (cidade, trator, bar), `casamento.cpp`, `rede.cpp`, `texto.cpp` (chat), `voz.cpp`, `vacas.cpp`, `pulo.cpp`, `arvores.cpp` (pomar, radar, corte, picareta), `chao.cpp` (itens no chão), `maquinas.cpp` (cozinha e paiol).
+- Volume por categoria em `audio.cpp` (`categoriaDe` decide pelo nome do som) e por som (`volumeSom`); salvos em `config.txt`, ao lado do `salvo.txt`.
 - Móveis ocupam um quadrado e ficam em `Celula::movel`. Salvo versão 2 guarda posição dos móveis e o que tem dentro.
 
 ## Mapa (versão 2 do salvo)
 1000 por 1000. Início em (500, 9), no gramado da porteira, virado para o norte. Porta da frente da casa em (500, 109), no meio da parede da varanda, a 100 quadrados; começa fechada. Casa de 200 por 200 (x 400 a 599, y 109 a 308): sala na frente, corredor no meio, cozinha e quarto a oeste, banheiro e segundo quarto a leste, porta dos fundos em (500, 308). Ela pediu "100 por 100" para o mapa com uma casa de 200 por 200; entendi 1000 por 1000 e avisei.
 
 ## Ainda não feito (próximos passos)
-Pegar coisas do chão; plantar na horta; animais; ferramentas no paiol; ir à cidade comprar; ossos quebrados (o gesso já combina com água, mas não há fratura ainda); infecção (antibiótico); água do córrego sem ferver dando dor de barriga; reverberação dentro de casa; mobília.
+Já feito desde a lista antiga: pegar do chão, horta, animais (vacas), máquinas no paiol, cidade e bar.
+Falta: receitas (farinha, açúcar, queijo, verduras: ela vai dizer quais e como); mercado na cidade (para vender couro e o resto); galinhas no galinheiro; ossos quebrados (o gesso já combina com água, mas não há fratura); infecção (antibiótico); água do córrego sem ferver dando dor de barriga; reverberação dentro de casa; itens do chão para quem visita no online.
 
 ## Download para ela
 Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `downloads/simulador-de-vida-windows.zip` (baixar o item do Actions com `gh run download`, compactar a pasta "Simulador de Vida" e substituir). Link direto, sem login: https://github.com/bibifofinhabb2012-a11y/jogos/raw/main/downloads/simulador-de-vida-windows.zip

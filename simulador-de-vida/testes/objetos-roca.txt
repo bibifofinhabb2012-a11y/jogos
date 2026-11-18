@@ -1,0 +1,4 @@
+carregar testes/salvos/roca-limpa.txt
+ir 540 600 0
+tecla shift ç
+tecla l

@@ -1,0 +1,13 @@
+carregar testes/salvos/roca-limpa.txt
+tecla ç
+tecla ç
+tecla ç
+ir 470 140 0
+tecla l
+tecla l
+ir 540 597 0
+tecla cima
+esperar 5
+tecla cima
+esperar 5
+tecla cima

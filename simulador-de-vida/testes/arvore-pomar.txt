@@ -1,0 +1,17 @@
+carregar testes/salvos/base.txt
+tecla shift ç
+tecla alt o
+esperar 300
+tecla 2
+tecla espaco
+tecla l
+tecla alt o
+esperar 200
+tecla alt l
+tecla espaco
+tecla espaco
+tecla espaco
+tecla espaco
+tecla espaco
+tecla ç
+tecla shift ç

@@ -1,0 +1,19 @@
+carregar testes/salvos/presa-no-milho.txt
+ir 540 600 0
+segurar cima 1
+apertar z
+esperar 3
+apertar cima
+largar cima
+largar z
+esperar 30
+apertar z
+esperar 3
+apertar cima
+largar cima
+apertar cima
+largar cima
+largar z
+esperar 30
+tecla b
+segurar cima 1

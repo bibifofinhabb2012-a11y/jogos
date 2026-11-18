@@ -1,0 +1,6 @@
+tecla enter
+esperar 10
+ir 678 185 0
+segurar direita 2
+ir 678 185 4
+segurar esquerda 2

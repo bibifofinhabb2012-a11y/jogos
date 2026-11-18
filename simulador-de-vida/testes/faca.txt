@@ -1,0 +1,28 @@
+carregar testes/salvos/vacas-perto.txt
+ir 700 190 2
+tecla 2
+tecla 2
+tecla i
+tecla f
+tecla direita
+tecla esc
+tecla 2
+tecla espaco
+esperar 25
+tecla espaco
+esperar 25
+tecla espaco
+esperar 25
+tecla espaco
+esperar 25
+tecla espaco
+esperar 25
+tecla espaco
+esperar 25
+tecla espaco
+esperar 25
+tecla espaco
+esperar 25
+tecla h
+ir 755 225 0
+tecla espaco

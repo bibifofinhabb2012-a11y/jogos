@@ -1,0 +1,53 @@
+carregar testes/salvos/maquina-1.txt
+esperar 10
+ir 430 160 0
+tecla 1
+tecla espaco
+esperar 5
+tecla 2
+tecla espaco
+carregar testes/salvos/maquina-2.txt
+esperar 10
+ir 450 160 0
+tecla 2
+tecla espaco
+carregar testes/salvos/maquina-3.txt
+esperar 10
+ir 455 160 0
+tecla 2
+tecla espaco
+tecla 1
+tecla espaco
+tecla enter
+tecla baixo
+tecla enter
+tecla esc
+tecla i
+tecla x
+carregar testes/salvos/maquina-4.txt
+esperar 10
+ir 462 160 0
+tecla 2
+tecla espaco
+horas 13
+tecla 2
+tecla 2
+tecla espaco
+carregar testes/salvos/maquina-5.txt
+esperar 10
+ir 334 344 0
+tecla 2
+tecla espaco
+carregar testes/salvos/maquina-6.txt
+esperar 10
+ir 346 344 0
+tecla 2
+tecla espaco
+carregar testes/salvos/maquina-7.txt
+esperar 10
+ir 430 160 0
+tecla 1
+tecla espaco
+esperar 5
+tecla 2
+tecla espaco

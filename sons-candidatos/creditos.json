@@ -17512,5 +17512,223 @@
    "Snarl"
   ],
   "descricao": "This is the sound made from a pig and a dog of a some sort of creature sniffing and howling. Enjoy!"
+ },
+ {
+  "grupo": "sv-ronco",
+  "busca": "stomach growl",
+  "arquivo": "sons-candidatos/sv-ronco/808308.mp3",
+  "id": 808308,
+  "titulo": "HMNMisc-Samsung Galaxy Smartphone, CU_Stomach Growling 01_Nicholas Judy_TDC",
+  "autor": "designerschoice",
+  "licenca": "https://creativecommons.org/licenses/by/4.0/",
+  "link": "https://freesound.org/people/designerschoice/sounds/808308/",
+  "duracao": 2.74,
+  "downloads": 12,
+  "nota": 0.0,
+  "tags": [
+   "Phone-recording",
+   "growl",
+   "hungry",
+   "stomach",
+   "upset"
+  ],
+  "descricao": "A stomach growling."
+ },
+ {
+  "grupo": "sv-ronco",
+  "busca": "stomach growl",
+  "arquivo": "sons-candidatos/sv-ronco/808309.mp3",
+  "id": 808309,
+  "titulo": "HMNMisc-Samsung Galaxy Smartphone, CU_Stomach Growling 02_Nicholas Judy_TDC",
+  "autor": "designerschoice",
+  "licenca": "https://creativecommons.org/licenses/by/4.0/",
+  "link": "https://freesound.org/people/designerschoice/sounds/808309/",
+  "duracao": 2.15,
+  "downloads": 15,
+  "nota": 0.0,
+  "tags": [
+   "Phone-recording",
+   "growl",
+   "hungry",
+   "stomach",
+   "upset"
+  ],
+  "descricao": "A stomach growling."
+ },
+ {
+  "grupo": "sv-ronco",
+  "busca": "stomach growl",
+  "arquivo": "sons-candidatos/sv-ronco/447911.mp3",
+  "id": 447911,
+  "titulo": "Growling stomach / Stomach rumbles",
+  "autor": "Breviceps",
+  "licenca": "http://creativecommons.org/publicdomain/zero/1.0/",
+  "link": "https://freesound.org/people/Breviceps/sounds/447911/",
+  "duracao": 2.04,
+  "downloads": 6358,
+  "nota": 4.435483870967742,
+  "tags": [
+   "Rumbletums",
+   "borborygmi",
+   "borborygmus",
+   "collywobbles",
+   "growl",
+   "hunger",
+   "pangs",
+   "rumble",
+   "rumbling",
+   "stomach",
+   "tummy"
+  ],
+  "descricao": "A growling stomach! Time to eat something..."
+ },
+ {
+  "grupo": "sv-ronco",
+  "busca": "stomach growl",
+  "arquivo": "sons-candidatos/sv-ronco/52293.mp3",
+  "id": 52293,
+  "titulo": "stomach growl-PiSh_01.wav",
+  "autor": "XxBirdoxX",
+  "licenca": "http://creativecommons.org/publicdomain/zero/1.0/",
+  "link": "https://freesound.org/people/XxBirdoxX/sounds/52293/",
+  "duracao": 3.58,
+  "downloads": 18797,
+  "nota": 4.013888888888889,
+  "tags": [
+   "growl",
+   "stomach"
+  ],
+  "descricao": "Stomach growl"
+ },
+ {
+  "grupo": "sv-ronco",
+  "busca": "stomach growl",
+  "arquivo": "sons-candidatos/sv-ronco/808310.mp3",
+  "id": 808310,
+  "titulo": "HMNMisc-Samsung Galaxy Smartphone, CU_Stomach Growling 03_Nicholas Judy_TDC",
+  "autor": "designerschoice",
+  "licenca": "https://creativecommons.org/licenses/by/4.0/",
+  "link": "https://freesound.org/people/designerschoice/sounds/808310/",
+  "duracao": 1.09,
+  "downloads": 20,
+  "nota": 0.0,
+  "tags": [
+   "Phone-recording",
+   "growl",
+   "hungry",
+   "stomach",
+   "upset"
+  ],
+  "descricao": "A stomach growling."
+ },
+ {
+  "grupo": "sv-ofegar",
+  "busca": "panting breathing tired",
+  "arquivo": "sons-candidatos/sv-ofegar/682882.mp3",
+  "id": 682882,
+  "titulo": "Panting.wav",
+  "autor": "drewsimko",
+  "licenca": "http://creativecommons.org/publicdomain/zero/1.0/",
+  "link": "https://freesound.org/people/drewsimko/sounds/682882/",
+  "duracao": 4.83,
+  "downloads": 1113,
+  "nota": 4.238095238095238,
+  "tags": [
+   "breathing",
+   "heavy",
+   "panting",
+   "tired"
+  ],
+  "descricao": "Person out of breath / panting (2)"
+ },
+ {
+  "grupo": "sv-ofegar",
+  "busca": "panting breathing tired",
+  "arquivo": "sons-candidatos/sv-ofegar/682884.mp3",
+  "id": 682884,
+  "titulo": "Shaky_Breaths.wav",
+  "autor": "drewsimko",
+  "licenca": "http://creativecommons.org/publicdomain/zero/1.0/",
+  "link": "https://freesound.org/people/drewsimko/sounds/682884/",
+  "duracao": 6.54,
+  "downloads": 1798,
+  "nota": 4.333333333333333,
+  "tags": [
+   "breathing",
+   "heavy",
+   "panting",
+   "tired"
+  ],
+  "descricao": "Person breathing shakily / out of breath"
+ },
+ {
+  "grupo": "sv-ofegar",
+  "busca": "panting breathing tired",
+  "arquivo": "sons-candidatos/sv-ofegar/95567.mp3",
+  "id": 95567,
+  "titulo": "breathing_female.wav",
+  "autor": "Kuroseishin",
+  "licenca": "http://creativecommons.org/publicdomain/zero/1.0/",
+  "link": "https://freesound.org/people/Kuroseishin/sounds/95567/",
+  "duracao": 5.13,
+  "downloads": 23445,
+  "nota": 4.453125,
+  "tags": [
+   "breath",
+   "breathing",
+   "female",
+   "outofbreath",
+   "panting",
+   "running",
+   "tired"
+  ],
+  "descricao": "Basic female out of breath. (:"
+ },
+ {
+  "grupo": "sv-ofegar",
+  "busca": "panting breathing tired",
+  "arquivo": "sons-candidatos/sv-ofegar/638887.mp3",
+  "id": 638887,
+  "titulo": "Proccessed version of \"Pant1.wav\" by user GB01",
+  "autor": "adh.dreaming",
+  "licenca": "https://creativecommons.org/licenses/by/4.0/",
+  "link": "https://freesound.org/people/adh.dreaming/sounds/638887/",
+  "duracao": 3.7,
+  "downloads": 288,
+  "nota": 3.2,
+  "tags": [
+   "breath",
+   "breathe",
+   "breathing",
+   "dog",
+   "dogs",
+   "exercise",
+   "pant",
+   "panting",
+   "puppy",
+   "run",
+   "tired"
+  ],
+  "descricao": "An edit of \"Pant1.wav\" by user GB01. Removed mic pop. Reduced noise. Faded ends. \n\nThe original sound may be found here: <a href=\"https://freesound.org/people/GB01/sounds/152815/\" rel=\"nofollow\">https://freesound.org/people/GB01/sounds/152815/</a>\n\nIt was released under CC Attribution 4.0: <a href=\""
+ },
+ {
+  "grupo": "sv-ofegar",
+  "busca": "panting breathing tired",
+  "arquivo": "sons-candidatos/sv-ofegar/443680.mp3",
+  "id": 443680,
+  "titulo": "hadeo.wav",
+  "autor": "juliandmc4",
+  "licenca": "http://creativecommons.org/publicdomain/zero/1.0/",
+  "link": "https://freesound.org/people/juliandmc4/sounds/443680/",
+  "duracao": 1.89,
+  "downloads": 152,
+  "nota": 4.0,
+  "tags": [
+   "breathing",
+   "pant",
+   "panting",
+   "tired"
+  ],
+  "descricao": "tired of something"
  }
 ]

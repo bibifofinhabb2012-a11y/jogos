@@ -33,7 +33,10 @@ struct Movel {
     int ordenha = -1;                        // vaca de leite: dia do jogo da última ordenha
     double gas = 600;
     int carga = 0;                           // cafeteira: doses de pó no compartimento
-    double pronto = 0;                       // prensa: minuto do jogo em que o queijo fica pronto (0: vazia)                        // fogão: segundos de verdade de chama que o botijão ainda tem
+    double pronto = 0;                       // prensa: minuto do jogo em que o queijo fica pronto (0: vazia)
+    std::string cozinhando;                  // fogão: o que está no fogo (frigideira ou panela com comida)
+    double cozinhaFalta = 0;                 // segundos de fogo que faltam (negativo: passando do ponto)
+    int avisouCozinha = 0, somFrito = 0;                        // fogão: segundos de verdade de chama que o botijão ainda tem
 };
 
 // Opção de menu. ativar: Enter. tudo: Shift Enter. ajustar: setas para os lados.
@@ -295,6 +298,12 @@ private:
     bool usarMaquina(Coisa& c);
     void prensaPronta(int i);
     void menuCafeteira(int i);
+    // cozinha.cpp
+    bool combinarCozinha(Coisa& d, Coisa& e);
+    bool separarCozinha(Coisa& c, Coisa& vazia);
+    bool levarAoFogo(Coisa& c, int f);
+    void tirarDoFogo(int f);
+    void atualizarFogo(Movel& m, double dt);
     std::string predioDe(int px, int py) const;
     std::string predioAlvos;  // onde a pessoa estava quando a lista de portas foi feita
     // pulo.cpp

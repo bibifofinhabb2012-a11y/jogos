@@ -10,7 +10,7 @@ Audiogame de sobrevivência em 3D para computador (Windows), em C++. Quem pede e
 
 ## Testes guardados
 `testes/*.txt` são roteiros; `testes/salvos/` tem jogos salvos prontos para eles (caminhos relativos a `simulador-de-vida/`). `testes/rodar.sh` roda todos e confere frases: tutorial inteiro, máquinas da cozinha e do paiol, pulo por cima das plantas, faca, portas dentro e fora, terra pronta, lado da porteira, derrubar árvore do pomar. O tutorial e a faca têm sorte no meio (cigarro, coice): se falhar uma vez, rode de novo. Mudou a ordem das categorias do Ç, dos menus ou das posições? Ajuste os roteiros.
-Comandos de roteiro: `tecla [shift|ctrl|alt] nome`, `segurar nome segundos`, `apertar nome` e `largar nome` (Z com seta), `esperar n` (n vezes 0,1 s), `horas n`, `ir x y rumo` (teleporte; rumo 0 norte = y maior, 2 leste, 4 sul), `salvar arq`, `carregar arq`, `inicio` (menu de jogo salvo), `digitar texto`, `real n`. Cuidado: apertar 1 ou 2 duas vezes em menos de 0,6 s esvazia a mão.
+Comandos de roteiro: `tecla [shift|ctrl|alt] nome`, `segurar nome segundos`, `apertar nome` e `largar nome` (Z com seta), `esperar n` (n segundos), `horas n`, `ir x y rumo` (teleporte; rumo 0 norte = y maior, 2 leste, 4 sul), `salvar arq`, `carregar arq`, `inicio` (menu de jogo salvo), `digitar texto`, `real n`. Cuidado: apertar 1 ou 2 duas vezes em menos de 0,6 s esvazia a mão.
 
 ## A história
 Aos 18 anos, o pai larga a pessoa na porteira da fazenda dele, parada há anos, numa cidadezinha do interior de Minas: "acabou a mamata". Sem aprender a coletar, plantar e cuidar de bicho, não sobrevive. Não suponha o gênero de quem joga nos textos.
@@ -154,3 +154,9 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Cidade: casa do pecuarista (520..580 × 175..210, porta 550,175), seu Juca (`menuPecuarista`, obras.cpp). Compras vão para `entregas` (salvas), entregues por `receberEntregas` quando a pessoa está na própria fazenda e o cercado existe.
 - Obras (`obras`, salvas como `obra nome`, também no estado online): `Mapa::construir` desenha o chiqueiro (615..645 × 230..260, porteira 615,245) e o galinheiro de luxo (`coelheira`, 640..656 × 340..352, porta 648,340). Pedidas no menu do seu Tião, gastam lenha (20 e 15).
 - Sons: galinha, porco, martelo, serra; coelho é apelido de passos nas folhas.
+
+## Cozinha com as mãos: frigideira e omelete (novembro)
+- `cozinha.cpp`: o recipiente leva o estado no próprio tipo da coisa ("frigideira-ovo", "panela-ovos", "panela-omelete-crua", "panela-omelete", "...-queimada"). `combinarCozinha` (T com as duas mãos), `separarCozinha` (T com uma mão vazia: quebrar ovo, tirar comida, jogar queimado fora).
+- Fogo: `levarAoFogo` põe no fogão (`Movel::cozinhando`, `cozinhaFalta` em segundos de verdade, só conta com a chama acesa); aviso de pronto, aviso de queimando na metade de 40 s, queimado em 40 s. Espaço de mão vazia no fogão com coisa no fogo tira (antes de apagar a chama). Salvo: `fogo i tipo falta aviso`. Tabela `NO_FOGO` para receitas novas.
+- Receita 1: omelete = 3 ovos quebrados + meio queijo (queijo + faca de cozinha) na panela, 20 s de fogo. Ovo frito: 8 s. O ovo direto no fogão não vale mais: precisa da frigideira.
+- Ela citou o próximo: bolo (ovos quebrados numa tigela, com açúcar). Falta a tigela e o forno.

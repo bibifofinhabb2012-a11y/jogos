@@ -121,6 +121,7 @@ void Jogo::interagir(int i) {
     if (t == "correio") { abrirCorreio(); return; }
     if (t == "remessa") { abrirRemessa(i); return; }
     if (t == "fogao") {
+        if (!m.cozinhando.empty()) { tirarDoFogo(i); return; }
         if (!m.ligado && m.gas <= 0) { fala::dizer("Você gira o botão, mas não sai gás: o botijão acabou. Compre outro no bar do seu Zé, segure e aperte Espaço de frente para o fogão."); return; }
         m.ligado = !m.ligado;
         audio::tocar3D(m.ligado ? "fogao" : "fogao-desligar", mx, my, 0.9f, 0.9f, 2);
@@ -208,7 +209,7 @@ void Jogo::chuveiro() {
 // Geladeira e guarda-roupa abrem um menu com o que tem dentro.
 static bool vaiNaGeladeira(const std::string& t) {
     static const char* OK[] = {"barra", "barra-aberta", "garrafa", "garrafa-aberta", "leite", "comida", "cerveja", "bolo", "brigadeiro", "beijinho", "camafeu",
-                               "empada", "torta", "risole", "coxinha", "refrigerante", "vinho", "uisque", "salada", "maionese", "laranja", "banana", "cenoura", "abobora", "maca", "cereja", "manga", "carne", "carne-assada", "queijo", "garapa", "expresso", "cappuccino", "ovo", "ovo-frito",
+                               "empada", "torta", "risole", "coxinha", "refrigerante", "vinho", "uisque", "salada", "maionese", "laranja", "banana", "cenoura", "abobora", "maca", "cereja", "manga", "carne", "carne-assada", "queijo", "garapa", "expresso", "cappuccino", "ovo", "ovo-frito", "ovo-quebrado", "meio-queijo", "omelete",
                                "cebola", "alho", "cebolinha", "salsinha", "coentro", "alface", "couve", "tomate", "pimentao", "pimenta", "batata",
                                "beterraba", "mandioca", "quiabo", "morango", "trigo", "cana", "cafe", "leite"};
     for (const char* o : OK) if (t == o) return true;
@@ -306,6 +307,7 @@ void Jogo::atualizarMoveis(double dt) {
             if (m.ciclo > 110) m.ciclo = 0;
             audio::lacoVolume(m.som, m.ciclo < 40 ? 0.45f : 0.0f);  // 40 segundos ligado, 70 desligado
         }
+        if (m.tipo == "fogao") atualizarFogo(m, dt);
         if (m.tipo == "fogao" && m.ligado) {  // a chama gasta o botijão
             m.gas -= dt;
             if (m.gas <= 0) {

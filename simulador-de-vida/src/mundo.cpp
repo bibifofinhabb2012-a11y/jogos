@@ -138,6 +138,8 @@ static const Produto PRODUTOS[] = {
     {"Faca de abate, para as vacas do curral de corte e para trabalhar o couro", {"faca", 0}, 15, 1},
     {"Panela de alumínio, para cozinhar", {"panela", 0}, 25, 1},
     {"Comprimido para dor, para quando se machuca feio", {"remedio", 0}, 8, 1},
+    {"Frigideira, para fritar", {"frigideira", 0}, 20, 1},
+    {"Faca de cozinha", {"faca-cozinha", 0}, 8, 1},
 };
 static const Produto SEMENTES[] = {
     {"Sementes de milho, pacote com 10", {"semente-milho", 0}, 4, 10},

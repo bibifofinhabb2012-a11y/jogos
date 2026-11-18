@@ -26,5 +26,7 @@ confere obras.txt "está pronto: chiqueiro" "está pronto: galinheiro de luxo"
 confere pecuarista.txt "3 bichos novos no lugar deles"
 confere galinha.txt "Você segura a galinha velha pelas asas"
 confere remedio.txt "Abaixo de 500: precisa de remédio ou atadura" "mais 250 pontos de saúde"
+confere cozinha.txt "Frigideira com ovo cru" "O ovo fritou" "Você solta o ovo frito" "3 ovos quebrados" "Agora acrescente meio queijo" \
+    "Duas metades de queijo" "Omelete pronta para fritar" "A omelete dourou" "Você vira a omelete de queijo no prato"
 echo; [ $falhas -eq 0 ] && echo "Tudo certo." || echo "$falhas falha(s)."
 exit $falhas

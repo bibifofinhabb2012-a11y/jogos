@@ -160,3 +160,9 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - Fogo: `levarAoFogo` põe no fogão (`Movel::cozinhando`, `cozinhaFalta` em segundos de verdade, só conta com a chama acesa); aviso de pronto, aviso de queimando na metade de 40 s, queimado em 40 s. Espaço de mão vazia no fogão com coisa no fogo tira (antes de apagar a chama). Salvo: `fogo i tipo falta aviso`. Tabela `NO_FOGO` para receitas novas.
 - Receita 1: omelete = 3 ovos quebrados + meio queijo (queijo + faca de cozinha) na panela, 20 s de fogo. Ovo frito: 8 s. O ovo direto no fogão não vale mais: precisa da frigideira.
 - Ela citou o próximo: bolo (ovos quebrados numa tigela, com açúcar). Falta a tigela e o forno.
+
+## Chiqueiro de luxo, trufeiros, forno a lenha e bolo (novembro)
+- Obra "chiqueiro-luxo" (25 toras): 645..672 × 230..250, parede (a de x 645 divide do chiqueiro comum), porta (672, 240). Encurtado em y porque há um eucalipto (objeto com nome) em torno de (661, 255).
+- "porco-trufa" (seu Juca, 80, até 6): `trufeiro()` em vacas.cpp. Das 6 às 19 sai (teleporta para o pasto a leste, `pronto` = 1) e anda solto fora de construções, currais e roça; à noite volta para o cercado (`pronto` = 0) e deixa 1 ou 2 trufas no chão uma vez por dia (`ordenha` = dia). Não se abate. A linha `bicho` agora tem um 6º campo (`pronto`).
+- Forno a lenha: móvel "forno" em (504, 311), à direita de quem sai pela porta dos fundos. `gas` = segundos de fogo (lenha: +180, até 900; ao acender começa do zero). Receitas com `onde` ("fogao" ou "forno") na tabela `NO_FOGO`. Bolo: tigela + 3 ovos quebrados + açúcar + farinha, 60 s, dá 8 "bolo" (fatias). O fogo do forno não vai no salvo (apaga ao carregar).
+- Sons: fogueira (laço do forno), fungar (trufeiro).

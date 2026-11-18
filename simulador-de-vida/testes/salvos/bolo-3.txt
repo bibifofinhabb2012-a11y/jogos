@@ -75,4 +75,4 @@ item carteira 100 1
 item bussola 0 1
 maoD tigela-ovos-acucar 0
 item picareta 0 1
-maoE farinha 0
+maoE leite 4

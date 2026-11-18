@@ -213,6 +213,17 @@ trecho("sv-martelo", 707525, "martelo"); u(707525)
 trecho("sv-serra", 258055, "serra", 0, 4.0); u(258055)
 laco("sv-fogueira", 869081, "fogueira"); u(869081)
 trecho("sv-fungar", 618486, "fungar"); u(618486)
+trecho("sv-ronco", 447911, "ronco-1"); u(447911)
+trecho("sv-ronco", 52293, "ronco-2", 0, 3.0); u(52293)
+trecho("sv-ofegar", 682882, "ofegar", 0, 3.5); u(682882)
+# bip descendente da energia baixa: feito aqui, sem gravação (um "piu" de 1000 para 500 Hz em 0,3 s)
+def bip_descendo(nome):
+    n = int(0.3 * TAXA); t = np.arange(n) / TAXA
+    f = 1000 * (0.5 ** (t / 0.3))
+    fase = 2 * np.pi * np.cumsum(f) / TAXA
+    env = np.minimum(1, t / 0.006) * np.exp(-t * 6)
+    gravar((np.sin(fase) * env).astype(np.float32), nome)
+bip_descendo("energia")
 trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
 
 # sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial

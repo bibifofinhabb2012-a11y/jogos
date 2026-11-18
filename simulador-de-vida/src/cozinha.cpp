@@ -13,6 +13,7 @@ static const Receita NO_FOGO[] = {
     {"frigideira-ovo", "frigideira-ovo-frito", "frigideira-queimada", 8, "O ovo fritou: a clara está branquinha e a gema ainda mole.", "fogao"},
     {"panela-omelete-crua", "panela-omelete", "panela-queimada", 20, "A omelete dourou por baixo e firmou por cima, com o queijo derretendo.", "fogao"},
     {"tigela-massa", "tigela-bolo", "tigela-queimada", 60, "O bolo cresceu e dourou: espetando, o palito sai limpo. Cheiro de bolo pela fazenda inteira.", "forno"},
+    {"tigela-massa-chocolate", "tigela-bolo-chocolate", "tigela-queimada", 60, "O bolo de chocolate cresceu, escuro e fofinho: espetando, o palito sai limpo.", "forno"},
 };
 static const Receita* receitaDe(const std::string& t) { for (const Receita& r : NO_FOGO) if (t == r.crua) return &r; return nullptr; }
 static const double QUEIMA = 40;  // segundos depois de pronto, queima
@@ -52,17 +53,38 @@ bool Jogo::combinarCozinha(Coisa& d, Coisa& e) {
         Coisa& a = qual("acucar"); a = {};
         qual("tigela-ovos").tipo = "tigela-ovos-acucar";
         audio::tocar("cavar", 0.4f, 1.5f);
-        fala::dizer("Você despeja o açúcar e mistura com os ovos até ficar clarinho e fofo. Agora a farinha: saco de farinha e a tigela, T.");
+        fala::dizer("Você despeja o açúcar e mistura com os ovos até ficar clarinho e fofo. Agora o leite: garrafa de leite e a tigela, T.");
         return true;
     }
-    if (par("tigela-ovos-acucar", "farinha")) {
+    if (par("tigela-ovos-acucar", "leite")) {
+        Coisa& g = qual("leite");
+        g.carga--;
+        if (g.carga <= 0) g = {"garrafa", 0};
+        qual("tigela-ovos-acucar").tipo = "tigela-leite";
+        audio::tocar("gole", 0.5f, 1.2f);
+        fala::dizer("Você despeja uma xícara de leite e mistura: a massa fica mais solta, sem empelotar. Agora a farinha, para o bolo simples; "
+                    "ou, antes dela, o cacau em pó, para o bolo de chocolate. Cada um com a tigela, T.");
+        return true;
+    }
+    if (par("tigela-leite", "cacau-po")) {
+        Coisa& a = qual("cacau-po"); a = {};
+        qual("tigela-leite").tipo = "tigela-chocolate";
+        audio::tocar("cavar", 0.4f, 1.4f);
+        fala::dizer("Você peneira o cacau em pó e mistura: a massa fica marrom escura, cheirando a chocolate. Agora a farinha: saco de farinha e a tigela, T.");
+        return true;
+    }
+    if (par("tigela-leite", "farinha") || par("tigela-chocolate", "farinha")) {
+        bool choc = d.tipo == "tigela-chocolate" || e.tipo == "tigela-chocolate";
         Coisa& a = qual("farinha"); a = {};
-        qual("tigela-ovos-acucar").tipo = "tigela-massa";
+        qual(choc ? "tigela-chocolate" : "tigela-leite").tipo = choc ? "tigela-massa-chocolate" : "tigela-massa";
         audio::tocar("cavar", 0.4f, 1.3f);
-        fala::dizer("Você peneira a farinha por cima e mexe devagar, de baixo para cima: massa de bolo pronta, lisinha. Leve ao forno a lenha aceso, atrás da casa: Espaço de frente para ele.");
+        fala::dizer(std::string("Você peneira a farinha por cima e mexe devagar, de baixo para cima: massa ") + (choc ? "de bolo de chocolate" : "de bolo") +
+                    " pronta, lisinha. Leve ao forno a lenha aceso, atrás da casa: Espaço de frente para ele.");
         return true;
     }
-    if (par("tigela-ovos", "farinha")) { fala::dizer("Primeiro o açúcar, depois a farinha."); return true; }
+    if (par("tigela-ovos-acucar", "farinha")) { fala::dizer("Falta o leite, senão o bolo fica seco: garrafa de leite e a tigela, T. Depois a farinha."); return true; }
+    if (par("tigela-ovos-acucar", "cacau-po")) { fala::dizer("Primeiro o leite, depois o cacau em pó."); return true; }
+    if (par("tigela-ovos", "farinha") || par("tigela-ovos", "leite")) { fala::dizer("Primeiro o açúcar: saco de açúcar e a tigela, T."); return true; }
     if (par("panela", "meio-queijo")) { fala::dizer("Primeiro os ovos: 3 ovos quebrados na panela. O queijo vem depois."); return true; }
     if (par("queijo", "faca-cozinha")) {
         Coisa& q = qual("queijo");
@@ -96,11 +118,12 @@ bool Jogo::separarCozinha(Coisa& c, Coisa& vazia) {
                     " Para fazer omelete, precisa de 3: depois, ovo quebrado e panela, T. Para um bolo, quebre os ovos numa tigela e misture açúcar.");
         return true;
     }
-    if (c.tipo == "tigela-bolo") {
+    if (c.tipo == "tigela-bolo" || c.tipo == "tigela-bolo-chocolate") {
+        bool choc = c.tipo == "tigela-bolo-chocolate";
         c.tipo = "tigela";
-        guardar({"bolo", 0}, 8);
+        guardar({choc ? "bolo-chocolate" : "bolo", 0}, 8);
         audio::tocar("colher", 0.5f, 1.3f);
-        fala::dizer("Você desenforma o bolo, ainda morno, e corta em 8 fatias: na mochila. A tigela fica vazia.");
+        fala::dizer(std::string("Você desenforma o bolo") + (choc ? " de chocolate" : "") + ", ainda morno, e corta em 8 fatias: na mochila. A tigela fica vazia.");
         return true;
     }
     if (c.tipo == "tigela-queimada") { c.tipo = "tigela"; audio::tocar("cavar", 0.5f); fala::dizer("Você raspa o bolo queimado e joga fora."); return true; }

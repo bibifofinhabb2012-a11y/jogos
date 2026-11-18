@@ -166,3 +166,9 @@ Sessões do Claude não podem criar Releases no GitHub. O zip pronto fica em `do
 - "porco-trufa" (seu Juca, 80, até 6): `trufeiro()` em vacas.cpp. Das 6 às 19 sai (teleporta para o pasto a leste, `pronto` = 1) e anda solto fora de construções, currais e roça; à noite volta para o cercado (`pronto` = 0) e deixa 1 ou 2 trufas no chão uma vez por dia (`ordenha` = dia). Não se abate. A linha `bicho` agora tem um 6º campo (`pronto`).
 - Forno a lenha: móvel "forno" em (504, 311), à direita de quem sai pela porta dos fundos. `gas` = segundos de fogo (lenha: +180, até 900; ao acender começa do zero). Receitas com `onde` ("fogao" ou "forno") na tabela `NO_FOGO`. Bolo: tigela + 3 ovos quebrados + açúcar + farinha, 60 s, dá 8 "bolo" (fatias). O fogo do forno não vai no salvo (apaga ao carregar).
 - Sons: fogueira (laço do forno), fungar (trufeiro).
+
+## Leite no bolo, bolo de chocolate, avisos do corpo (novembro)
+- Bolo: tigela-ovos → (açúcar) tigela-ovos-acucar → (leite, 1 gole) tigela-leite → (farinha) tigela-massa; ou (cacau-po) tigela-chocolate → (farinha) tigela-massa-chocolate → forno → 8 "bolo-chocolate".
+- Cacau: fruto "cacau" torra no fogão com panela (cacau-torrado); 3 no moedor = "cacau-po".
+- Bip de energia: só abaixo de 30 (300 na fala), a cada 1 ponto (10 na fala) perdido; som "energia" é um piu descendente feito em `preparar_sons.py` (`bip_descendo`), não gravação. Abaixo de 30 de fome, "ronco" (barriga) a cada 18 a 60 s; abaixo de 30 de sede, "ofegar" a cada 14 a 50 s; não tocam dormindo.
+- O ofegar é uma gravação só (drewsimko, "Panting"), a mesma para homem e mulher.

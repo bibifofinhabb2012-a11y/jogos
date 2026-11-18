@@ -213,7 +213,7 @@ void Jogo::chuveiro() {
 // Geladeira e guarda-roupa abrem um menu com o que tem dentro.
 static bool vaiNaGeladeira(const std::string& t) {
     static const char* OK[] = {"barra", "barra-aberta", "garrafa", "garrafa-aberta", "leite", "comida", "cerveja", "bolo", "brigadeiro", "beijinho", "camafeu",
-                               "empada", "torta", "risole", "coxinha", "refrigerante", "vinho", "uisque", "salada", "maionese", "laranja", "banana", "cenoura", "abobora", "maca", "cereja", "manga", "carne", "carne-assada", "queijo", "garapa", "expresso", "cappuccino", "ovo", "ovo-frito", "ovo-quebrado", "meio-queijo", "omelete",
+                               "empada", "torta", "risole", "coxinha", "refrigerante", "vinho", "uisque", "salada", "maionese", "laranja", "banana", "cenoura", "abobora", "maca", "cereja", "manga", "carne", "carne-assada", "queijo", "garapa", "expresso", "cappuccino", "ovo", "ovo-frito", "ovo-quebrado", "meio-queijo", "omelete", "bolo-chocolate", "cacau-po", "trufa",
                                "cebola", "alho", "cebolinha", "salsinha", "coentro", "alface", "couve", "tomate", "pimentao", "pimenta", "batata",
                                "beterraba", "mandioca", "quiabo", "morango", "trigo", "cana", "cafe", "leite"};
     for (const char* o : OK) if (t == o) return true;

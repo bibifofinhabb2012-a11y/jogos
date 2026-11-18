@@ -49,9 +49,18 @@ bool Jogo::usarMaquina(Coisa& c) {
     }
     if (m.tipo == "fogao" && (t == "frigideira" || t == "panela")) { fala::dizer("Vazia? Ponha a comida antes, com T, e depois leve ao fogo."); return true; }
     if (m.tipo == "fogao" && (t == "panela-ovos")) { fala::dizer("Falta o queijo: meio queijo e a panela com os ovos, T."); return true; }
-    if (m.tipo == "fogao" && (t == "cafe" || t == "garapa")) {
+    if (m.tipo == "fogao" && (t == "cafe" || t == "garapa" || t == "cacau")) {
         if (!m.ligado) { fala::dizer("O fogão está apagado. Acenda com Espaço, de mão vazia, e tente de novo."); return true; }
         if (!temCoisa("panela")) { fala::dizer("Precisa de uma panela: seu Zé vende, por 25 moedas."); return true; }
+        if (t == "cacau") {
+            Coisa usado = c; c = {};
+            if (tirar(usado)) c = usado;
+            guardar({"cacau-torrado", 0});
+            audio::tocar("fritura", 0.6f, 0.75f);
+            fala::dizer("Você abre o fruto de cacau, tira as sementes e torra na panela seca, mexendo. Estalam, e sobe um cheiro de chocolate pela cozinha. "
+                        "Um punhado de cacau torrado, na mochila. Três punhados, no moedor, dão um pacote de cacau em pó.");
+            return true;
+        }
         if (t == "cafe") {
             Coisa usado = c; c = {};
             if (tirar(usado)) c = usado;
@@ -72,7 +81,17 @@ bool Jogo::usarMaquina(Coisa& c) {
     }
     if (m.tipo == "moedor") {
         if (t == "cafe") { fala::dizer("Café cru não se mói: torre antes, na panela, no fogo. Grão na mão, de frente para o fogão aceso, Espaço."); return true; }
-        if (t != "cafe-torrado") { fala::dizer("O moedor é para café torrado."); return true; }
+        if (t == "cacau") { fala::dizer("Cacau cru não se mói: torre antes, na panela, no fogo, igual ao café."); return true; }
+        if (t == "cacau-torrado") {
+            int n = contarTipo("cacau-torrado");
+            if (n < 3) { fala::dizer("Para um pacote de cacau em pó, precisa de 3 punhados de cacau torrado. Você tem " + std::to_string(n) + "."); return true; }
+            gastarTipo("cacau-torrado", 3);
+            guardar({"cacau-po", 0});
+            audio::tocar3D("moedor", m.x + 0.5f, m.y + 0.5f, 1.0f, 0.9f, 4, 0.9f);
+            fala::dizer("Você gira a manivela e o cacau torrado vira um pó escuro e cheiroso. Um pacote de cacau em pó, na mochila: vai no bolo de chocolate.");
+            return true;
+        }
+        if (t != "cafe-torrado") { fala::dizer("O moedor é para café e cacau torrados."); return true; }
         int n = contarTipo("cafe-torrado");
         if (n < 3) { fala::dizer("Para encher um pacote, precisa de 3 punhados de café torrado. Você tem " + std::to_string(n) + "."); return true; }
         gastarTipo("cafe-torrado", 3);

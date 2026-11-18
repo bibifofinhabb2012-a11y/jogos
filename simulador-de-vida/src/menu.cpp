@@ -193,7 +193,7 @@ static std::string nomeDoSom(const std::string& n) {
     static const std::map<std::string, std::string> N = {
         {"aplausos", "aplausos do casamento"}, {"arrastar", "arrastar móvel"}, {"arvore", "árvore caindo"}, {"aterrissar", "aterrissar do pulo"},
         {"baque", "baque da vaca caindo"}, {"bar", "movimento do bar"}, {"beber", "beber água"}, {"bip", "bip do rastreio e do radar"},
-        {"energia", "bip da energia caindo"}, {"box", "porta do box"}, {"bussola", "bússola"}, {"cafe", "café"}, {"cama", "cama"},
+        {"energia", "bip descendente da energia baixa"}, {"ronco", "barriga roncando de fome"}, {"ofegar", "ofegar de sede"}, {"box", "porta do box"}, {"bussola", "bússola"}, {"cafe", "café"}, {"cama", "cama"},
         {"carro", "caminhonete do pai"}, {"cavar", "cavar e plantar"}, {"cerca", "esbarrar na cerca"}, {"cerveja", "abrir cerveja"},
         {"chama", "chama do fogão"}, {"chat", "mensagem do chat"}, {"chegou", "chegou no lugar"}, {"chuveiro", "chuveiro"}, {"cigarra", "cigarras"},
         {"coco", "cocô"}, {"coice", "coice da vaca"}, {"colher", "colher"}, {"corrego", "córrego"}, {"descarga", "descarga"},

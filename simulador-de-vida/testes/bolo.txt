@@ -7,6 +7,9 @@ tecla t
 carregar testes/salvos/bolo-3.txt
 esperar 2
 tecla t
+carregar testes/salvos/bolo-5.txt
+esperar 2
+tecla t
 carregar testes/salvos/bolo-4.txt
 esperar 2
 ir 504 312 4

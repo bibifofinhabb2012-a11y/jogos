@@ -170,6 +170,7 @@ private:
     int totalTutorial = 0;
     double marcaEnergia = 100;
     bool avisouMachucado = false;
+    double esperaRonco = 3, esperaOfego = 5;  // segundos até a barriga roncar / o personagem ofegar de novo
     bool temGalinhas = false;  // o salvo já é da versão com galinhas (salvo antigo: elas chegam ao carregar)  // a cada 50 pontos de energia perdidos, um bip (mais grave quanto menos energia)
     void navegarTutorial(int acao);
     // roça

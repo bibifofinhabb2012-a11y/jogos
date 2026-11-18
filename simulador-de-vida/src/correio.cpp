@@ -32,6 +32,9 @@ static int preco(const std::string& t) {
     if (t == "ovo") return 1;
     if (t == "omelete") return 10;
     if (t == "trufa") return 40;
+    if (t == "cacau-po") return 30;
+    if (t == "bolo") return 4;
+    if (t == "bolo-chocolate") return 6;
     if (t == "pedra") return 1;
     if (t == "lenha") return 3;
     if (t == "maca") return 3;

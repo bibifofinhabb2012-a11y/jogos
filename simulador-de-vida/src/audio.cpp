@@ -94,7 +94,6 @@ bool iniciar(const std::string& pastaSons) {
         ALuint b = carregarMp3(e.path());
         if (b) banco[grupoDe(e.path().stem().string())].push_back(b);
     }
-    apelido("energia", "bip");
     apelido("coelho", "passos-folhas");  // coelho quase não faz som: o mexer no capim  // o bip da energia caindo tem volume próprio no menu
     fontes.resize(48);
     alGenSources((ALsizei)fontes.size(), fontes.data());

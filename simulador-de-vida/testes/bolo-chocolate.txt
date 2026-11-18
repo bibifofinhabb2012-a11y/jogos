@@ -1,0 +1,35 @@
+carregar testes/salvos/cacau-1.txt
+esperar 2
+ir 430 160 0
+tecla 1
+tecla espaco
+esperar 2
+tecla 2
+tecla espaco
+tecla espaco
+tecla espaco
+carregar testes/salvos/cacau-2.txt
+esperar 2
+ir 450 160 0
+tecla 2
+tecla espaco
+carregar testes/salvos/bolo-6.txt
+esperar 2
+tecla t
+carregar testes/salvos/bolo-7.txt
+esperar 2
+tecla t
+carregar testes/salvos/bolo-8.txt
+esperar 2
+ir 504 312 4
+tecla 2
+esperar 1
+tecla espaco
+tecla 1
+esperar 1
+tecla espaco
+esperar 62
+tecla 2
+esperar 1
+tecla espaco
+tecla t

@@ -76,6 +76,13 @@ std::string Jogo::nomeCoisa(const Coisa& c, bool comArtigo) const {
     else if (t == "meio-queijo") n = "meio queijo";
     else if (t == "omelete") n = "omelete de queijo";
     else if (t == "faca-cozinha") n = "faca de cozinha";
+    else if (t == "trufa") n = "trufa";
+    else if (t == "tigela") n = "tigela";
+    else if (t == "tigela-ovos") n = "tigela com 3 ovos batidos";
+    else if (t == "tigela-ovos-acucar") n = "tigela com ovos e açúcar";
+    else if (t == "tigela-massa") n = "tigela com massa de bolo";
+    else if (t == "tigela-bolo") n = "tigela com bolo assado";
+    else if (t == "tigela-queimada") n = "tigela com bolo queimado";
     else if (t == "frigideira") n = "frigideira";
     else if (t == "frigideira-ovo") n = "frigideira com ovo cru";
     else if (t == "frigideira-ovo-frito") n = "frigideira com ovo frito";
@@ -332,7 +339,8 @@ void Jogo::usar(bool direita) {
     if (t == "cafe-torrado") { fala::dizer("Café torrado. No moedor da cozinha, 3 punhados viram um pacote de pó."); return; }
     if (t == "ovo") { fala::dizer("Ovo cru, não. Frite: frigideira numa mão e ovo na outra, T, e leve ao fogão. Com a outra mão vazia, T quebra o ovo, para receitas."); return; }
     if (t == "ovo-quebrado") { fala::dizer("Ovo quebrado. 3 deles e a panela, T: começa a omelete."); return; }
-    if (t.rfind("frigideira", 0) == 0 || t.rfind("panela-", 0) == 0) { fala::dizer(maiuscula(nomeCoisa(c, true)) + ". Com comida crua, Espaço de frente para o fogão aceso põe no fogo; com comida pronta, T com a outra mão vazia tira."); return; }
+    if (t == "trufa") { fala::dizer("Uma trufa, escura e enrugada, com um cheiro forte de terra e de alho. Vale muito: o prefeito paga bem na caixa de remessa."); return; }
+    if (t.rfind("frigideira", 0) == 0 || t.rfind("panela-", 0) == 0 || t.rfind("tigela", 0) == 0) { fala::dizer(maiuscula(nomeCoisa(c, true)) + ". Com comida crua, Espaço de frente para o fogão aceso põe no fogo; com comida pronta, T com a outra mão vazia tira."); return; }
     if (t == "faca-cozinha") { fala::dizer("Faca de cozinha. Queijo numa mão e a faca na outra, T: corta ao meio."); return; }
     if (t == "ovo-frito" || t == "omelete" || t == "meio-queijo") {
         if (fome > 95) { fala::dizer("Você está sem fome."); return; }

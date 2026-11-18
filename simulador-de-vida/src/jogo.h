@@ -292,6 +292,8 @@ private:
     void menuPecuarista();
     void menuObras();
     void construir(const std::string& obra);
+    bool trufeiro(size_t i);
+    bool avisouTrufas = false;
     // maquinas.cpp
     int contarTipo(const std::string& tipo, int carga = -1) const;
     void gastarTipo(const std::string& tipo, int n, int carga = -1, const Coisa& troca = {});
@@ -304,6 +306,9 @@ private:
     bool levarAoFogo(Coisa& c, int f);
     void tirarDoFogo(int f);
     void atualizarFogo(Movel& m, double dt);
+    bool usarForno(Coisa& c, int f);
+    void fornoMaoVazia(int i);
+    void atualizarForno(Movel& m, double dt);
     std::string predioDe(int px, int py) const;
     std::string predioAlvos;  // onde a pessoa estava quando a lista de portas foi feita
     // pulo.cpp

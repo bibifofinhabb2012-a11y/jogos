@@ -15,11 +15,12 @@ static const Curral LEITE = {"vaca-leite", 683, 243, 757, 317, 4};  // dentro da
 static const Curral GALINHEIRO = {"galinha", 621, 341, 633, 349, 20};
 static const Curral CHIQUEIRO = {"porco", 616, 231, 644, 259, 10};     // construído com madeira (Mapa::construir)
 static const Curral COELHEIRA = {"coelho", 641, 341, 655, 351, 12};    // galinheiro de luxo, construído com madeira
+static const Curral LUXO = {"porco-trufa", 646, 231, 671, 249, 6};      // chiqueiro de luxo: os porquinhos dormem aqui
 static const Curral& curralDe(const std::string& t) {
-    return t == "vaca-leite" ? LEITE : t == "galinha" ? GALINHEIRO : t == "porco" ? CHIQUEIRO : t == "coelho" ? COELHEIRA : CORTE;
+    return t == "vaca-leite" ? LEITE : t == "galinha" ? GALINHEIRO : t == "porco" ? CHIQUEIRO : t == "coelho" ? COELHEIRA : t == "porco-trufa" ? LUXO : CORTE;
 }
 bool ehVaca(const std::string& t) { return t == "vaca" || t == "vaca-leite"; }
-bool ehBicho(const std::string& t) { return ehVaca(t) || t == "galinha" || t == "porco" || t == "coelho"; }
+bool ehBicho(const std::string& t) { return ehVaca(t) || t == "galinha" || t == "porco" || t == "coelho" || t == "porco-trufa"; }
 static const int VELHICE = 15;  // dias: galinha velha para de botar e pode ser abatida
 int Jogo::idadeDe(const Movel& m) const { return diaDoJogo() - m.carga; }
 
@@ -53,7 +54,7 @@ std::string Jogo::linhasBichos() const {
     std::ostringstream f;
     f << "bichos\n";  // marca: a lista abaixo substitui as vacas de fábrica
     for (const Movel& m : moveis)
-        if (ehBicho(m.tipo)) f << "bicho " << m.tipo << ' ' << m.x << ' ' << m.y << ' ' << m.ordenha << ' ' << m.carga << '\n';
+        if (ehBicho(m.tipo)) f << "bicho " << m.tipo << ' ' << m.x << ' ' << m.y << ' ' << m.ordenha << ' ' << m.carga << ' ' << m.pronto << '\n';
     return f.str();
 }
 
@@ -65,9 +66,9 @@ void Jogo::lerBicho(const std::string& linha) {
         ocupar();
         return;
     }
-    int bx, by, o = -1, cg = 0; s >> tipo >> bx >> by >> o; s >> cg;
+    int bx, by, o = -1, cg = 0; double pr = 0; s >> tipo >> bx >> by >> o; s >> cg; s >> pr;
     if (!ehBicho(tipo) || !mapa.valido(bx, by) || mapa.em(bx, by).movel >= 0) return;
-    if (poeVaca(tipo, bx, by)) { moveis.back().ordenha = o; moveis.back().carga = cg; }
+    if (poeVaca(tipo, bx, by)) { moveis.back().ordenha = o; moveis.back().carga = cg; moveis.back().pronto = pr; }
 }
 
 void Jogo::nascerBezerro() {
@@ -87,6 +88,7 @@ void Jogo::atualizarVacas(double seg) {
         Movel& v = moveis[i];
         if (!ehBicho(v.tipo)) continue;
         const Curral& c = curralDe(v.tipo);
+        if (v.tipo == "porco-trufa" && trufeiro(i)) continue;
         if (ehVaca(v.tipo)) {
             // de vez em quando, uma bosta no chão do curral (em média uma a cada 40 minutos de verdade por vaca), até 25 no chão
             if (acaso(0, 1) < seg / 2400.0 && std::count_if(chao.begin(), chao.end(), [](const ItemChao& it) { return it.coisa.tipo == "bosta"; }) < 25) {
@@ -111,7 +113,7 @@ void Jogo::atualizarVacas(double seg) {
         bool fugir = v.ciclo < -0.5;  // acabou de dar coice: sai de perto
         v.ciclo -= seg;
         if (v.ciclo > 0) continue;
-        v.ciclo = v.tipo == "galinha" || v.tipo == "coelho" ? acaso(3, 10) : acaso(6, 20);
+        v.ciclo = v.tipo == "galinha" || v.tipo == "coelho" || v.tipo == "porco-trufa" ? acaso(3, 10) : acaso(6, 20);
         // com gente do lado, o bicho fica parado, para dar tempo de pegar a faca, a garrafa ou fazer carinho
         if (!fugir && std::max(std::abs(v.x - x), std::abs(v.y - y)) <= 2) continue;
         if (!fugir && rastreando && rastreado.x == v.x && rastreado.y == v.y) continue;  // o que você está seguindo com O espera
@@ -121,7 +123,12 @@ void Jogo::atualizarVacas(double seg) {
         }
         int d = (int)acaso(0, 7.99);
         int nx = v.x + DX[d], ny = v.y + DY[d];
-        if (nx < c.x0 || nx > c.x1 || ny < c.y0 || ny > c.y1 || !mapa.passa(nx, ny) || (nx == x && ny == y)) continue;
+        bool solto = v.tipo == "porco-trufa" && v.pronto > 0;  // trufeiro de dia: anda pelo pasto e pelo terreiro
+        if (solto) {
+            const Lugar* l = mapa.lugar(nx, ny);
+            if (!mapa.passa(nx, ny) || mapa.dentro(nx, ny) || (nx == x && ny == y) || (l && (l->nome.find("curral") != std::string::npos || l->nome == "roça"))) continue;
+            if (acaso(0, 1) < 0.15) audio::tocar3D("fungar", v.x + 0.5f, v.y + 0.5f, 0.2f, 0.6f, 10, 1.3f);  // fungando atrás de trufa
+        } else if (nx < c.x0 || nx > c.x1 || ny < c.y0 || ny > c.y1 || !mapa.passa(nx, ny) || (nx == x && ny == y)) continue;
         mapa.em(v.x, v.y).movel = -1;
         v.x = nx; v.y = ny;
         mapa.em(nx, ny).movel = (int16_t)i;
@@ -140,6 +147,9 @@ void Jogo::carinhoVaca(int i) {
     }
     if (t == "porco") { audio::tocar3D("porco", moveis[i].x + 0.5f, moveis[i].y + 0.5f, 0.4f, 0.8f, 10);
         fala::dizer("O porco fuça a sua mão, ronca e se encosta na sua perna, pesado e quente de barro."); return; }
+    if (t == "porco-trufa") { audio::tocar3D("porco", moveis[i].x + 0.5f, moveis[i].y + 0.5f, 0.3f, 0.8f, 10, 1.3f);
+        fala::dizer(moveis[i].pronto > 0 ? "O porquinho trufeiro levanta o focinho sujo de terra, funga na sua mão e volta a fuçar: está caçando trufa."
+                                         : "O porquinho trufeiro está no chiqueiro de luxo, cochilando de barriga cheia. De manhã ele sai para caçar trufa."); return; }
     if (t == "coelho") { audio::tocar3D("coelho", moveis[i].x + 0.5f, moveis[i].y + 0.5f, 0.2f, 0.8f, 6);
         fala::dizer("O coelho fica quietinho, de orelha em pé, e você alisa o pelo macio dele. O narizinho não para de mexer."); return; }
     audio::tocar3D("mugido", moveis[i].x + 0.5f, moveis[i].y + 0.5f, 1.2f, 0.8f, 25);
@@ -174,6 +184,7 @@ void Jogo::usarFaca() {
         return;
     }
     if (fr >= 0 && moveis[fr].tipo == "coelho") { fala::dizer("O coelho é de estimação: não se abate."); return; }
+    if (fr >= 0 && moveis[fr].tipo == "porco-trufa") { fala::dizer("Porquinho trufeiro não é para abate: é ele quem acha as trufas."); return; }
     for (size_t k = 0; k < moveis.size(); k++) {
         if (!abativel(moveis[k])) continue;
         int d = std::max(std::abs(moveis[k].x - x), std::abs(moveis[k].y - y));
@@ -289,7 +300,7 @@ void Jogo::receberEntregas() {
     std::vector<std::string> sobra;
     int chegaram = 0;
     for (const std::string& t : entregas) {
-        if ((t == "porco" && !obras.count("chiqueiro")) || (t == "coelho" && !obras.count("coelheira"))) { sobra.push_back(t); continue; }
+        if ((t == "porco" && !obras.count("chiqueiro")) || (t == "coelho" && !obras.count("coelheira")) || (t == "porco-trufa" && !obras.count("chiqueiro-luxo"))) { sobra.push_back(t); continue; }
         if (poeVaca(t)) { moveis.back().carga = diaDoJogo(); moveis.back().ordenha = -1; chegaram++; }
         else sobra.push_back(t);
     }
@@ -299,4 +310,50 @@ void Jogo::receberEntregas() {
         fala::dizer("A caminhonete do pecuarista para na porteira e ele descarrega: " + std::to_string(chegaram) + (chegaram == 1 ? " bicho novo" : " bichos novos") +
                     " no lugar deles. No Ç, em Animais.", false);
     }
+}
+
+// Porquinho trufeiro: de dia (6h às 19h) anda solto pela fazenda fuçando; à noite volta para o chiqueiro de luxo e deixa
+// lá as trufas que achou (uma ou duas por dia, no chão). true: este bicho já foi tratado aqui.
+bool Jogo::trufeiro(size_t i) {
+    Movel& v = moveis[i];
+    int h = hora24();
+    bool dia = h >= 6 && h < 19;
+    if (!obras.count("chiqueiro-luxo")) return false;
+    if (dia && v.pronto <= 0) {  // sai: a porta do chiqueiro de luxo fica do lado leste
+        for (int t = 0; t < 200; t++) {
+            int px = 680 + (int)acaso(-60, 120), py = 240 + (int)acaso(-120, 140);
+            if (!mapa.passa(px, py) || mapa.dentro(px, py) || (px == x && py == y)) continue;
+            const Lugar* l = mapa.lugar(px, py);
+            if (l && l->nome.find("curral") != std::string::npos) continue;
+            mapa.em(v.x, v.y).movel = -1;
+            v.x = px; v.y = py; mapa.em(px, py).movel = (int16_t)i;
+            v.pronto = 1;
+            break;
+        }
+        return true;
+    }
+    if (!dia && v.pronto > 0) {  // volta e deixa as trufas
+        const Curral& c = curralDe("porco-trufa");
+        for (int t = 0; t < 200; t++) {
+            int px = (int)acaso(c.x0, c.x1 + 0.99), py = (int)acaso(c.y0, c.y1 + 0.99);
+            if (!mapa.passa(px, py)) continue;
+            mapa.em(v.x, v.y).movel = -1;
+            v.x = px; v.y = py; mapa.em(px, py).movel = (int16_t)i;
+            break;
+        }
+        v.pronto = 0;
+        if (v.ordenha != diaDoJogo()) {
+            v.ordenha = diaDoJogo();
+            int n = 1 + (acaso(0, 1) < 0.4 ? 1 : 0);
+            for (int k = 0; k < n; k++)
+                for (int t = 0; t < 20; t++) {
+                    int px = (int)acaso(c.x0, c.x1 + 0.99), py = (int)acaso(c.y0, c.y1 + 0.99);
+                    if (mapa.passa(px, py)) { chao.push_back({{"trufa", 0}, px, py}); break; }
+                }
+            if (!dormindo && !avisouTrufas) { avisouTrufas = true; fala::dizer("Anoiteceu: os porquinhos trufeiros voltam para o chiqueiro de luxo e deixam lá as trufas do dia. No Ç, em Itens.", false); }
+        }
+        return true;
+    }
+    if (dia) avisouTrufas = false;
+    return false;
 }

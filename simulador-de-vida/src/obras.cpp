@@ -16,16 +16,18 @@ void Jogo::menuPecuarista() {
             static const char* L[] = {
                 "Bicho bom é bicho bem tratado. Água limpa e comida na hora certa, que o resto vem.",
                 "Galinha nova bota todo dia. Depois de velha, só serve pra panela.",
+                "Porquinho trufeiro é ouro: de dia sai fuçando o pasto, de noite volta pro chiqueiro de luxo com a trufa.",
                 "Porco come de tudo, mas precisa de chiqueiro firme, senão foge pro vizinho.",
                 "Coelho é bicho delicado: galinheiro de luxo, coberto, que ele não aguenta chuva.",
             };
-            fala::dizer(std::string("Seu Juca: ") + L[(int)acaso(0, 3.99)]);
+            fala::dizer(std::string("Seu Juca: ") + L[(int)acaso(0, 4.99)]);
         }, nullptr, nullptr});
         struct B { const char* tipo; const char* nome; int preco; const char* obra; const char* precisa; int maximo; };
         static const B BICHOS[] = {
             {"galinha", "Galinha nova, que bota um ovo por dia", 15, "", "", 20},
             {"porco", "Porco", 60, "chiqueiro", "um chiqueiro: seu Tião ajuda a fazer, com madeira", 10},
             {"coelho", "Coelho", 25, "coelheira", "um galinheiro de luxo: seu Tião ajuda a fazer, com madeira", 12},
+            {"porco-trufa", "Porquinho trufeiro, que caça trufa e não é para abate", 80, "chiqueiro-luxo", "um chiqueiro de luxo: seu Tião ajuda a fazer, com madeira", 6},
         };
         for (const B& b : BICHOS)
             v.push_back({std::string(b.nome) + ": " + std::to_string(b.preco) + " moedas", [this, b]() {
@@ -66,6 +68,7 @@ void Jogo::menuObras() {
         static const O OBRAS[] = {
             {"chiqueiro", "Chiqueiro, para porcos", 20, "a leste da casa, no terreiro, com porteira do lado oeste"},
             {"coelheira", "Galinheiro de luxo, coberto, para coelhos", 15, "do lado leste do galinheiro, com porta para o sul"},
+            {"chiqueiro-luxo", "Chiqueiro de luxo, para os porquinhos trufeiros", 25, "colado no chiqueiro comum, do lado leste, com uma parede dividindo os dois e a porta do lado oposto, a leste"},
         };
         for (const O& o : OBRAS)
             v.push_back({std::string(o.nome) + ": " + std::to_string(o.toras) + " toras" + (obras.count(o.id) ? ". Já está feito" : ""), [this, o]() {

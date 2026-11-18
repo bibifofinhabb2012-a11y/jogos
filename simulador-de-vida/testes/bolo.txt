@@ -1,0 +1,23 @@
+carregar testes/salvos/bolo-1.txt
+esperar 2
+tecla t
+carregar testes/salvos/bolo-2.txt
+esperar 2
+tecla t
+carregar testes/salvos/bolo-3.txt
+esperar 2
+tecla t
+carregar testes/salvos/bolo-4.txt
+esperar 2
+ir 504 312 4
+tecla 2
+esperar 1
+tecla espaco
+tecla 1
+esperar 1
+tecla espaco
+esperar 62
+tecla 2
+esperar 1
+tecla espaco
+tecla t

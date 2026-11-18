@@ -337,7 +337,7 @@ void Jogo::conversarCom(int i) {
                 }
                 fala::dizer(std::string("Seu Tião: ") + LINHAS_TIAO[(int)acaso(0, 3.99)]);
             }, nullptr, nullptr});
-            v.push_back({"Construir com madeira: chiqueiro, galinheiro de luxo", [this]() { menuObras(); }, nullptr, nullptr});
+            v.push_back({"Construir com madeira: chiqueiro, chiqueiro de luxo, galinheiro de luxo", [this]() { menuObras(); }, nullptr, nullptr});
             return v;
         };
     } else {

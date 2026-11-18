@@ -28,5 +28,8 @@ confere galinha.txt "Você segura a galinha velha pelas asas"
 confere remedio.txt "Abaixo de 500: precisa de remédio ou atadura" "mais 250 pontos de saúde"
 confere cozinha.txt "Frigideira com ovo cru" "O ovo fritou" "Você solta o ovo frito" "3 ovos quebrados" "Agora acrescente meio queijo" \
     "Duas metades de queijo" "Omelete pronta para fritar" "A omelete dourou" "Você vira a omelete de queijo no prato"
+confere chiqueiro-luxo.txt "está pronto: chiqueiro de luxo" "Porta do chiqueiro de luxo"
+confere trufas.txt "Porquinho trufeiro, no terreiro da sede" "voltam para o chiqueiro de luxo e deixam lá as trufas"
+confere bolo.txt "Agora o açúcar" "Agora a farinha" "massa de bolo pronta" "Forno aceso, com lenha para uns 3 minutos" "O bolo cresceu e dourou" "corta em 8 fatias"
 echo; [ $falhas -eq 0 ] && echo "Tudo certo." || echo "$falhas falha(s)."
 exit $falhas

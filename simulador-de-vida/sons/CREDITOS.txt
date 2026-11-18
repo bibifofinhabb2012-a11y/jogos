@@ -108,5 +108,7 @@ O ruído branco do sono e os sons de navegação (gota, bip, chegada, menu, tuto
 "Pig_Grunt_07.flac", de wwstudioswastaken. freesound.org/s/620083. CC0.
 "Hammer hitting nail.wav", de LiezelDippenaar. freesound.org/s/707525. CC0.
 "Hand Saw 01", de Jagadamba. freesound.org/s/258055. CC BY 4.0.
+"Fire crackling in wood stove", de MichiJung. freesound.org/s/869081. CC BY 4.0.
+"Pig_Breath_And_Grunt_01.flac", de wwstudioswastaken. freesound.org/s/618486. CC0.
 "sitting down", de soundmast123. freesound.org/s/556591. CC BY 3.0.
 "Metal_Rattling_Small.wav", de GiocoSound. freesound.org/s/421154. CC0.

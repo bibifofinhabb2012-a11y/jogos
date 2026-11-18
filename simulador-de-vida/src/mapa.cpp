@@ -247,12 +247,20 @@ std::vector<std::pair<int, int>> Mapa::passagens() const {
 
 // Obras que a pessoa faz com madeira, no terreiro, a leste da casa (área sem árvore).
 void Mapa::construir(const std::string& obra) {
-    for (const Lugar& l : lugares) if ((obra == "chiqueiro" && l.nome == "chiqueiro") || (obra == "coelheira" && l.nome == "galinheiro de luxo")) return;  // já feito
+    for (const Lugar& l : lugares)
+        if ((obra == "chiqueiro" && l.nome == "chiqueiro") || (obra == "coelheira" && l.nome == "galinheiro de luxo") ||
+            (obra == "chiqueiro-luxo" && l.nome == "chiqueiro de luxo")) return;  // já feito
     if (obra == "chiqueiro") {
         retangulo(615, 230, 645, 260, Chao::Terra);
         contorno(615, 230, 645, 260, Obstaculo::CercaMadeira);
         abrir(615, 245, Obstaculo::Porteira, Chao::Terra, false);
         lugares.insert(lugares.begin(), {"chiqueiro", 616, 231, 644, 259, false});
+    } else if (obra == "chiqueiro-luxo") {
+        // colado no chiqueiro comum, do lado leste: a parede de x 645 divide os dois; a porta fica do lado oposto (leste)
+        retangulo(646, 231, 671, 249, Chao::Madeira);
+        contorno(645, 230, 672, 250, Obstaculo::Parede);
+        abrir(672, 240, Obstaculo::Porta, Chao::Madeira, false);
+        lugares.insert(lugares.begin(), {"chiqueiro de luxo", 646, 231, 671, 249, true});
     } else if (obra == "coelheira") {
         retangulo(640, 340, 656, 352, Chao::Madeira);
         contorno(640, 340, 656, 352, Obstaculo::Parede);

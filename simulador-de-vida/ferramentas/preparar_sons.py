@@ -211,6 +211,8 @@ trecho("sv-porco", 620082, "porco-1"); u(620082)
 trecho("sv-porco", 620083, "porco-2"); u(620083)
 trecho("sv-martelo", 707525, "martelo"); u(707525)
 trecho("sv-serra", 258055, "serra", 0, 4.0); u(258055)
+laco("sv-fogueira", 869081, "fogueira"); u(869081)
+trecho("sv-fungar", 618486, "fungar"); u(618486)
 trecho("sv-sofa", 556591, "sofa", alvo=-20); u(556591)
 
 # sons de navegação, gerados para o jogo: gota suave, bip do rastreio, chegada, menu, tutorial

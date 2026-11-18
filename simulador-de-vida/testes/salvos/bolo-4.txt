@@ -1,0 +1,78 @@
+versao 2
+pos 500 9 0
+corpo 84.9993 84.9987 89.9988 100
+relogio 420.02
+corpo2 0 30.0008 30.0013 89.9995
+historia 0 0
+genero h
+coleta 1320
+movel 0 470 150
+movel 1 462 146
+movel 2 470 146
+movel 3 420 161
+movel 4 430 161
+gas 4 600
+movel 5 440 161
+dentro 5 0 garrafa 4 10
+movel 6 460 305
+movel 7 440 306
+dentro 7 1 camisa 0 1
+dentro 7 1 calca 0 1
+dentro 7 1 chapeu 0 1
+movel 8 520 161
+movel 9 530 161
+movel 10 595 199
+movel 11 412 231
+movel 12 418 231
+movel 13 403 250
+movel 14 370 187
+movel 15 372 200
+movel 16 502 108
+movel 17 505 8
+movel 18 506 97
+bichos
+bicho vaca 735 165 -1
+bicho vaca 740 203 -1
+bicho vaca 711 203 -1
+bicho vaca 751 172 -1
+bicho vaca 740 202 -1
+bicho vaca-leite 739 258 -1
+bicho vaca-leite 726 305 -1
+bicho vaca-leite 723 308 -1
+bicho vaca-leite 692 297 -1
+porta 498 5 1
+porta 499 5 1
+porta 500 5 1
+porta 501 5 1
+porta 502 5 1
+porta 500 109 0
+porta 500 160 1
+porta 506 180 1
+porta 370 190 1
+porta 680 190 0
+porta 494 195 1
+porta 595 197 0
+porta 994 198 0
+porta 994 199 0
+porta 994 200 0
+porta 994 201 0
+porta 994 202 0
+porta 426 241 1
+porta 403 248 0
+porta 506 254 1
+porta 494 269 1
+porta 680 280 0
+porta 500 308 0
+porta 340 330 0
+porta 627 340 0
+item barra 0 100
+item garrafa 4 10
+item antibiotico 0 50
+item atadura 0 10
+item gesso 0 10
+item saco-dormir 0 1
+item carteira 100 1
+item bussola 0 1
+maoD lenha 0
+item picareta 0 1
+maoE tigela-massa 0

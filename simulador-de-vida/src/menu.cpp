@@ -210,7 +210,7 @@ static std::string nomeDoSom(const std::string& n) {
         {"sinos", "sinos"}, {"sofa", "sofá"}, {"tampa", "tampa"}, {"torneira", "torneira"}, {"tosse", "tosse"}, {"tragada", "tragada do cigarro"},
         {"trator", "trator"}, {"moedor", "moedor de café"}, {"expresso", "cafeteira expresso"}, {"vaporizador", "vaporizador de leite"},
         {"moenda", "moenda e moinho"}, {"prensa", "prensa de queijo"},
-        {"galinha", "galinhas"}, {"porco", "porcos"}, {"coelho", "coelhos"}, {"martelo", "martelo"}, {"serra", "serra"}, {"tutorial-ok", "acerto do tutorial"}, {"vento", "vento"}, {"vomito", "vômito"}, {"xixi", "xixi"},
+        {"galinha", "galinhas"}, {"porco", "porcos"}, {"coelho", "coelhos"}, {"martelo", "martelo"}, {"serra", "serra"}, {"fogueira", "fogo do forno a lenha"}, {"fungar", "porquinho trufeiro fungando"}, {"tutorial-ok", "acerto do tutorial"}, {"vento", "vento"}, {"vomito", "vômito"}, {"xixi", "xixi"},
     };
     auto it = N.find(n);
     if (it != N.end()) return it->second;

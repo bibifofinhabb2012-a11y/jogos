@@ -1,0 +1,32 @@
+carregar testes/salvos/com-obras-e-luxo.txt
+esperar 10
+ir 505 97 2
+tecla 2
+tecla 2
+tecla espaco
+tecla enter
+esperar 10
+ir 550 194 0
+tecla espaco
+tecla baixo
+tecla baixo
+tecla baixo
+tecla baixo
+tecla enter
+tecla esc
+tecla esc
+ir 502 31 4
+tecla espaco
+tecla enter
+esperar 10
+tecla q
+esperar 5
+tecla shift ç
+tecla shift ç
+tecla shift ç
+horas 12
+tecla q
+tecla shift ç
+tecla ç
+tecla shift ç
+tecla l

@@ -37,6 +37,8 @@ inline std::string plural(const Coisa& c, int qtd, const std::string& singular) 
     if (t == "omelete") return "omeletes de queijo";
     if (t == "faca-cozinha") return "facas de cozinha";
     if (t == "frigideira") return "frigideiras";
+    if (t == "trufa") return "trufas";
+    if (t == "tigela") return "tigelas";
     if (t == "gesso") return "pacotes de gesso em pó";
     if (t == "camisa") return "camisas";
     if (t == "calca") return "calças";

@@ -38,6 +38,8 @@ static const TipoMovel TIPOS[] = {
     {"galinha", "galinha", true, false, false, false},
     {"porco", "porco", false, false, false, false},
     {"coelho", "coelho", false, false, false, false},
+    {"porco-trufa", "porquinho trufeiro", false, false, false, false},
+    {"forno", "forno a lenha", false, false, false, false},
     {"pecuarista", "seu Juca, o pecuarista", false, false, false, false},
 };
 static const TipoMovel& tipoDe(const std::string& t) {
@@ -72,6 +74,7 @@ void Jogo::criarMoveis() {
     // cozinha: moedor de café, cafeteira expresso e prensa de queijo, na bancada depois da geladeira; paiol: moenda de cana e moinho de trigo
     m("moedor", 450, 161); m("cafeteira", 455, 161); m("prensa", 462, 161);
     m("moenda", 334, 345); m("moinho", 346, 345);
+    m("forno", 504, 311);   // forno a lenha, logo que se sai pela porta dos fundos (500, 308), do lado direito
     ocupar();
     for (int k = 0; k < 5; k++) poeVaca("vaca");  // vacas no fim da lista
     for (int k = 0; k < 4; k++) poeVaca("vaca-leite");
@@ -109,6 +112,7 @@ void Jogo::interagir(int i) {
     if (t == "prefeito") { menuPrefeito(); return; }
     if (ehBicho(t)) { carinhoVaca(i); return; }
     if (t == "pecuarista") { menuPecuarista(); return; }
+    if (t == "forno") { fornoMaoVazia(i); return; }
     if (t == "cafeteira") { menuCafeteira(i); return; }
     if (t == "prensa") { prensaPronta(i); return; }
     if (t == "moedor") { fala::dizer("Moedor de café, de manivela, com funil em cima e gavetinha embaixo. Café torrado na mão, Espaço: mói 3 punhados num pacote de pó."); return; }
@@ -308,6 +312,7 @@ void Jogo::atualizarMoveis(double dt) {
             audio::lacoVolume(m.som, m.ciclo < 40 ? 0.45f : 0.0f);  // 40 segundos ligado, 70 desligado
         }
         if (m.tipo == "fogao") atualizarFogo(m, dt);
+        if (m.tipo == "forno") atualizarForno(m, dt);
         if (m.tipo == "fogao" && m.ligado) {  // a chama gasta o botijão
             m.gas -= dt;
             if (m.gas <= 0) {

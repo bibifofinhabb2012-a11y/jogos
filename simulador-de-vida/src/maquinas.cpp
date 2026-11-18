@@ -41,6 +41,7 @@ bool Jogo::usarMaquina(Coisa& c) {
     if (f < 0) return false;
     Movel& m = moveis[f];
     const std::string& t = c.tipo;
+    if (m.tipo == "forno") return usarForno(c, f);
     if (m.tipo == "fogao" && levarAoFogo(c, f)) return true;
     if (m.tipo == "fogao" && t == "ovo") {
         fala::dizer("Ovo não vai direto no fogo. Frigideira numa mão e ovo na outra, T; depois leve a frigideira ao fogão. Seu Zé vende a frigideira.");
